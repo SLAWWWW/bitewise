@@ -12,6 +12,7 @@ import { SimulateButton, type SimulateResult } from '@/components/dashboard/Simu
 import { DonationFlowPanel } from '@/components/dashboard/DonationFlowPanel';
 import { FleetSummaryPanel } from '@/components/dashboard/FleetSummaryPanel';
 import { StorageSummaryPanel } from '@/components/dashboard/StorageSummaryPanel';
+import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
@@ -222,6 +223,14 @@ export default function OrchestratorPage() {
             </div>
           </GlassCard>
         )}
+      </div>
+
+      {/* Notifications — everything across the network that needs a staff
+          decision right now, gathered from approvals, storage, dispatch, and
+          fleet into one feed, so it's the first thing seen rather than
+          something staff have to go hunting for across five pages. */}
+      <div className="mt-8 mb-4">
+        <NotificationsPanel />
       </div>
 
       {/* Command Center — every donation's real journey (approve → plan →
