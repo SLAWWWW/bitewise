@@ -118,18 +118,24 @@ export default function ItemDetailPage() {
             </GlassCard>
           )}
           {entry.decision_details.food_safety_check && (
-            <FoodSafetyBadge check={entry.decision_details.food_safety_check} />
+            <div id="food-safety-section">
+              <FoodSafetyBadge check={entry.decision_details.food_safety_check} />
+            </div>
           )}
           {entry.decision_details.beneficiary_allocation && (
-            <BeneficiaryAllocationCard allocation={entry.decision_details.beneficiary_allocation} />
+            <div id="beneficiary-section">
+              <BeneficiaryAllocationCard allocation={entry.decision_details.beneficiary_allocation} />
+            </div>
           )}
-          <GlassCard className="p-5">
-            <SupplyChainPlan
-              listingId={entry.id}
-              cachedPlan={entry.decision_details.supply_chain_plan}
-              realStage={entry.stage}
-            />
-          </GlassCard>
+          <div id="plan-section">
+            <GlassCard className="p-5">
+              <SupplyChainPlan
+                listingId={entry.id}
+                cachedPlan={entry.decision_details.supply_chain_plan}
+                realStage={entry.stage}
+              />
+            </GlassCard>
+          </div>
         </div>
       )}
     </AppShell>
