@@ -44,6 +44,13 @@ export interface PlannerInput {
   hoursUntilExpiry: number;
   sameTypeExpiringSoon: number;
   constraints?: PlannerConstraints;
+  /** Set when the demand-quota allocation already routed this donation
+   *  directly to a partner beneficiary at approval time (the primary
+   *  channel — see MatchDecisionDetails.beneficiary_allocation). When set,
+   *  this item never becomes a public listing, so the plan must not
+   *  describe a "public listing" phase or an "if nobody claims it"
+   *  contingency — neither ever happens for it. */
+  directPartnerAllocation?: { beneficiaryName: string; beneficiaryType: string } | null;
 }
 
 /**
@@ -190,81 +197,126 @@ export function buildDeterministicPlan(input: PlannerInput): SupplyChainPlan {
   const needsCold = input.storageType === 'cold' || input.storageType === 'frozen';
   const isCooked = input.foodType === 'cooked';
 
-  // Prefer a partner that can actually handle this item, nearest first.
+  // Prefer a partner that can actually handle this item, nearest first. If
+  // demand-quota allocation already committed this donation to a specific
+  // partner, use that one (falling back to the nearest-capable match only if
+  // it isn't in this area's shortlist, which shouldn't happen in practice).
   const partner =
+    (input.directPartnerAllocation &&
+      partners.find((p) => p.name === input.directPartnerAllocation!.beneficiaryName)) ??
     partners.find((p) => (needsCold ? p.accepts.needs_cold_chain : true) && (isCooked ? p.accepts.cooked : true)) ??
     partners[0];
 
   const travelMinutes = Math.max(10, Math.round(input.distanceKm * 3));
-  const listingHours = Math.max(0, input.hoursUntilExpiry - ESCALATION_THRESHOLD_HOURS);
 
-  const stages: SupplyChainStage[] = [
-    {
-      kind: 'pickup',
-      title: 'Collect from donor',
-      location: input.donorAddress ? `${input.donorName} · ${input.donorAddress}` : input.donorName,
-      detail: `Driver collects ${input.quantityKg}kg of ${input.itemName} from ${input.donorName} in ${input.donorArea}.`,
-      timing: 'On approval',
-    },
-    {
-      kind: 'transport',
-      title: `${input.distanceKm.toFixed(1)}km transfer`,
-      location: `${input.donorArea} → ${input.branchName.replace('Willing Hearts — ', '')}`,
-      detail: `Direct transfer to the branch the coordinator selected — roughly ${travelMinutes} minutes of road time.`,
-      timing: `~${travelMinutes} min`,
-      risk_note: isCooked ? 'Cooked food must not sit at ambient temperature for more than 2 hours in transit.' : undefined,
-    },
-    {
-      kind: 'storage',
-      title: needsCold ? 'Cold storage intake' : 'Ambient shelf intake',
-      location: input.branchName,
-      detail: needsCold
+  const storageStage: SupplyChainStage = {
+    kind: 'storage',
+    title: needsCold ? 'Cold storage intake' : 'Ambient shelf intake',
+    location: input.branchName,
+    detail: input.directPartnerAllocation
+      ? `Held briefly ${needsCold ? 'in the branch chiller' : 'in ambient storage'} pending the scheduled delivery run — never enters public inventory.`
+      : needsCold
         ? `Goes straight into the ${input.branchHasColdStorage ? 'branch chiller' : 'nearest available chiller'} and is logged as in-stock inventory.`
         : 'Shelved in ambient storage and logged as in-stock inventory.',
-      timing: 'On arrival',
-      risk_note:
-        needsCold && !input.branchHasColdStorage
-          ? 'This branch has no cold storage on record — verify chiller capacity before dispatch.'
-          : undefined,
-    },
-    {
-      kind: 'listing',
-      title: 'Public listing opens',
-      location: 'Bitewise public app',
-      detail: `Published for anonymous claiming for about ${listingHours.toFixed(1)}h, until ${ESCALATION_THRESHOLD_HOURS}h before spoilage.`,
-      timing: `${listingHours.toFixed(1)}h window`,
-      risk_note:
-        input.sameTypeExpiringSoon > 0
-          ? `${input.sameTypeExpiringSoon} other ${input.foodType} item(s) at this branch also expire within 24h — they compete for the same claimants.`
-          : undefined,
-    },
-    {
-      kind: 'contingency',
-      title: 'Escalation trigger',
-      location: 'Automatic',
-      detail: `If unclaimed with ${ESCALATION_THRESHOLD_HOURS}h left, the item stops waiting on public claims and is flagged for direct delivery.`,
-      timing: `T-${ESCALATION_THRESHOLD_HOURS}h`,
-    },
-    {
-      kind: 'delivery',
-      title: partner.name,
-      location: `${partner.minutes_from_branch} min from ${input.branchName.replace('Willing Hearts — ', '')}`,
-      detail: `${partner.note} Serves roughly ${partner.serves} people per drop.`,
-      timing: `~${partner.minutes_from_branch} min leg`,
-    },
-  ];
+    timing: 'On arrival',
+    risk_note:
+      needsCold && !input.branchHasColdStorage
+        ? 'This branch has no cold storage on record — verify chiller capacity before dispatch.'
+        : undefined,
+  };
+
+  const stages: SupplyChainStage[] = input.directPartnerAllocation
+    ? [
+        {
+          kind: 'pickup',
+          title: 'Collect from donor',
+          location: input.donorAddress ? `${input.donorName} · ${input.donorAddress}` : input.donorName,
+          detail: `Driver collects ${input.quantityKg}kg of ${input.itemName} from ${input.donorName} in ${input.donorArea}.`,
+          timing: 'On approval',
+        },
+        {
+          kind: 'transport',
+          title: `${input.distanceKm.toFixed(1)}km transfer`,
+          location: `${input.donorArea} → ${input.branchName.replace('Willing Hearts — ', '')}`,
+          detail: `Direct transfer to the branch the coordinator selected — roughly ${travelMinutes} minutes of road time.`,
+          timing: `~${travelMinutes} min`,
+          risk_note: isCooked ? 'Cooked food must not sit at ambient temperature for more than 2 hours in transit.' : undefined,
+        },
+        storageStage,
+        {
+          kind: 'delivery',
+          title: partner.name,
+          location: `${partner.minutes_from_branch} min from ${input.branchName.replace('Willing Hearts — ', '')}`,
+          detail: `${partner.note} Serves roughly ${partner.serves} people per drop. Already committed via demand-quota allocation at approval — this item was never listed publicly.`,
+          timing: `~${partner.minutes_from_branch} min leg`,
+        },
+      ]
+    : [
+        {
+          kind: 'pickup',
+          title: 'Collect from donor',
+          location: input.donorAddress ? `${input.donorName} · ${input.donorAddress}` : input.donorName,
+          detail: `Driver collects ${input.quantityKg}kg of ${input.itemName} from ${input.donorName} in ${input.donorArea}.`,
+          timing: 'On approval',
+        },
+        {
+          kind: 'transport',
+          title: `${input.distanceKm.toFixed(1)}km transfer`,
+          location: `${input.donorArea} → ${input.branchName.replace('Willing Hearts — ', '')}`,
+          detail: `Direct transfer to the branch the coordinator selected — roughly ${travelMinutes} minutes of road time.`,
+          timing: `~${travelMinutes} min`,
+          risk_note: isCooked ? 'Cooked food must not sit at ambient temperature for more than 2 hours in transit.' : undefined,
+        },
+        storageStage,
+        {
+          kind: 'listing',
+          title: 'Public listing opens',
+          location: 'Bitewise public app',
+          detail: `Published for anonymous claiming for about ${Math.max(0, input.hoursUntilExpiry - ESCALATION_THRESHOLD_HOURS).toFixed(1)}h, until ${ESCALATION_THRESHOLD_HOURS}h before spoilage.`,
+          timing: `${Math.max(0, input.hoursUntilExpiry - ESCALATION_THRESHOLD_HOURS).toFixed(1)}h window`,
+          risk_note:
+            input.sameTypeExpiringSoon > 0
+              ? `${input.sameTypeExpiringSoon} other ${input.foodType} item(s) at this branch also expire within 24h — they compete for the same claimants.`
+              : undefined,
+        },
+        {
+          kind: 'contingency',
+          title: 'Escalation trigger',
+          location: 'Automatic',
+          detail: `If unclaimed with ${ESCALATION_THRESHOLD_HOURS}h left, the item stops waiting on public claims and is flagged for direct delivery.`,
+          timing: `T-${ESCALATION_THRESHOLD_HOURS}h`,
+        },
+        {
+          kind: 'delivery',
+          title: partner.name,
+          location: `${partner.minutes_from_branch} min from ${input.branchName.replace('Willing Hearts — ', '')}`,
+          detail: `${partner.note} Serves roughly ${partner.serves} people per drop.`,
+          timing: `~${partner.minutes_from_branch} min leg`,
+        },
+      ];
 
   return {
-    headline: `${input.quantityKg}kg ${input.itemName} → ${input.branchName.replace('Willing Hearts — ', '')} → public listing → ${partner.name} if unclaimed`,
+    headline: input.directPartnerAllocation
+      ? `${input.quantityKg}kg ${input.itemName} → ${input.branchName.replace('Willing Hearts — ', '')} → direct delivery to ${partner.name} (matched to unmet quota at approval — never publicly listed)`
+      : `${input.quantityKg}kg ${input.itemName} → ${input.branchName.replace('Willing Hearts — ', '')} → public listing → ${partner.name} if unclaimed`,
     stages,
-    contingency: {
-      trigger: `Unclaimed with ${ESCALATION_THRESHOLD_HOURS}h of shelf life remaining`,
-      beneficiary_name: partner.name,
-      beneficiary_type: partner.type.replace(/_/g, ' '),
-      minutes_from_branch: partner.minutes_from_branch,
-      serves: partner.serves,
-      rationale: `Nearest partner able to take this item (${needsCold ? 'cold chain required' : 'ambient safe'}${isCooked ? ', cooked' : ''}).`,
-    },
+    contingency: input.directPartnerAllocation
+      ? {
+          trigger: `The scheduled delivery run to ${partner.name} is disrupted (vehicle unavailable, site closed)`,
+          beneficiary_name: partner.name,
+          beneficiary_type: partner.type.replace(/_/g, ' '),
+          minutes_from_branch: partner.minutes_from_branch,
+          serves: partner.serves,
+          rationale: `This item is already committed to ${partner.name} via demand-quota allocation, not a public listing — if the run itself fails, the branch reschedules delivery to the same partner rather than releasing it publicly.`,
+        }
+      : {
+          trigger: `Unclaimed with ${ESCALATION_THRESHOLD_HOURS}h of shelf life remaining`,
+          beneficiary_name: partner.name,
+          beneficiary_type: partner.type.replace(/_/g, ' '),
+          minutes_from_branch: partner.minutes_from_branch,
+          serves: partner.serves,
+          rationale: `Nearest partner able to take this item (${needsCold ? 'cold chain required' : 'ambient safe'}${isCooked ? ', cooked' : ''}).`,
+        },
     total_window_hours: Number(input.hoursUntilExpiry.toFixed(1)),
     generated_by_ai: false,
     generated_at: new Date().toISOString(),
@@ -314,16 +366,25 @@ DESTINATION (already decided by the Network Coordinator Agent)
 FOOD SAFETY REFERENCE FOR ${input.foodType.toUpperCase()}
 ${guideline}
 
-OPERATING RULE
-Inventory that is still unclaimed when it reaches ${ESCALATION_THRESHOLD_HOURS} hours from spoiling is automatically pulled from public listing and routed directly to a partner beneficiary.
+${
+  input.directPartnerAllocation
+    ? `ROUTING OUTCOME (already decided at approval time — not a hypothetical)
+This donation was matched directly to ${input.directPartnerAllocation.beneficiaryName} (${input.directPartnerAllocation.beneficiaryType}) via demand-quota allocation — that partner had unmet daily need nearby, and this was the primary channel, not a fallback. This item will NEVER be publicly listed. Do not include a "listing" stage, and do not describe an "if nobody claims it" scenario anywhere — neither ever happens for this item.`
+    : `OPERATING RULE
+Inventory that is still unclaimed when it reaches ${ESCALATION_THRESHOLD_HOURS} hours from spoiling is automatically pulled from public listing and routed directly to a partner beneficiary.`
+}
 
 LIVE CONSTRAINTS
 You have two tools — check_fleet_availability and check_storage_capacity. Call both before writing the plan: a collection time that assumes a vehicle is waiting, or a storage stage that assumes the rack has room, is worthless if neither is true. If a vehicle has to be borrowed from another branch, build the repositioning time into your first stage. If the destination zone is nearly full or unsupported, say so in that stage's risk note.
 
-PARTNER BENEFICIARIES NEAR THIS BRANCH (you must choose exactly one of these, by exact name)
+PARTNER BENEFICIARIES NEAR THIS BRANCH${input.directPartnerAllocation ? '' : ' (you must choose exactly one of these, by exact name)'}
 ${partners.map(describeBeneficiary).join('\n')}
 
-Produce a stage-by-stage plan from pickup through to the food being eaten. Use these stage kinds in order: pickup, transport, storage, listing, contingency, delivery. Ground every timing in the ${input.hoursUntilExpiry.toFixed(1)}-hour spoilage window and the ${ESCALATION_THRESHOLD_HOURS}-hour escalation rule. Choose the contingency beneficiary that can actually handle this specific item, and say why in one sentence. Keep every field to one or two sentences.
+${
+  input.directPartnerAllocation
+    ? `Produce a stage-by-stage plan from pickup through to delivery. Use exactly these stage kinds, in order: pickup, transport, storage, delivery — no listing stage, no contingency stage, since this item is already committed to a partner and never publicly listed. Ground every timing in the ${input.hoursUntilExpiry.toFixed(1)}-hour spoilage window. For the required contingency object (a separate field, not a stage), the beneficiary must be ${input.directPartnerAllocation.beneficiaryName} again — describe what happens if this specific delivery run is disrupted (vehicle unavailable, site closed), not an alternate claimant, since there is no public claiming for this item. Keep every field to one or two sentences.`
+    : `Produce a stage-by-stage plan from pickup through to the food being eaten. Use these stage kinds in order: pickup, transport, storage, listing, contingency, delivery. Ground every timing in the ${input.hoursUntilExpiry.toFixed(1)}-hour spoilage window and the ${ESCALATION_THRESHOLD_HOURS}-hour escalation rule. Choose the contingency beneficiary that can actually handle this specific item, and say why in one sentence. Keep every field to one or two sentences.`
+}
 
 IMPORTANT — risk_note: leave risk_note empty on most stages. Only set it where there is a genuine operational hazard a staff member must act on, such as a cold-chain item sent to a branch with no cold storage, a transit time that threatens the safe ambient window for cooked food, or competition from other near-expiry stock of the same type. Do not use risk_note to restate the plan, to note that something is fine, or to repeat a timing — a note on every stage makes real warnings invisible. Most plans should have at most one or two.`;
 

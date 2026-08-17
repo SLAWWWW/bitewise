@@ -171,6 +171,16 @@ export async function GET(request: Request) {
           hoursUntilExpiry,
           sameTypeExpiringSoon,
           constraints,
+          // Already decided at approval time (see approve/route.ts) — the
+          // planner must not describe a public-listing phase or an
+          // "if nobody claims it" contingency for an item that was routed
+          // straight to a partner via demand-quota allocation.
+          directPartnerAllocation: details.beneficiary_allocation
+            ? {
+                beneficiaryName: details.beneficiary_allocation.beneficiary_name,
+                beneficiaryType: details.beneficiary_allocation.beneficiary_type,
+              }
+            : null,
         };
 
         send('step', { id: 'plan', label: 'Planning the route', status: 'running' });
