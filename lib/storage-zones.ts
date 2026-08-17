@@ -100,6 +100,12 @@ export function rackState(usedKg: number, capacityKg: number): RackState {
   return 'space';
 }
 
+/** Shared across every place an urgency badge renders (storage, dispatch,
+ *  the public food-card list) so the cutoffs are documented once, not
+ *  guessed at from a colored badge with no explanation. */
+export const URGENCY_TOOLTIP =
+  'Critical: under 6h left · Urgent: under 24h · Monitor: under 72h · Stable: 72h or more.';
+
 /** Human shelf-life, chosen so the unit matches the magnitude — hours for
  *  today's problems, weeks for things nobody needs to think about yet. */
 export function describeShelfLife(expiryAt: string, now = Date.now()): {

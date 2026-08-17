@@ -17,6 +17,7 @@ import {
   Hourglass,
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
 import type { PublicFoodItem } from '@/lib/types';
 
 /** Ticks every second once a deadline is set; null before the client has a
@@ -175,7 +176,7 @@ export function FoodCard({
             </span>
           )}
           {!pickedUp && (
-            <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum`}>
+            <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum`} title={URGENCY_TOOLTIP}>
               <Clock3 size={9} />
               {item.shelf_life_label}
             </span>

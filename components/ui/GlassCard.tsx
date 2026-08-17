@@ -18,6 +18,7 @@ export function GlassCard({
   tabIndex,
   'aria-label': ariaLabel,
   onKeyDown,
+  title,
 }: {
   children: ReactNode;
   className?: string;
@@ -29,6 +30,7 @@ export function GlassCard({
   tabIndex?: number;
   'aria-label'?: string;
   onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
+  title?: string;
 }) {
   const base =
     variant === 'primary'
@@ -46,6 +48,7 @@ export function GlassCard({
       tabIndex={tabIndex}
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
+      title={title}
     >
       {children}
     </div>

@@ -64,7 +64,10 @@ export function DonorCard({ donor, onClick }: { donor: Donor; onClick?: () => vo
         >
           <Icon size={17} color={accent} strokeWidth={1.9} />
         </div>
-        <Badge variant={reliabilityVariant(donor.reliability_score)}>
+        <Badge
+          variant={reliabilityVariant(donor.reliability_score)}
+          title="Set when the donor registers, not yet computed from delivery history (on-time drop-offs, no-shows) — a starting estimate, not a live behavioral score."
+        >
           {(donor.reliability_score * 100).toFixed(0)}% reliable
         </Badge>
       </div>

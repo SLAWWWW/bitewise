@@ -100,9 +100,15 @@ export function BeneficiaryAllocationCard({ allocation }: { allocation: Benefici
       </div>
       <span className="text-caption" style={{ fontSize: 11 }}>
         Demand-quota allocation — this partner had <span className="tnum">{quotaPct}%</span> of today&apos;s{' '}
-        <span className="tnum">{allocation.daily_quota_kg}kg</span> quota filled before this donation
-        (need score <span className="tnum">{allocation.need_score.toFixed(2)}</span>, proximity score{' '}
-        <span className="tnum">{allocation.proximity_score.toFixed(2)}</span>).
+        <span className="tnum">{allocation.daily_quota_kg}kg</span> quota filled before this donation{' '}
+        <span
+          title="Need score = 1 − (kg already fulfilled ÷ daily quota), so lower means less need. Proximity score = 1 ÷ (1 + minutes from branch ÷ 10), so it decays with drive time — neither is a percentage."
+          style={{ textDecoration: 'underline dotted', cursor: 'help' }}
+        >
+          (need score <span className="tnum">{allocation.need_score.toFixed(2)}</span>, proximity score{' '}
+          <span className="tnum">{allocation.proximity_score.toFixed(2)}</span>)
+        </span>
+        .
       </span>
     </GlassCard>
   );

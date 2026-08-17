@@ -63,6 +63,7 @@ export function BeneficiaryQuotaBar({
             color: underserved ? 'var(--critical)' : partial ? 'var(--warning)' : 'var(--success)',
             letterSpacing: '-0.01em',
           }}
+          title="Kg already allocated to this partner today, ÷ their registered daily quota — 100% means fully served, the opposite of NgoSaturationBar's meaning above, where full is the branch running out of room."
         >
           {fulfilledKg.toLocaleString('en-SG')} / {quotaKg.toLocaleString('en-SG')} kg{' '}
           <span style={{ opacity: 0.55, fontWeight: 400 }}>({Math.round(pct)}%)</span>

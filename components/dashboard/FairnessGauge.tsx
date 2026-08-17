@@ -11,14 +11,24 @@ function gaugeTextColor(index: number): string {
   return 'var(--critical)';
 }
 
+const FORMULA_TOOLTIP =
+  "Jain's Fairness Index: (Σ ratio)² ÷ (n × Σ ratio²), where ratio = each branch's current load ÷ its capacity. " +
+  '1.0 = every branch is equally full relative to its own size; it falls toward 1/n as load concentrates in one branch. ' +
+  "With zero load everywhere (no donations yet), every ratio is 0 and the formula is undefined (0÷0) — this shows 100% by " +
+  "convention in that case (no imbalance exists yet), not because the network is actively balanced.";
+
 export function FairnessGauge({
   jainIndex,
   branchCount,
   unitLabel = 'branches',
+  totalLoadKg,
 }: {
   jainIndex: number;
   branchCount: number;
   unitLabel?: string;
+  /** When 0 (or omitted), the gauge shows the zero-donations caveat instead
+   *  of implying an actively balanced network. */
+  totalLoadKg?: number;
 }) {
   const size = 148;
   const stroke = 9;
@@ -28,16 +38,17 @@ export function FairnessGauge({
   const offset = circumference * (1 - clamped);
   const color = gaugeColor(clamped);
   const textColor = gaugeTextColor(clamped);
+  const noDataYet = (totalLoadKg ?? 1) === 0;
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4" title={FORMULA_TOOLTIP}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
           role="img"
-          aria-label={`Jain's Fairness Index: ${(clamped * 100).toFixed(0)}% across ${branchCount} ${unitLabel}`}
+          aria-label={`Jain's Fairness Index: ${(clamped * 100).toFixed(0)}% across ${branchCount} ${unitLabel}${noDataYet ? ' — shown by convention, no donations yet' : ''}`}
         >
           <defs>
             {/* Accent arc gradient — only used when index ≥ 0.8 */}
@@ -85,11 +96,17 @@ export function FairnessGauge({
         </div>
       </div>
 
-      <p className="text-caption" style={{ textAlign: 'center', lineHeight: 1.5 }}>
-        Jain&apos;s Index across{' '}
-        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{branchCount}</span>{' '}
-        {unitLabel}
-      </p>
+      {noDataYet ? (
+        <p className="text-caption" style={{ textAlign: 'center', lineHeight: 1.5, color: 'var(--text-tertiary)' }}>
+          No donations yet — shown as 100% by convention, not an active measurement
+        </p>
+      ) : (
+        <p className="text-caption" style={{ textAlign: 'center', lineHeight: 1.5 }}>
+          Jain&apos;s Index across{' '}
+          <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{branchCount}</span>{' '}
+          {unitLabel}
+        </p>
+      )}
     </div>
   );
 }

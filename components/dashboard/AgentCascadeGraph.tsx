@@ -32,6 +32,9 @@ interface CascadeNodeData extends Record<string, unknown> {
   eyebrow: string;
   title: string;
   meta?: string;
+  /** Explains meta's formula/units on hover — meta is often a raw score or
+   *  bucketed value (e.g. "score 0.31", "72/100") that isn't self-evident. */
+  metaTooltip?: string;
   toolCalls?: number;
   variant: NodeVariant;
   /** Full text shown only in the click-to-expand detail panel, never truncated. */
@@ -86,7 +89,11 @@ function CascadeNode({ data, selected }: NodeProps) {
       {(d.meta || !!d.toolCalls) && (
         <div className="flex items-center justify-between" style={{ marginTop: 6 }}>
           {d.meta && (
-            <span className="tnum" style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--text-tertiary)' }}>
+            <span
+              className="tnum"
+              style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--text-tertiary)', cursor: d.metaTooltip ? 'help' : undefined }}
+              title={d.metaTooltip}
+            >
               {d.meta}
             </span>
           )}
@@ -314,6 +321,9 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
       eyebrow: 'Food-Safety Agent',
       title: fsc ? fsc.category_label : 'Safety check',
       meta: fsc ? `${fsc.verdict.toUpperCase()} · ${fsc.score}/100` : undefined,
+      metaTooltip: fsc
+        ? 'Not a precise measurement — a fixed band per verdict (good≈90, warning≈55, bad≈15) the AI can nudge within, never below the deterministic floor.'
+        : undefined,
       detail: fsc?.reasoning ?? 'This donation predates the automated safety-check feature.',
       sectionId: fsc ? 'food-safety-section' : undefined,
       sectionLabel: 'View full safety check',
@@ -343,6 +353,8 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
         eyebrow: isChosen ? 'Chosen' : 'Considered',
         title: c.branch_name.replace('Willing Hearts — ', ''),
         meta: `score ${c.total_score.toFixed(2)}`,
+        metaTooltip:
+          'A weighted composite (proximity×0.3 + fairness×0.5 + stock-safety×0.2), not a percentage — realistic winning scores land between 0.2 and 0.5.',
         toolCalls: c.tool_calls?.length,
         detail: c.rationale ?? `Proximity ${c.proximity_score.toFixed(2)} · fairness ${c.fairness_score.toFixed(2)} · spoilage risk ${c.spoilage_risk_score.toFixed(2)}.`,
         variant: isChosen ? 'chosen' : 'considered',
@@ -404,6 +416,9 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
       eyebrow: 'Demand-Quota Allocation',
       title: alloc ? `Routed to ${alloc.beneficiary_name}` : 'Public listing',
       meta: alloc ? `need ${alloc.need_score.toFixed(2)} · prox ${alloc.proximity_score.toFixed(2)}` : undefined,
+      metaTooltip: alloc
+        ? 'Need = 1 − (kg already fulfilled ÷ daily quota), so lower means less need. Proximity = 1 ÷ (1 + minutes from branch ÷ 10), decaying with drive time. Neither is a percentage.'
+        : undefined,
       detail: alloc
         ? `${alloc.fulfilled_before_kg}/${alloc.daily_quota_kg}kg of this partner's daily quota was already fulfilled before this donation.`
         : 'No partner beneficiary had unmet quota nearby, so this fell through to the public claim list.',

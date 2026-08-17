@@ -166,10 +166,37 @@ export default function RecipientImpactPage() {
       {profile && (
         <>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <StatCard label="Food Rescued" value={profile.total_kg_claimed} suffix="kg" icon={Recycle} accent="var(--success)" />
-            <StatCard label="Meals Equivalent" value={profile.meals_equivalent} icon={Utensils} accent="var(--accent)" />
-            <StatCard label="CO₂ Avoided" value={profile.co2_avoided_kg} suffix="kg" icon={Cloud} accent="var(--info)" />
-            <StatCard label="Sustainability Score" value={profile.sustainability_score} suffix="/ 100" icon={Award} accent="var(--warning)" />
+            <StatCard
+              label="Food Rescued"
+              value={profile.total_kg_claimed}
+              suffix="kg"
+              icon={Recycle}
+              accent="var(--success)"
+              tooltip="A running total, updated each time staff confirm you've collected an item — it persists even after that item's own record is later cleared out."
+            />
+            <StatCard
+              label="Meals Equivalent"
+              value={profile.meals_equivalent}
+              icon={Utensils}
+              accent="var(--accent)"
+              tooltip="Estimated as 2 meals per kg of food you've rescued — a standard charity-sector conversion, not a literal meal count."
+            />
+            <StatCard
+              label="CO₂ Avoided"
+              value={profile.co2_avoided_kg}
+              suffix="kg"
+              icon={Cloud}
+              accent="var(--info)"
+              tooltip="Estimated as 2.5kg of CO₂-equivalent avoided per kg of food rescued from landfill — a standard sector conversion factor, not a direct emissions measurement."
+            />
+            <StatCard
+              label="Sustainability Score"
+              value={profile.sustainability_score}
+              suffix="/ 100"
+              icon={Award}
+              accent="var(--warning)"
+              tooltip="1.5 points per kg of food you've rescued, capped at 100 — a simple engagement measure, not a scientific sustainability metric."
+            />
           </div>
           <p className="text-caption" style={{ color: 'var(--text-tertiary)', marginBottom: 28 }}>
             Sustainability score: 1.5 points per kg of food you&apos;ve rescued from going to waste, capped at 100. You&apos;ve

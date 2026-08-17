@@ -12,6 +12,12 @@ import type { CandidateScore, ExcludedBranchInfo, ToolCallTrace } from '@/lib/ty
 const STOCK_SAFETY_TOOLTIP =
   'Higher is safer. Measures whether this branch already has other stock of the same food type about to expire — 100% means none does.';
 
+const PROXIMITY_TOOLTIP =
+  'Formula: 1 ÷ (1 + distance_km × 10) — decays sharply with distance, so even a few km away scores low. 100% only at essentially zero distance.';
+
+const FAIRNESS_TOOLTIP =
+  "This branch's free capacity relative to its own size: 1 − (current load ÷ capacity). 100% means completely empty; 0% means already full.";
+
 // The three cells to its left are each individually a genuine 0-100% — this
 // is a weighted SUM of them (proximity×0.3 + fairness×0.5 + stock safety×0.2),
 // so it doesn't share their scale. Shown as a decimal instead of a percentage
@@ -146,8 +152,12 @@ export function CandidateBreakdown({
 
         <div className="candidate-head text-overline" style={{ fontSize: 10 }}>
           <span>Branch</span>
-          <span>Proximity</span>
-          <span>Fairness need</span>
+          <span title={PROXIMITY_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
+            Proximity
+          </span>
+          <span title={FAIRNESS_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
+            Fairness need
+          </span>
           <span title={STOCK_SAFETY_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
             Stock safety
           </span>
@@ -182,8 +192,8 @@ export function CandidateBreakdown({
                     </span>
                   )}
                 </div>
-                <ScoreCell label="Proximity" value={c.proximity_score} distanceKm={c.distance_km} />
-                <ScoreCell label="Fairness need" value={c.fairness_score} />
+                <ScoreCell label="Proximity" value={c.proximity_score} distanceKm={c.distance_km} title={PROXIMITY_TOOLTIP} />
+                <ScoreCell label="Fairness need" value={c.fairness_score} title={FAIRNESS_TOOLTIP} />
                 <ScoreCell label="Stock safety" value={c.spoilage_risk_score} title={STOCK_SAFETY_TOOLTIP} />
                 <div className="flex flex-col gap-1" title={TOTAL_SCORE_TOOLTIP}>
                   <span className="text-overline candidate-metric-label" style={{ fontSize: 10 }}>

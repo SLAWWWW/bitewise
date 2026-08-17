@@ -25,7 +25,11 @@ export function FoodSafetyBadge({ check }: { check: FoodSafetyCheckResult }) {
         <span className="text-overline" style={{ color: meta.color }}>
           {meta.label}
         </span>
-        <span className="badge badge-neutral tnum" style={{ fontSize: 10 }}>
+        <span
+          className="badge badge-neutral tnum"
+          style={{ fontSize: 10 }}
+          title="Not a precise measurement — a fixed band per verdict (good≈90, warning≈55, bad≈15) that the AI can nudge within that band, never below the deterministic floor for this category and storage type."
+        >
           {check.score}/100
         </span>
         {check.used_ai && (

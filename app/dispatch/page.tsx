@@ -19,6 +19,7 @@ import { SkeletonList, EmptyState } from '@/components/ui/Skeleton';
 import { FairnessGauge } from '@/components/dashboard/FairnessGauge';
 import { BeneficiaryQuotaBar } from '@/components/dashboard/BeneficiaryQuotaBar';
 import { fetchJson } from '@/lib/utils/fetch-json';
+import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
 import type { BeneficiaryResponse, DispatchResponse, DispatchRun } from '@/lib/types';
 
 const URGENCY_BADGE: Record<string, string> = {
@@ -218,7 +219,9 @@ function RunCard({ run }: { run: DispatchRun }) {
                   No suitable partner
                 </span>
               )}
-              <span className={`badge ${URGENCY_BADGE[a.urgency]} tnum`}>{a.shelf_life_label}</span>
+              <span className={`badge ${URGENCY_BADGE[a.urgency]} tnum`} title={URGENCY_TOOLTIP}>
+                {a.shelf_life_label}
+              </span>
             </div>
           </div>
         ))}
@@ -325,6 +328,7 @@ function BeneficiaryNetworkSection({ data }: { data: BeneficiaryResponse }) {
             jainIndex={data.fairness_index}
             branchCount={data.beneficiaries.length}
             unitLabel="partners"
+            totalLoadKg={data.beneficiaries.reduce((s, b) => s + b.fulfilled_today_kg, 0)}
           />
         </div>
       </div>

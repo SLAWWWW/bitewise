@@ -9,6 +9,7 @@ export function StatCard({
   accent = 'var(--accent)',
   delta,
   deltaLabel,
+  tooltip,
 }: {
   label: string;
   value: string | number;
@@ -18,12 +19,15 @@ export function StatCard({
   /** Optional change indicator, e.g. "+12%" */
   delta?: string;
   deltaLabel?: string;
+  /** Explains how a derived number is computed — omit for plain facts (e.g. a raw count). */
+  tooltip?: string;
 }) {
   return (
     <GlassCard
       className="flex flex-col justify-between"
       style={{ padding: '22px 24px', minHeight: 120, minWidth: 0 }}
       hover
+      title={tooltip}
     >
       {/* Top row: label + icon — editorial left-align */}
       <div className="flex items-start justify-between gap-3">

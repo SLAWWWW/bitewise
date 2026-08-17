@@ -6,6 +6,7 @@ import { Warehouse, ArrowRight, AlertTriangle, Globe, Lock, HeartHandshake } fro
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { fetchJson } from '@/lib/utils/fetch-json';
+import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
 import type { StorageResponse, StorageItemView } from '@/lib/types';
 
 const URGENCY_BADGE: Record<string, string> = {
@@ -128,7 +129,10 @@ export function StorageSummaryPanel() {
                         </span>
                       </div>
                     </div>
-                    <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum flex-shrink-0`}>
+                    <span
+                      className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum flex-shrink-0`}
+                      title={URGENCY_TOOLTIP}
+                    >
                       {item.shelf_life_label}
                     </span>
                   </GlassCard>

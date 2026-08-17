@@ -133,6 +133,7 @@ export default function OrchestratorPage() {
           value={fairness?.meals_equivalent ?? 0}
           icon={Utensils}
           accent="var(--accent)"
+          tooltip="Estimated as 2 meals per kg of food rescued — a standard charity-sector conversion, not a count of meals actually served."
         />
         <StatCard
           label="CO₂ Avoided"
@@ -140,6 +141,7 @@ export default function OrchestratorPage() {
           suffix="kg"
           icon={Leaf}
           accent="var(--info)"
+          tooltip="Estimated as 2.5kg of CO₂-equivalent avoided per kg of food rescued from landfill — a standard sector conversion factor, not a direct emissions measurement."
         />
         <StatCard
           label="Active Deliveries"
@@ -157,7 +159,11 @@ export default function OrchestratorPage() {
 
         <div className="flex flex-col gap-4">
           <GlassCard className="flex flex-col items-center" style={{ padding: '28px 24px' }}>
-            <FairnessGauge jainIndex={fairness?.jain_index ?? 1} branchCount={mapBranches.length || 5} />
+            <FairnessGauge
+              jainIndex={fairness?.jain_index ?? 1}
+              branchCount={mapBranches.length || 5}
+              totalLoadKg={mapBranches.reduce((s, b) => s + b.current_load_kg, 0)}
+            />
           </GlassCard>
 
           <GlassCard className="flex flex-col gap-4" style={{ padding: '22px 22px' }}>

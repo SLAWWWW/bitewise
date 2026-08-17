@@ -22,6 +22,7 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { SkeletonList, EmptyState } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { fetchJson, FetchError } from '@/lib/utils/fetch-json';
+import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
 import type { StorageResponse, StorageZoneView } from '@/lib/types';
 
 const RACK_LABEL: Record<string, string> = {
@@ -242,7 +243,9 @@ function StorageItemRow({
         )}
         {/* The "Expired" badge above already says this — no need to repeat it. */}
         {!item.expired && (
-          <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`}>{item.shelf_life_label}</span>
+          <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`} title={URGENCY_TOOLTIP}>
+            {item.shelf_life_label}
+          </span>
         )}
       </div>
     </div>
@@ -305,7 +308,10 @@ function ZonePanel({ zone, onUpdated }: { zone: StorageZoneView; onUpdated: () =
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2 text-caption" style={{ fontSize: 11 }}>
             <span style={{ color: RACK_COLOR[zone.rack_state] }}>{RACK_LABEL[zone.rack_state]}</span>
-            <span className="tnum">
+            <span
+              className="tnum"
+              title="Used kg ÷ this zone's allocated capacity. Picked-up and expired stock don't count here — they've left active inventory, even before their record is fully cleared out."
+            >
               {zone.capacity_kg > 0
                 ? `${zone.used_kg}/${zone.capacity_kg}kg · ${zone.occupancy_pct}%`
                 : `${zone.used_kg}kg · no allocation`}

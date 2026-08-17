@@ -23,13 +23,15 @@ export function Badge({
   variant = 'neutral',
   children,
   icon,
+  title,
 }: {
   variant?: BadgeVariant;
   children: ReactNode;
   icon?: ReactNode;
+  title?: string;
 }) {
   return (
-    <span className={`badge ${VARIANT_CLASS[variant]}`}>
+    <span className={`badge ${VARIANT_CLASS[variant]}`} title={title}>
       {icon}
       {children}
     </span>
