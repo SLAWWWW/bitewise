@@ -194,7 +194,7 @@ export function FoodCard({
       <div className="flex flex-col gap-1.5">
         <div className="flex items-start gap-1.5 text-caption flex-wrap">
           <MapPin size={12} style={{ flexShrink: 0, marginTop: 2 }} />
-          <span>
+          <span style={{ minWidth: 0, flex: 1 }}>
             Collect from{' '}
             <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
               {item.branch?.name.replace('Willing Hearts — ', '')}
@@ -209,7 +209,7 @@ export function FoodCard({
           ) : (
             <Box size={12} style={{ flexShrink: 0, marginTop: 2 }} />
           )}
-          <span>
+          <span style={{ minWidth: 0, flex: 1 }}>
             <span className="capitalize">{item.storage_type}</span> storage — {item.storage_advice}
           </span>
         </div>
@@ -217,7 +217,7 @@ export function FoodCard({
         {item.donated_by && (
           <div className="flex items-start gap-1.5 text-caption flex-wrap">
             <Building2 size={12} style={{ flexShrink: 0, marginTop: 2 }} />
-            <span>
+            <span style={{ minWidth: 0, flex: 1 }}>
               Donated by{' '}
               <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
                 {item.donated_by}

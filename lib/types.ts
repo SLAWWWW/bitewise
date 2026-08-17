@@ -159,6 +159,41 @@ export interface Claim {
   pickup_deadline_at: string | null;
 }
 
+/** A recipient's lifetime impact — a running total on recipient_profiles,
+ *  not a sum over claims, since confirmed pickups delete their
+ *  inventory_items row (§011). */
+export interface RecipientImpactStats {
+  id: string;
+  name: string;
+  total_kg_claimed: number;
+  donations_completed_count: number;
+  meals_equivalent: number;
+  co2_avoided_kg: number;
+  sustainability_score: number;
+}
+
+export interface ActiveClaimSummary {
+  claim_id: string;
+  claimed_at: string;
+  pickup_deadline_at: string | null;
+  item_name: string;
+  food_type: string;
+  quantity: number;
+  unit: string;
+  expiry_at: string;
+  branch_name: string | null;
+  branch_area: string | null;
+  listing_id: string | null;
+  supply_chain_plan: SupplyChainPlan | null;
+}
+
+export interface RecipientDashboardResponse {
+  success: boolean;
+  message?: string;
+  profile: RecipientImpactStats | null;
+  active_claims: ActiveClaimSummary[];
+}
+
 export interface FairnessSnapshot {
   id: string;
   jain_index: number;

@@ -99,6 +99,26 @@ function StorageItemRow({
     }
   }
 
+  async function confirmPartnerDelivery() {
+    setBusy(true);
+    try {
+      const res = await fetchJson<{ success: boolean; message?: string }>(
+        `/api/inventory/${item.id}/confirm-delivery`,
+        { method: 'POST' }
+      );
+      if (res.success) {
+        toast('success', `${item.item_name} marked delivered to partner.`);
+        onUpdated();
+      } else {
+        toast('warning', res.message ?? 'Could not confirm delivery.');
+      }
+    } catch (err) {
+      toast('warning', err instanceof FetchError ? err.message : 'Network error — try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div
       className="flex items-center justify-between gap-3 px-3.5 py-2.5 flex-wrap"
@@ -133,10 +153,21 @@ function StorageItemRow({
         )}
         {/* The four states staff ask about, stated not implied. */}
         {item.escalated ? (
-          <span className="badge badge-info">
-            <HeartHandshake size={9} />
-            Partner dispatch
-          </span>
+          <>
+            <span className="badge badge-info">
+              <HeartHandshake size={9} />
+              Partner dispatch
+            </span>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ padding: '4px 10px', fontSize: 11 }}
+              disabled={busy}
+              onClick={confirmPartnerDelivery}
+            >
+              {busy ? '…' : 'Confirm delivered'}
+            </button>
+          </>
         ) : item.distributed ? (
           <span className="badge badge-neutral">
             <PackageCheck size={9} />

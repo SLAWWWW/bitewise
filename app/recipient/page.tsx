@@ -170,7 +170,7 @@ export default function RecipientPage() {
   }
 
   return (
-    <PublicShell>
+    <PublicShell wide>
       <div className="flex flex-col items-center text-center gap-2 mb-8">
         <div
           className="flex items-center justify-center rounded-xl"
@@ -198,7 +198,7 @@ export default function RecipientPage() {
         />
       )}
 
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 items-start">
         {items.map((item) => (
           <FoodCard
             key={item.id}

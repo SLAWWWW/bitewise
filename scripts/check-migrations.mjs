@@ -199,6 +199,18 @@ const record = (name, ok, note) => results.push({ name, ok, note });
   }
 }
 
+// --- 011 recipient impact --------------------------------------------------
+{
+  const res = await rest('recipient_profiles?select=total_kg_claimed,donations_completed_count&limit=1');
+  record(
+    '011_recipient_impact',
+    res.ok,
+    res.ok
+      ? 'impact columns present'
+      : 'missing — recipient dashboard has no lifetime totals, and confirming a pickup will fail to delete its inventory row (claims FK still blocks it)'
+  );
+}
+
 console.log('\nSupabase migration status\n');
 for (const { name, ok, note } of results) {
   console.log(`  ${ok ? '✓' : '✗'}  ${name.padEnd(24)} ${note}`);
