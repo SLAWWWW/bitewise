@@ -408,21 +408,46 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
   });
 
   // ── Column 4: demand-quota outcome ────────────────────────────────────
+  // Checked in priority order, not just `beneficiary_allocation` alone —
+  // that field only ever reflects a direct allocation decided AT APPROVAL
+  // time. An item that started as a genuine public listing but was LATER
+  // escalated (near-expiry, still unclaimed) and delivered to a partner has
+  // no `beneficiary_allocation` at all — checking only that field used to
+  // leave this node permanently reading "Public listing" even after the
+  // item was actually delivered to a partner, since nothing else here ever
+  // looked at what really happened to it.
   const alloc = dd.beneficiary_allocation;
+  let outcomeTitle: string;
+  let outcomeDetail: string;
+  if (alloc) {
+    outcomeTitle = `Routed to ${alloc.beneficiary_name}`;
+    outcomeDetail = `${alloc.fulfilled_before_kg}/${alloc.daily_quota_kg}kg of this partner's daily quota was already fulfilled before this donation.`;
+  } else if (entry.completed_via === 'partner_delivery') {
+    outcomeTitle = 'Delivered to a partner organisation';
+    outcomeDetail = 'Started as a public listing, went unclaimed close to its spoilage window, and was escalated and delivered to a partner beneficiary instead.';
+  } else if (entry.completed_via === 'recycled') {
+    outcomeTitle = 'Recycled — expired unclaimed';
+    outcomeDetail = 'Went unclaimed past its safe shelf life and was sent for food-waste recycling rather than distributed.';
+  } else if (entry.inventory_status === 'escalated') {
+    outcomeTitle = 'Escalated to partner network';
+    outcomeDetail = 'Started as a public listing, went unclaimed close to its spoilage window, and is now awaiting delivery to a partner beneficiary.';
+  } else {
+    outcomeTitle = 'Public listing';
+    outcomeDetail = 'No partner beneficiary had unmet quota nearby, so this fell through to the public claim list.';
+  }
+
   nodes.push({
     id: 'outcome',
     type: 'cascade',
     position: { x: col(4), y: 0 },
     data: {
       eyebrow: 'Demand-Quota Allocation',
-      title: alloc ? `Routed to ${alloc.beneficiary_name}` : 'Public listing',
+      title: outcomeTitle,
       meta: alloc ? `need ${alloc.need_score.toFixed(2)} · prox ${alloc.proximity_score.toFixed(2)}` : undefined,
       metaTooltip: alloc
         ? 'Need = 1 − (kg already fulfilled ÷ daily quota), so lower means less need. Proximity = 1 ÷ (1 + minutes from branch ÷ 10), decaying with drive time. Neither is a percentage.'
         : undefined,
-      detail: alloc
-        ? `${alloc.fulfilled_before_kg}/${alloc.daily_quota_kg}kg of this partner's daily quota was already fulfilled before this donation.`
-        : 'No partner beneficiary had unmet quota nearby, so this fell through to the public claim list.',
+      detail: outcomeDetail,
       sectionId: alloc ? 'beneficiary-section' : undefined,
       sectionLabel: 'View partner allocation',
       variant: 'outcome',

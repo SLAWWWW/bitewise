@@ -22,7 +22,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .update({ status: 'distributed' })
     .eq('id', id)
     .eq('status', 'reserved')
-    .select('id, quantity')
+    .select('id, quantity, listing_id')
     .maybeSingle();
 
   if (updateError) {
@@ -85,6 +85,24 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         'likely migration 011 not applied yet (claims FK still blocks it). Cause:',
       deleteError.message
     );
+  }
+
+  // Stamp the listing with its final outcome — the only thing that survives
+  // once the inventory row above is gone, so the item page and Agent
+  // Decisions stop showing a stale "publicly listed" label forever, and the
+  // History panel has something to show. Best-effort: missing migration 013
+  // degrades to the pre-existing (stale-label) behavior, not a failed pickup.
+  if (updated.listing_id) {
+    const { error: completeError } = await supabase
+      .from('food_listings')
+      .update({ status: 'delivered', delivered_at: new Date().toISOString(), completed_via: 'public_pickup' })
+      .eq('id', updated.listing_id);
+    if (completeError) {
+      console.error(
+        `[claims/pickup] could not stamp listing ${updated.listing_id} as completed — likely migration 013 not applied yet. Cause:`,
+        completeError.message
+      );
+    }
   }
 
   return NextResponse.json({ success: true });

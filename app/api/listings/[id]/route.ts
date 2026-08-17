@@ -12,13 +12,25 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const supabase = createServerClient();
 
-  const { data: row, error: listingError } = await supabase
+  const BASE_COLUMNS =
+    'id, item_name, food_type, quantity_kg, storage_type, expiry_at, agreed_to_regulations, created_at, status, decision_details, donor:donors(id, name, type, address, status)';
+
+  // completed_via/delivered_at require migration 013 — retry without them so
+  // this page still works before it's applied, just without the fix for
+  // stale post-completion stage labels.
+  let { data: row, error: listingError } = await supabase
     .from('food_listings')
-    .select(
-      'id, item_name, food_type, quantity_kg, storage_type, expiry_at, agreed_to_regulations, created_at, status, decision_details, donor:donors(id, name, type, address, status)'
-    )
+    .select(`${BASE_COLUMNS}, delivered_at, completed_via`)
     .eq('id', id)
     .maybeSingle();
+
+  if (listingError) {
+    ({ data: row, error: listingError } = await supabase
+      .from('food_listings')
+      .select(BASE_COLUMNS)
+      .eq('id', id)
+      .maybeSingle());
+  }
 
   if (listingError) {
     return NextResponse.json({ error: listingError.message }, { status: 500 });

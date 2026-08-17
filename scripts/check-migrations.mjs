@@ -221,6 +221,18 @@ const record = (name, ok, note) => results.push({ name, ok, note });
   );
 }
 
+// --- 013 completion tracking ------------------------------------------------
+{
+  const res = await rest('food_listings?select=completed_via&limit=1');
+  record(
+    '013_completion_tracking',
+    res.ok,
+    res.ok
+      ? 'completed_via column present'
+      : 'missing — completed donations will keep showing stale stage labels, and the History panel will stay empty'
+  );
+}
+
 console.log('\nSupabase migration status\n');
 for (const { name, ok, note } of results) {
   console.log(`  ${ok ? '✓' : '✗'}  ${name.padEnd(24)} ${note}`);

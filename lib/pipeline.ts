@@ -35,7 +35,18 @@ export interface PipelineListingRow {
   status: string;
   decision_details: MatchDecisionDetails;
   donor: PipelineEntry['donor'];
+  /** Set once a completion route (pickup/confirm-delivery/confirm-recycle)
+   *  has run — the only surviving record of what happened once the
+   *  inventory_items row itself is deleted. Requires migration 013. */
+  delivered_at?: string | null;
+  completed_via?: 'public_pickup' | 'partner_delivery' | 'recycled' | null;
 }
+
+const COMPLETION_LABEL: Record<'public_pickup' | 'partner_delivery' | 'recycled', string> = {
+  public_pickup: 'Collected by recipient',
+  partner_delivery: 'Delivered to a partner organisation',
+  recycled: 'Recycled — expired unclaimed',
+};
 
 export interface PipelineRunRow {
   id: string;
@@ -74,7 +85,18 @@ export function computePipelineEntry(
   // already "sent to a partner" while it's still sitting at the donor's door.
   const runIsOpen = !!run && run.status !== 'completed' && run.status !== 'cancelled';
 
-  if (row.status === 'cancelled' || row.status === 'expired') {
+  if (row.delivered_at && row.completed_via) {
+    // A completion route has already run and the inventory_items row is
+    // long gone — this is the definitive final outcome, checked before any
+    // of the inventory/run fallbacks below, since those can only see what's
+    // CURRENTLY there and would otherwise fall back to a stale label
+    // (this is exactly the bug: an item that started public but was later
+    // escalated and delivered to a partner used to permanently show
+    // "At the branch — publicly listed" once its row was deleted, since
+    // nothing survived to say otherwise).
+    stage = 'closed';
+    stageLabel = COMPLETION_LABEL[row.completed_via];
+  } else if (row.status === 'cancelled' || row.status === 'expired') {
     stage = 'closed';
     stageLabel = row.status === 'cancelled' ? 'Rejected' : 'Expired before review';
   } else if (row.status === 'pending') {
@@ -121,5 +143,6 @@ export function computePipelineEntry(
     vehicle_label: vehicle?.label ?? null,
     driver_name: vehicle?.driver_name ?? null,
     inventory_status: (inv?.status as InventoryStatus | undefined) ?? null,
+    completed_via: row.completed_via ?? null,
   };
 }

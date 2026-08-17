@@ -19,7 +19,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const { data: updated, error: checkError } = await supabase
     .from('inventory_items')
-    .select('id')
+    .select('id, listing_id')
     .eq('id', id)
     .eq('status', 'expired')
     .maybeSingle();
@@ -38,6 +38,22 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const { error: deleteError } = await supabase.from('inventory_items').delete().eq('id', id);
   if (deleteError) {
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
+  }
+
+  // Stamp the listing with its final outcome, same as the other two
+  // completion routes — best-effort, missing migration 013 just means this
+  // one won't show up in History or get a distinct closed-out label.
+  if (updated.listing_id) {
+    const { error: completeError } = await supabase
+      .from('food_listings')
+      .update({ status: 'expired', delivered_at: new Date().toISOString(), completed_via: 'recycled' })
+      .eq('id', updated.listing_id);
+    if (completeError) {
+      console.error(
+        `[inventory/confirm-recycle] could not stamp listing ${updated.listing_id} as completed — likely migration 013 not applied yet. Cause:`,
+        completeError.message
+      );
+    }
   }
 
   return NextResponse.json({ success: true });

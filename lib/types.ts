@@ -461,6 +461,9 @@ export interface PipelineEntry {
   vehicle_label: string | null;
   driver_name: string | null;
   inventory_status: InventoryStatus | null;
+  /** Set once a completion route has run — the definitive final outcome,
+   *  survives even after the inventory_items row itself is deleted. */
+  completed_via: 'public_pickup' | 'partner_delivery' | 'recycled' | null;
 }
 
 export interface PipelineResponse {

@@ -26,13 +26,30 @@ export async function GET() {
   // directly (e.g. test-data cleanup) silently orphans any audit_log row
   // that referenced it. A decision whose listing no longer exists links to
   // a dead page, so drop it here rather than let the UI find out by 404ing.
+  //
+  // Also excludes anything already completed (delivered_at set) — a
+  // finished donation belongs in the History panel, not the active
+  // decisions feed forever. Falls back to just the liveness check if
+  // migration 013 (delivered_at) isn't applied yet.
   const entityIds = withCandidates.map((entry) => entry.entity_id).filter((id): id is string => !!id);
-  const { data: existingListings } = entityIds.length
-    ? await supabase.from('food_listings').select('id').in('id', entityIds)
-    : { data: [] as { id: string }[] };
-  const liveIds = new Set((existingListings ?? []).map((l) => l.id));
+  let stillActiveIds: Set<string>;
+  if (entityIds.length === 0) {
+    stillActiveIds = new Set();
+  } else {
+    const { data: activeListings, error: activeError } = await supabase
+      .from('food_listings')
+      .select('id')
+      .in('id', entityIds)
+      .is('delivered_at', null);
+    if (activeError) {
+      const { data: existingListings } = await supabase.from('food_listings').select('id').in('id', entityIds);
+      stillActiveIds = new Set((existingListings ?? []).map((l) => l.id));
+    } else {
+      stillActiveIds = new Set((activeListings ?? []).map((l) => l.id));
+    }
+  }
 
-  const decisions = withCandidates.filter((entry) => !entry.entity_id || liveIds.has(entry.entity_id));
+  const decisions = withCandidates.filter((entry) => !entry.entity_id || stillActiveIds.has(entry.entity_id));
 
   return NextResponse.json({ decisions });
 }

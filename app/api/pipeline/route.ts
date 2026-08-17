@@ -15,13 +15,36 @@ const RECENT_LIMIT = 12;
 export async function GET() {
   const supabase = createServerClient();
 
-  const { data: listings, error: listingsError } = await supabase
-    .from('food_listings')
-    .select(
-      'id, item_name, food_type, quantity_kg, storage_type, expiry_at, agreed_to_regulations, created_at, status, decision_details, donor:donors(id, name, type, address, status)'
-    )
-    .order('created_at', { ascending: false })
-    .limit(RECENT_LIMIT);
+  const BASE_COLUMNS =
+    'id, item_name, food_type, quantity_kg, storage_type, expiry_at, agreed_to_regulations, created_at, status, decision_details, donor:donors(id, name, type, address, status)';
+
+  // Completed donations belong in the History panel now, not the active
+  // work feed — otherwise a finished donation just sits here, showing a
+  // stale stage label, until 12 newer listings eventually push it out.
+  // completed_via/delivered_at require migration 013; retry without the
+  // filter (and the columns) so this still works before it's applied.
+  let listings: unknown[] | null;
+  let listingsError: { message: string } | null;
+  {
+    const res = await supabase
+      .from('food_listings')
+      .select(`${BASE_COLUMNS}, delivered_at, completed_via`)
+      .is('delivered_at', null)
+      .order('created_at', { ascending: false })
+      .limit(RECENT_LIMIT);
+    listings = res.data;
+    listingsError = res.error;
+  }
+
+  if (listingsError) {
+    const res = await supabase
+      .from('food_listings')
+      .select(BASE_COLUMNS)
+      .order('created_at', { ascending: false })
+      .limit(RECENT_LIMIT);
+    listings = res.data;
+    listingsError = res.error;
+  }
 
   if (listingsError) {
     return NextResponse.json({ error: listingsError.message }, { status: 500 });

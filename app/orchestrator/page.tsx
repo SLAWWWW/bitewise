@@ -13,6 +13,7 @@ import { DonationFlowPanel } from '@/components/dashboard/DonationFlowPanel';
 import { FleetSummaryPanel } from '@/components/dashboard/FleetSummaryPanel';
 import { StorageSummaryPanel } from '@/components/dashboard/StorageSummaryPanel';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
+import { HistoryPanel } from '@/components/dashboard/HistoryPanel';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { supabase } from '@/lib/supabase';
@@ -249,6 +250,8 @@ export default function OrchestratorPage() {
           <FleetSummaryPanel />
           <StorageSummaryPanel />
         </div>
+
+        <HistoryPanel />
       </div>
     </AppShell>
   );

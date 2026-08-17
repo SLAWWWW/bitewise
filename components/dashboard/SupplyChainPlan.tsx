@@ -406,41 +406,50 @@ export function SupplyChainPlan({
             </div>
           )}
 
-          {/* Contingency callout */}
-          <div
-            className="glass-card-nested p-3.5 flex items-start gap-2.5"
-            style={{ borderColor: 'color-mix(in srgb, var(--branch-3) 35%, transparent)' }}
-          >
-            <HeartHandshake size={15} color="var(--branch-3)" style={{ marginTop: 1, flexShrink: 0 }} />
-            <div className="flex flex-col gap-1 min-w-0">
-              <span className="text-overline" style={{ color: 'var(--branch-3)' }}>
-                If nobody claims it
-              </span>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-body" style={{ fontWeight: 600 }}>
-                  {plan.contingency.beneficiary_name}
+          {/* Contingency callout — only meaningful for a plan that actually
+              has a public "listing" phase. A direct-to-partner allocation
+              was never publicly claimable in the first place, so "if
+              nobody claims it" can't happen for it; showing this box would
+              be actively contradictory, not just unnecessary, since its own
+              trigger/rationale text already describes a delivery-disruption
+              fallback instead — a completely different scenario than what
+              this box's fixed framing implies. */}
+          {plan.stages.some((s) => s.kind === 'listing') && (
+            <div
+              className="glass-card-nested p-3.5 flex items-start gap-2.5"
+              style={{ borderColor: 'color-mix(in srgb, var(--branch-3) 35%, transparent)' }}
+            >
+              <HeartHandshake size={15} color="var(--branch-3)" style={{ marginTop: 1, flexShrink: 0 }} />
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-overline" style={{ color: 'var(--branch-3)' }}>
+                  If nobody claims it
                 </span>
-                <span className="badge badge-neutral" style={{ fontSize: 10 }}>
-                  {plan.contingency.beneficiary_type}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-body" style={{ fontWeight: 600 }}>
+                    {plan.contingency.beneficiary_name}
+                  </span>
+                  <span className="badge badge-neutral" style={{ fontSize: 10 }}>
+                    {plan.contingency.beneficiary_type}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 flex-wrap text-caption" style={{ fontSize: 11 }}>
+                  <span className="flex items-center gap-1">
+                    <ArrowDown size={10} />
+                    {plan.contingency.trigger}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Truck size={10} />
+                    {plan.contingency.minutes_from_branch} min away
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users size={10} />
+                    serves ~{plan.contingency.serves}
+                  </span>
+                </div>
+                <p className="text-caption">{plan.contingency.rationale}</p>
               </div>
-              <div className="flex items-center gap-3 flex-wrap text-caption" style={{ fontSize: 11 }}>
-                <span className="flex items-center gap-1">
-                  <ArrowDown size={10} />
-                  {plan.contingency.trigger}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Truck size={10} />
-                  {plan.contingency.minutes_from_branch} min away
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users size={10} />
-                  serves ~{plan.contingency.serves}
-                </span>
-              </div>
-              <p className="text-caption">{plan.contingency.rationale}</p>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

@@ -25,7 +25,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .update({ status: 'distributed' })
     .eq('id', id)
     .eq('status', 'escalated')
-    .select('id, branch_id')
+    .select('id, branch_id, listing_id')
     .maybeSingle();
 
   if (updateError) {
@@ -45,6 +45,25 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       `[inventory/confirm-delivery] ${id} confirmed delivered but could not be deleted. Cause:`,
       deleteError.message
     );
+  }
+
+  // Stamp the listing with its final outcome — this is what fixes an item
+  // that started as a genuine public listing but was later escalated: once
+  // its inventory_items row is deleted, this is the only surviving record
+  // that it actually ended up delivered to a partner, not just "public
+  // listing" forever. Best-effort: missing migration 013 degrades to the
+  // pre-existing stale-label behavior, not a failed delivery confirmation.
+  if (updated.listing_id) {
+    const { error: completeError } = await supabase
+      .from('food_listings')
+      .update({ status: 'delivered', delivered_at: new Date().toISOString(), completed_via: 'partner_delivery' })
+      .eq('id', updated.listing_id);
+    if (completeError) {
+      console.error(
+        `[inventory/confirm-delivery] could not stamp listing ${updated.listing_id} as completed — likely migration 013 not applied yet. Cause:`,
+        completeError.message
+      );
+    }
   }
 
   // If this was the last escalated item at this branch, today's dispatch run
