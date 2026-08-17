@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase-server';
-import { requireStaffKey } from '@/lib/staff-auth';
 
 /**
  * Staff confirm an escalated item was actually delivered to the partner
@@ -17,10 +16,7 @@ import { requireStaffKey } from '@/lib/staff-auth';
  * unlike a public claim, there's no per-recipient running total to credit
  * here, since the beneficiary is an organisation, not a claimant.
  */
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const authError = requireStaffKey(request);
-  if (authError) return authError;
-
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createServerClient();
 

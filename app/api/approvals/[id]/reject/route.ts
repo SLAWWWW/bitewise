@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase-server';
 import type { ApprovalActionResponse } from '@/lib/types';
-import { requireStaffKey } from '@/lib/staff-auth';
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const authError = requireStaffKey(request);
-  if (authError) return authError;
-
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createServerClient();
 

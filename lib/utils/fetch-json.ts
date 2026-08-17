@@ -40,8 +40,6 @@
  *   }
  */
 
-import { getStaffKey } from '@/lib/utils/staff-key';
-
 export class FetchError extends Error {
   /** HTTP status code (e.g. 404, 409, 500). */
   readonly status: number;
@@ -131,12 +129,6 @@ export async function fetchJson<T = unknown>(
     rest.method != null &&
     ['POST', 'PUT', 'PATCH', 'DELETE'].includes(rest.method.toUpperCase());
 
-  // Attaches the staff key from localStorage, if one has been set on this
-  // browser — harmless on public/anonymous calls (server routes that don't
-  // check for it simply ignore the extra header); required by the handful
-  // of staff-only mutation routes (see lib/staff-auth.ts).
-  const staffKey = getStaffKey();
-
   const init: RequestInit = {
     ...rest,
     signal: effectiveSignal,
@@ -146,7 +138,6 @@ export async function fetchJson<T = unknown>(
       ...(isBodyRequest && body !== undefined
         ? { 'Content-Type': 'application/json' }
         : {}),
-      ...(staffKey ? { 'x-staff-key': staffKey } : {}),
       // Caller-supplied headers take precedence.
       ...headers,
     },
