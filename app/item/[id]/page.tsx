@@ -11,6 +11,7 @@ import { Skeleton, EmptyState } from '@/components/ui/Skeleton';
 import { ApprovalCard } from '@/components/dashboard/ApprovalCard';
 import { FoodSafetyBadge } from '@/components/dashboard/FoodSafetyBadge';
 import { SupplyChainPlan } from '@/components/dashboard/SupplyChainPlan';
+import { AgentCascadeGraph } from '@/components/dashboard/AgentCascadeGraph';
 import { BeneficiaryAllocationCard, JourneyCard, StageStepper, STEP_META } from '@/components/dashboard/DonationJourney';
 import { fetchJson } from '@/lib/utils/fetch-json';
 import type { PipelineEntry } from '@/lib/types';
@@ -111,6 +112,11 @@ export default function ItemDetailPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <JourneyCard entry={entry} onAdvanced={fetchEntry} />
+          {entry.decision_details.candidates.length + entry.decision_details.excluded_branches.length > 0 && (
+            <GlassCard className="p-5">
+              <AgentCascadeGraph entry={entry} />
+            </GlassCard>
+          )}
           {entry.decision_details.food_safety_check && (
             <FoodSafetyBadge check={entry.decision_details.food_safety_check} />
           )}
