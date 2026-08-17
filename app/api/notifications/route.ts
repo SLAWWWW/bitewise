@@ -148,6 +148,25 @@ export async function GET() {
         href: '/dispatch',
       });
     }
+
+    // Dispatched but not yet closed out — staff still need to hit "Confirm
+    // delivered" on /storage for each of these once the drop-off actually
+    // happens, or they sit in 'escalated' status forever (the same gap
+    // "Confirm delivered" itself was built to close — this is the reminder
+    // that the action is still outstanding, not just that a run exists).
+    const awaitingConfirmation = escalated.filter((i) => dispatchedBranchIds.has(i.branch_id));
+    if (awaitingConfirmation.length > 0) {
+      const kg = awaitingConfirmation.reduce((s, i) => s + (i.quantity ?? 0), 0);
+      notifications.push({
+        id: 'awaiting-delivery-confirmation',
+        category: 'dispatch',
+        severity: 'warning',
+        title: `${awaitingConfirmation.length} item${awaitingConfirmation.length === 1 ? '' : 's'} awaiting delivery confirmation`,
+        detail: `${Math.round(kg)}kg dispatched today — hit "Confirm delivered" once each drop-off actually happens.`,
+        count: awaitingConfirmation.length,
+        href: '/storage',
+      });
+    }
   }
 
   // ── Fleet: active collection runs + offline vehicles ────────────────────
