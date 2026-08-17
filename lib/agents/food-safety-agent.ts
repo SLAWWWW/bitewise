@@ -1,8 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { GEMINI_MODEL } from '@/lib/constants';
 import { retrieveFoodSafetyCategory, computeDeterministicVerdict, escalateOnly } from '@/lib/algorithms/food-safety';
 import type { FoodSafetyCheckResult, FoodSafetyVerdict, FoodType, StorageType } from '@/lib/types';
-
-const MODEL = 'gemini-3.5-flash-lite';
 
 export interface FoodSafetyCheckInput {
   itemName: string;
@@ -86,7 +85,7 @@ Deterministic safety floor already computed from this category: "${floor.verdict
 Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
 
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         systemInstruction:

@@ -1,3 +1,9 @@
+// Single source of truth for the model every agent calls. Was previously
+// hardcoded independently in all 6 lib/agents/*.ts files — an upstream
+// rename or deprecation would have meant editing all six in lockstep with
+// no compiler help catching a missed one.
+export const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+
 // Demo-only proxy for geocoding: the public donation form has donors pick a
 // general area instead of typing coordinates. Server-side code resolves the
 // same list to a lat/lng centroid, so this file must stay the single source

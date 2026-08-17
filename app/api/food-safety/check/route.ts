@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { runFoodSafetyCheck } from '@/lib/agents/food-safety-agent';
+import { isRateLimited, clientKey } from '@/lib/rate-limit';
 import type { FoodSafetyCheckResponse } from '@/lib/types';
 
 const CheckRequestSchema = z.object({
@@ -19,6 +20,16 @@ const CheckRequestSchema = z.object({
  * two surfaces can never disagree about a given item.
  */
 export async function POST(request: Request) {
+  // Public live-preview endpoint, one Gemini call per request — the easiest
+  // single place to burn through the shared free-tier quota if someone
+  // scripts repeated calls (or a client bug re-fires without debounce).
+  if (isRateLimited(`food-safety-check:${clientKey(request)}`, 12)) {
+    return NextResponse.json(
+      { success: false, message: 'Too many checks — please wait a minute and try again.' },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json();
   const parsed = CheckRequestSchema.safeParse(body);
   if (!parsed.success) {

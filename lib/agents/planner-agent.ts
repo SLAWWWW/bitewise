@@ -1,10 +1,8 @@
 import { GoogleGenAI, Type, FunctionCallingConfigMode, type CallableTool, type Part } from '@google/genai';
 import { guidelineForFoodType } from '@/lib/knowledge/food-safety';
 import { beneficiariesForArea, type PartnerBeneficiary } from '@/lib/data/beneficiaries';
-import { ESCALATION_THRESHOLD_HOURS } from '@/lib/constants';
+import { ESCALATION_THRESHOLD_HOURS, GEMINI_MODEL } from '@/lib/constants';
 import type { FoodType, StorageType, SupplyChainPlan, SupplyChainStage, ToolCallTrace } from '@/lib/types';
-
-const MODEL = 'gemini-3.5-flash-lite';
 
 /** Live operational constraints the plan has to survive. Gathered before the
  *  call and exposed to the agent as tools it chooses to consult. */
@@ -331,7 +329,7 @@ IMPORTANT — risk_note: leave risk_note empty on most stages. Only set it where
     // Tools and structured output together in one call — verified supported, so
     // constraint-awareness costs no extra request against the rate limit.
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         tools: createPlannerTools(input, toolLog),

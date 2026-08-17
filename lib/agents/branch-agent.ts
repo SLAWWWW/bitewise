@@ -1,4 +1,5 @@
 import { GoogleGenAI, FunctionCallingConfigMode } from '@google/genai';
+import { GEMINI_MODEL } from '@/lib/constants';
 import { haversine } from '@/lib/utils/geo';
 import { createBranchAgentTools, type ToolCallRecord } from './tools';
 
@@ -28,7 +29,6 @@ export interface BranchAgentReport {
 }
 
 const WEIGHTS = { proximity: 0.3, fairness: 0.5, spoilage: 0.2 };
-const MODEL = 'gemini-3.5-flash-lite';
 
 /**
  * The Branch Coordination Agent for one branch. It has three real tools
@@ -67,7 +67,7 @@ export async function runBranchAgent(
   let rationale = '';
   try {
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: `You are the Branch Coordination Agent for ${branch.name}, part of the Willing Hearts network. A donor wants to give ${quantityKg}kg of ${foodType}. You MUST call all three of your tools — get_proximity_score, get_fairness_need_score, and get_spoilage_risk_score — to gather real data before answering; never guess these numbers yourself. Then write a concise one or two sentence assessment of whether your branch is a good destination for this donation, referencing the actual numbers your tools returned.`,
       config: {
         tools,

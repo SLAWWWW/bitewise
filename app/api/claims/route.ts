@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase-server';
 import { computePickupWindow } from '@/lib/agents/pickup-window-agent';
+import { isRateLimited, clientKey } from '@/lib/rate-limit';
 import type { MatchDecisionDetails } from '@/lib/types';
 
 const ClaimRequestSchema = z.object({
@@ -10,6 +11,12 @@ const ClaimRequestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // One Gemini call per claim (pickup-window computation) — same shared
+  // free-tier quota concern as /api/listings and /api/food-safety/check.
+  if (isRateLimited(`claims:${clientKey(request)}`, 12)) {
+    return NextResponse.json({ error: 'Too many claims — please wait a minute and try again.' }, { status: 429 });
+  }
+
   const body = await request.json();
   const parsed = ClaimRequestSchema.safeParse(body);
 

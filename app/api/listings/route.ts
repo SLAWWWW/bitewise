@@ -5,6 +5,7 @@ import { type MatchBranch } from '@/lib/algorithms/matching';
 import { runMatchingAgents, DEFAULT_MATCH_WEIGHTS } from '@/lib/agents/run-pipeline';
 import { runFoodSafetyCheck } from '@/lib/agents/food-safety-agent';
 import { SG_AREAS, DONOR_TYPES } from '@/lib/constants';
+import { isRateLimited, clientKey } from '@/lib/rate-limit';
 import type { Branch, MatchDecisionDetails, SubmitListingResponse } from '@/lib/types';
 
 const AREA_VALUES = SG_AREAS.map((a) => a.value) as [string, ...string[]];
@@ -12,13 +13,13 @@ const AREA_VALUES = SG_AREAS.map((a) => a.value) as [string, ...string[]];
 const ListingRequestSchema = z
   .object({
     donor_id: z.string().uuid().optional(),
-    donor_name: z.string().min(1).optional(),
+    donor_name: z.string().min(1).max(200).optional(),
     donor_type: z.enum([...DONOR_TYPES]).optional(),
-    address: z.string().min(1).optional(),
+    address: z.string().min(1).max(200).optional(),
     area: z.enum(AREA_VALUES).optional(),
-    item_name: z.string().min(1),
+    item_name: z.string().min(1).max(200),
     food_type: z.enum(['bread', 'cooked', 'produce', 'canned', 'dairy', 'beverage', 'grain', 'other']),
-    quantity_kg: z.number().positive(),
+    quantity_kg: z.number().positive().max(5000),
     storage_type: z.enum(['ambient', 'cold', 'frozen']).default('ambient'),
     expiry_hours: z.number().positive().max(8760),
     agreed_to_regulations: z.literal(true),
@@ -28,6 +29,14 @@ const ListingRequestSchema = z
   });
 
 export async function POST(request: Request) {
+  // This route burns up to ~5 Gemini calls per submission (food-safety check
+  // + branch coordination agents). A handful of scripted requests within a
+  // minute exhausts the shared 15 req/min free-tier quota for every
+  // AI-assisted feature in the app, not just this one.
+  if (isRateLimited(`listings:${clientKey(request)}`, 20)) {
+    return NextResponse.json({ error: 'Too many submissions — please wait a minute and try again.' }, { status: 429 });
+  }
+
   const body = await request.json();
   const parsed = ListingRequestSchema.safeParse(body);
 

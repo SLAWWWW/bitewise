@@ -1,7 +1,6 @@
 import { GoogleGenAI, Type, FunctionCallingConfigMode, type CallableTool, type Part } from '@google/genai';
+import { GEMINI_MODEL } from '@/lib/constants';
 import type { DonorImpactMessage, ToolCallTrace } from '@/lib/types';
-
-const MODEL = 'gemini-3.5-flash-lite';
 
 export interface DonorImpactInput {
   donorId: string;
@@ -166,7 +165,7 @@ Return only the drafted message text — no preamble, no subject line, no sign-o
     const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         tools: [tool],

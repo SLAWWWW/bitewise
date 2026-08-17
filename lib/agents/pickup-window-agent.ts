@@ -1,7 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { GEMINI_MODEL } from '@/lib/constants';
 import type { SupplyChainPlan } from '@/lib/types';
-
-const MODEL = 'gemini-3.5-flash-lite';
 
 export interface PickupWindowInput {
   /** Hours from right now until the item's expiry_at. */
@@ -86,7 +85,7 @@ A conservative deterministic estimate is ${floor.minutes} minutes.
 Give a pickup window in minutes appropriate to how urgent this is — tighter for something spoiling soon, more generous for something with days left, but never so generous that the window itself risks the food going bad before the deadline. Briefly explain your reasoning in one sentence.`;
 
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         systemInstruction:

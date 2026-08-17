@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { GEMINI_MODEL } from '@/lib/constants';
 import type { BranchAgentReport } from './branch-agent';
 
 export interface CoordinatorDecision {
@@ -7,7 +8,6 @@ export interface CoordinatorDecision {
   agent_ok: boolean;
 }
 
-const MODEL = 'gemini-3.5-flash-lite';
 
 /**
  * The Network Coordinator Agent. It receives every Branch Coordination
@@ -40,7 +40,7 @@ export async function runCoordinatorAgent(
 
   try {
     const response = await genai.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: `You are the Network Coordinator Agent for Willing Hearts. ${reports.length} Branch Coordination Agents have each reported on whether their branch should receive a donation of ${quantityKg}kg of ${foodType}:\n\n${summary}\n\nDecide which single branch should receive this donation. You may agree with the highest combined score, or choose a different branch if the reports give you a well-justified reason to (for example a close tie where one branch's spoilage risk or fairness need is the bigger real-world concern). Base your decision only on the numbers and reports above — do not invent information the agents didn't report.`,
       config: {
         responseMimeType: 'application/json',
