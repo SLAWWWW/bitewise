@@ -7,6 +7,7 @@ import { Bot, ChevronRight, Filter, Wrench, Users, Sparkles, ShieldCheck } from 
 import { AppShell } from '@/components/layout/AppShell';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { SkeletonList, EmptyState } from '@/components/ui/Skeleton';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { fetchJson } from '@/lib/utils/fetch-json';
 import type { Decision } from '@/lib/types';
 
@@ -62,11 +63,12 @@ function DecisionCard({ decision }: { decision: Decision }) {
             AI
           </span>
         )}
-        <span
-          className="badge badge-accent tnum"
-          title="A weighted composite of proximity, fairness, and stock safety — not a percentage. Realistic winning scores land between 0.2 and 0.5; this is the highest of the branches considered, not a low grade."
-        >
-          Score {(winner?.total_score ?? 0).toFixed(2)}
+        <span className="flex items-center">
+          <span className="badge badge-accent tnum">Score {(winner?.total_score ?? 0).toFixed(2)}</span>
+          <InfoTooltip
+            text="A weighted composite of proximity, fairness, and stock safety — not a percentage. Realistic winning scores land between 0.2 and 0.5; this is the highest of the branches considered, not a low grade."
+            size={9}
+          />
         </span>
         {decision.entity_id && <ChevronRight size={16} color="var(--text-secondary)" />}
       </div>

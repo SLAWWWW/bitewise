@@ -1,3 +1,5 @@
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
+
 /** Per-beneficiary demand-quota fill — same track/fill markup as
  *  NgoSaturationBar, but inverted semantics: for branch storage, full is bad
  *  (near capacity); for a partner's daily quota, full is the goal (their
@@ -56,17 +58,17 @@ export function BeneficiaryQuotaBar({
         </div>
 
         <span
-          className="tnum flex-shrink-0"
+          className="tnum flex-shrink-0 flex items-center"
           style={{
             fontSize: 11,
             fontWeight: 600,
             color: underserved ? 'var(--critical)' : partial ? 'var(--warning)' : 'var(--success)',
             letterSpacing: '-0.01em',
           }}
-          title="Kg already allocated to this partner today, ÷ their registered daily quota — 100% means fully served, the opposite of NgoSaturationBar's meaning above, where full is the branch running out of room."
         >
           {fulfilledKg.toLocaleString('en-SG')} / {quotaKg.toLocaleString('en-SG')} kg{' '}
           <span style={{ opacity: 0.55, fontWeight: 400 }}>({Math.round(pct)}%)</span>
+          <InfoTooltip text="Kg already allocated to this partner today, ÷ their registered daily quota — 100% means fully served, the opposite of NgoSaturationBar's meaning above, where full is the branch running out of room." />
         </span>
       </div>
 

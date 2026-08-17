@@ -7,6 +7,7 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { fetchJson } from '@/lib/utils/fetch-json';
 import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { StorageResponse, StorageItemView } from '@/lib/types';
 
 const URGENCY_BADGE: Record<string, string> = {
@@ -129,11 +130,11 @@ export function StorageSummaryPanel() {
                         </span>
                       </div>
                     </div>
-                    <span
-                      className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum flex-shrink-0`}
-                      title={URGENCY_TOOLTIP}
-                    >
-                      {item.shelf_life_label}
+                    <span className="flex items-center flex-shrink-0">
+                      <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum`}>
+                        {item.shelf_life_label}
+                      </span>
+                      <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
                     </span>
                   </GlassCard>
                 );

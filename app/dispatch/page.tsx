@@ -20,6 +20,7 @@ import { FairnessGauge } from '@/components/dashboard/FairnessGauge';
 import { BeneficiaryQuotaBar } from '@/components/dashboard/BeneficiaryQuotaBar';
 import { fetchJson } from '@/lib/utils/fetch-json';
 import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { BeneficiaryResponse, DispatchResponse, DispatchRun } from '@/lib/types';
 
 const URGENCY_BADGE: Record<string, string> = {
@@ -219,8 +220,9 @@ function RunCard({ run }: { run: DispatchRun }) {
                   No suitable partner
                 </span>
               )}
-              <span className={`badge ${URGENCY_BADGE[a.urgency]} tnum`} title={URGENCY_TOOLTIP}>
-                {a.shelf_life_label}
+              <span className="flex items-center">
+                <span className={`badge ${URGENCY_BADGE[a.urgency]} tnum`}>{a.shelf_life_label}</span>
+                <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
               </span>
             </div>
           </div>

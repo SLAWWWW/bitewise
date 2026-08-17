@@ -1,3 +1,5 @@
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
+
 /** Holographic arc stroke when index is high; semantic colour otherwise */
 function gaugeColor(index: number): string {
   if (index >= 0.8) return 'url(#gaugeGradient)';
@@ -41,7 +43,7 @@ export function FairnessGauge({
   const noDataYet = (totalLoadKg ?? 1) === 0;
 
   return (
-    <div className="flex flex-col items-center gap-4" title={FORMULA_TOOLTIP}>
+    <div className="flex flex-col items-center gap-4">
       <div className="relative" style={{ width: size, height: size }}>
         <svg
           width={size}
@@ -92,7 +94,10 @@ export function FairnessGauge({
           >
             {(clamped * 100).toFixed(0)}%
           </span>
-          <span className="text-overline" style={{ marginTop: 4 }}>Fairness</span>
+          <span className="text-overline flex items-center" style={{ marginTop: 4 }}>
+            Fairness
+            <InfoTooltip text={FORMULA_TOOLTIP} />
+          </span>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CheckCircle2, Ban, Bot, AlertTriangle, Wrench, ChevronRight, Sparkles } from 'lucide-react';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { CandidateScore, ExcludedBranchInfo, ToolCallTrace } from '@/lib/types';
 
 // "Spoilage risk" reads as "how likely is this to spoil" — the opposite of what
@@ -31,18 +32,19 @@ function ScoreCell({
   label,
   value,
   distanceKm,
-  title,
+  tooltip,
 }: {
   label: string;
   value: number;
   distanceKm?: number;
-  /** Native hover tooltip — for scores where a high number isn't intuitively "good". */
-  title?: string;
+  /** For scores where a high number isn't intuitively "good". */
+  tooltip?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1" title={title}>
-      <span className="text-overline candidate-metric-label" style={{ fontSize: 10 }}>
+    <div className="flex flex-col gap-1">
+      <span className="text-overline candidate-metric-label flex items-center" style={{ fontSize: 10 }}>
         {label}
+        {tooltip && <InfoTooltip text={tooltip} size={9} />}
       </span>
       <div className="flex items-center gap-2">
         <div className="progress-track" style={{ width: 48, flexShrink: 0 }}>
@@ -152,18 +154,10 @@ export function CandidateBreakdown({
 
         <div className="candidate-head text-overline" style={{ fontSize: 10 }}>
           <span>Branch</span>
-          <span title={PROXIMITY_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
-            Proximity
-          </span>
-          <span title={FAIRNESS_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
-            Fairness need
-          </span>
-          <span title={STOCK_SAFETY_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
-            Stock safety
-          </span>
-          <span title={TOTAL_SCORE_TOOLTIP} style={{ cursor: 'help', textDecoration: 'underline dotted' }}>
-            Total
-          </span>
+          <span>Proximity</span>
+          <span>Fairness need</span>
+          <span>Stock safety</span>
+          <span>Total</span>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -192,12 +186,13 @@ export function CandidateBreakdown({
                     </span>
                   )}
                 </div>
-                <ScoreCell label="Proximity" value={c.proximity_score} distanceKm={c.distance_km} title={PROXIMITY_TOOLTIP} />
-                <ScoreCell label="Fairness need" value={c.fairness_score} title={FAIRNESS_TOOLTIP} />
-                <ScoreCell label="Stock safety" value={c.spoilage_risk_score} title={STOCK_SAFETY_TOOLTIP} />
-                <div className="flex flex-col gap-1" title={TOTAL_SCORE_TOOLTIP}>
-                  <span className="text-overline candidate-metric-label" style={{ fontSize: 10 }}>
+                <ScoreCell label="Proximity" value={c.proximity_score} distanceKm={c.distance_km} tooltip={PROXIMITY_TOOLTIP} />
+                <ScoreCell label="Fairness need" value={c.fairness_score} tooltip={FAIRNESS_TOOLTIP} />
+                <ScoreCell label="Stock safety" value={c.spoilage_risk_score} tooltip={STOCK_SAFETY_TOOLTIP} />
+                <div className="flex flex-col gap-1">
+                  <span className="text-overline candidate-metric-label flex items-center" style={{ fontSize: 10 }}>
                     Total
+                    <InfoTooltip text={TOTAL_SCORE_TOOLTIP} size={9} />
                   </span>
                   <span className="text-title-2 tnum">{c.total_score.toFixed(2)}</span>
                 </div>

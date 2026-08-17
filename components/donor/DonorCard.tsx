@@ -1,6 +1,7 @@
 import { Store, Building2, UtensilsCrossed, Factory, Package } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/Badge';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { Donor } from '@/lib/types';
 
 const TYPE_ICON: Record<Donor['type'], typeof Store> = {
@@ -64,12 +65,12 @@ export function DonorCard({ donor, onClick }: { donor: Donor; onClick?: () => vo
         >
           <Icon size={17} color={accent} strokeWidth={1.9} />
         </div>
-        <Badge
-          variant={reliabilityVariant(donor.reliability_score)}
-          title="Set when the donor registers, not yet computed from delivery history (on-time drop-offs, no-shows) — a starting estimate, not a live behavioral score."
-        >
-          {(donor.reliability_score * 100).toFixed(0)}% reliable
-        </Badge>
+        <div className="flex items-center">
+          <Badge variant={reliabilityVariant(donor.reliability_score)}>
+            {(donor.reliability_score * 100).toFixed(0)}% reliable
+          </Badge>
+          <InfoTooltip text="Set when the donor registers, not yet computed from delivery history (on-time drop-offs, no-shows) — a starting estimate, not a live behavioral score." />
+        </div>
       </div>
 
       {/* Name + type */}

@@ -23,6 +23,7 @@ import { SkeletonList, EmptyState } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { fetchJson, FetchError } from '@/lib/utils/fetch-json';
 import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { StorageResponse, StorageZoneView } from '@/lib/types';
 
 const RACK_LABEL: Record<string, string> = {
@@ -243,8 +244,9 @@ function StorageItemRow({
         )}
         {/* The "Expired" badge above already says this — no need to repeat it. */}
         {!item.expired && (
-          <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`} title={URGENCY_TOOLTIP}>
-            {item.shelf_life_label}
+          <span className="flex items-center">
+            <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`}>{item.shelf_life_label}</span>
+            <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
           </span>
         )}
       </div>

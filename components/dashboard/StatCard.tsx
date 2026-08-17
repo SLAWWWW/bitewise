@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 
 export function StatCard({
   label,
@@ -27,11 +28,13 @@ export function StatCard({
       className="flex flex-col justify-between"
       style={{ padding: '22px 24px', minHeight: 120, minWidth: 0 }}
       hover
-      title={tooltip}
     >
       {/* Top row: label + icon — editorial left-align */}
       <div className="flex items-start justify-between gap-3">
-        <span className="text-overline" style={{ paddingTop: 2 }}>{label}</span>
+        <span className="text-overline flex items-center" style={{ paddingTop: 2 }}>
+          {label}
+          {tooltip && <InfoTooltip text={tooltip} />}
+        </span>
         <div
           className="flex items-center justify-center rounded-xl flex-shrink-0"
           style={{

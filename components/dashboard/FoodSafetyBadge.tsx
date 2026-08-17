@@ -1,4 +1,5 @@
 import { ShieldCheck, ShieldAlert, ShieldX, Bot } from 'lucide-react';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { FoodSafetyCheckResult } from '@/lib/types';
 
 const VERDICT_META: Record<FoodSafetyCheckResult['verdict'], { icon: typeof ShieldCheck; color: string; label: string }> = {
@@ -25,12 +26,11 @@ export function FoodSafetyBadge({ check }: { check: FoodSafetyCheckResult }) {
         <span className="text-overline" style={{ color: meta.color }}>
           {meta.label}
         </span>
-        <span
-          className="badge badge-neutral tnum"
-          style={{ fontSize: 10 }}
-          title="Not a precise measurement — a fixed band per verdict (good≈90, warning≈55, bad≈15) that the AI can nudge within that band, never below the deterministic floor for this category and storage type."
-        >
-          {check.score}/100
+        <span className="flex items-center">
+          <span className="badge badge-neutral tnum" style={{ fontSize: 10 }}>
+            {check.score}/100
+          </span>
+          <InfoTooltip text="Not a precise measurement — a fixed band per verdict (good≈90, warning≈55, bad≈15) that the AI can nudge within that band, never below the deterministic floor for this category and storage type." />
         </span>
         {check.used_ai && (
           <span className="badge badge-accent" style={{ fontSize: 10 }}>

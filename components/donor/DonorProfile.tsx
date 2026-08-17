@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/Badge';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import { DonorImpactPanel } from '@/components/donor/DonorImpactPanel';
 import type { Donor } from '@/lib/types';
 
@@ -69,12 +70,8 @@ export function DonorProfile({ donor, onClose }: { donor: Donor; onClose: () => 
 
         <div className="flex gap-2">
           <Badge variant="accent">{donor.status}</Badge>
-          <Badge
-            variant="stable"
-            title="Set when the donor registers, not yet computed from delivery history (on-time drop-offs, no-shows) — a starting estimate, not a live behavioral score."
-          >
-            {(donor.reliability_score * 100).toFixed(0)}% reliability
-          </Badge>
+          <Badge variant="stable">{(donor.reliability_score * 100).toFixed(0)}% reliability</Badge>
+          <InfoTooltip text="Set when the donor registers, not yet computed from delivery history (on-time drop-offs, no-shows) — a starting estimate, not a live behavioral score." />
         </div>
 
         <div className="glass-card-nested p-4">
@@ -87,18 +84,18 @@ export function DonorProfile({ donor, onClose }: { donor: Donor; onClose: () => 
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div
-            className="glass-card-nested p-3 flex flex-col gap-1"
-            title="Estimated as 2 meals per kg donated — a standard charity-sector conversion, not a literal meal count."
-          >
-            <span className="text-overline">Meals Equivalent</span>
+          <div className="glass-card-nested p-3 flex flex-col gap-1">
+            <span className="text-overline flex items-center">
+              Meals Equivalent
+              <InfoTooltip text="Estimated as 2 meals per kg donated — a standard charity-sector conversion, not a literal meal count." />
+            </span>
             <span className="text-title-1 tnum">{meals.toLocaleString('en-SG')}</span>
           </div>
-          <div
-            className="glass-card-nested p-3 flex flex-col gap-1"
-            title="Estimated as 2.5kg of CO₂-equivalent avoided per kg donated — a standard sector conversion factor, not a direct emissions measurement."
-          >
-            <span className="text-overline">CO₂ Avoided</span>
+          <div className="glass-card-nested p-3 flex flex-col gap-1">
+            <span className="text-overline flex items-center">
+              CO₂ Avoided
+              <InfoTooltip text="Estimated as 2.5kg of CO₂-equivalent avoided per kg donated — a standard sector conversion factor, not a direct emissions measurement." />
+            </span>
             <span className="text-title-1 tnum">{co2}kg</span>
           </div>
         </div>
