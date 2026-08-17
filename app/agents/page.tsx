@@ -8,6 +8,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { SkeletonList, EmptyState } from '@/components/ui/Skeleton';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import { fitScore } from '@/lib/display-scoring';
 import { fetchJson } from '@/lib/utils/fetch-json';
 import type { Decision } from '@/lib/types';
 
@@ -64,9 +65,9 @@ function DecisionCard({ decision }: { decision: Decision }) {
           </span>
         )}
         <span className="flex items-center">
-          <span className="badge badge-accent tnum">Score {(winner?.total_score ?? 0).toFixed(2)}</span>
+          <span className="badge badge-accent tnum">Fit {fitScore(winner?.total_score ?? 0)}/100</span>
           <InfoTooltip
-            text="A weighted composite of proximity, fairness, and stock safety — not a percentage. Realistic winning scores land between 0.2 and 0.5; this is the highest of the branches considered, not a low grade."
+            text="Recalibrated onto a 0-100 scale (higher is better) from the real weighted composite of proximity, fairness, and stock safety — this is the highest of the branches considered for this donation."
             size={9}
           />
         </span>
@@ -150,8 +151,8 @@ export default function AgentsPage() {
       <div className="flex items-start gap-2 mb-5 text-caption" style={{ color: 'var(--text-tertiary)' }}>
         <Sparkles size={13} style={{ marginTop: 2, flexShrink: 0 }} />
         <span>
-          Each score below blends proximity, fairness, and stock safety into one weighted number, capped
-          at 1.0 — it&apos;s not a 0-100% quality grade, so a winning score of 0.2-0.5 is normal, not weak.
+          Each Fit Score blends proximity, fairness, and stock safety, then rescales onto a 0-100 scale
+          (higher is better) so it reads intuitively — see the ⓘ for exactly how.
         </span>
       </div>
 

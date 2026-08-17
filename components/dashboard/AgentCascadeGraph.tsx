@@ -16,6 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Wrench, X, ArrowDown } from 'lucide-react';
+import { fitScore } from '@/lib/display-scoring';
 import type { PipelineEntry, CandidateScore } from '@/lib/types';
 
 type NodeVariant =
@@ -352,9 +353,9 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
       data: {
         eyebrow: isChosen ? 'Chosen' : 'Considered',
         title: c.branch_name.replace('Willing Hearts — ', ''),
-        meta: `score ${c.total_score.toFixed(2)}`,
+        meta: `fit ${fitScore(c.total_score)}/100`,
         metaTooltip:
-          'A weighted composite (proximity×0.3 + fairness×0.5 + stock-safety×0.2), not a percentage — realistic winning scores land between 0.2 and 0.5.',
+          'Recalibrated onto a 0-100 scale (higher is better) from the real weighted composite (proximity×0.3 + fairness×0.5 + stock-safety×0.2) — the routing decision runs on the real numbers either way.',
         toolCalls: c.tool_calls?.length,
         detail: c.rationale ?? `Proximity ${c.proximity_score.toFixed(2)} · fairness ${c.fairness_score.toFixed(2)} · spoilage risk ${c.spoilage_risk_score.toFixed(2)}.`,
         variant: isChosen ? 'chosen' : 'considered',

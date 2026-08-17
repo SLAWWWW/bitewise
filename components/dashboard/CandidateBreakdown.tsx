@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CheckCircle2, Ban, Bot, AlertTriangle, Wrench, ChevronRight, Sparkles } from 'lucide-react';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
+import { closenessPercent, fitScore } from '@/lib/display-scoring';
 import type { CandidateScore, ExcludedBranchInfo, ToolCallTrace } from '@/lib/types';
 
 // "Spoilage risk" reads as "how likely is this to spoil" — the opposite of what
@@ -13,20 +14,26 @@ import type { CandidateScore, ExcludedBranchInfo, ToolCallTrace } from '@/lib/ty
 const STOCK_SAFETY_TOOLTIP =
   'Higher is safer. Measures whether this branch already has other stock of the same food type about to expire — 100% means none does.';
 
+// The real routing formula (1 ÷ (1 + distance_km × 10)) decays so fast that
+// even a branch 1km away scores 9% — technically correct for ranking
+// branches against each other, but reads as "far" to anyone who doesn't
+// know the formula. This is a friendlier closeness read for the same
+// distance, recalibrated so nearby branches actually look close — the
+// underlying routing decision is unaffected, only this display is.
 const PROXIMITY_TOOLTIP =
-  'Formula: 1 ÷ (1 + distance_km × 10) — decays sharply with distance, so even a few km away scores low. 100% only at essentially zero distance.';
+  'A closeness read from the actual distance, recalibrated for legibility — the real routing formula decays much faster than this (even 1km away would show as ~9% on the raw formula), which reads as "far" for something that\'s actually close. This display fixes that; the routing decision itself is unaffected either way.';
 
 const FAIRNESS_TOOLTIP =
   "This branch's free capacity relative to its own size: 1 − (current load ÷ capacity). 100% means completely empty; 0% means already full.";
 
-// The three cells to its left are each individually a genuine 0-100% — this
-// is a weighted SUM of them (proximity×0.3 + fairness×0.5 + stock safety×0.2),
-// so it doesn't share their scale. Shown as a decimal instead of a percentage
-// specifically so it doesn't invite comparison against the bars beside it —
-// a "27%" total next to a "100%" stock-safety score reads as a bad outcome
-// when it's often the best one available.
+// The raw weighted sum (proximity×0.3 + fairness×0.5 + stock safety×0.2)
+// realistically tops out around 0.7 even for a clearly-best candidate,
+// since proximity so rarely scores high — so it never looked like "higher
+// is better" the way a 0-100 scale should. Recalibrated the same way as
+// proximity: 0.7 on the raw scale reads as 100 here, since that's roughly
+// what a genuinely strong real-world match achieves.
 const TOTAL_SCORE_TOOLTIP =
-  'Weighted sum of proximity, fairness, and stock safety (not a percentage) — realistic winning scores land between 0.2 and 0.5.';
+  'Recalibrated onto a 0-100 scale (higher is better) from the real weighted sum of proximity, fairness, and stock safety — a raw score of 0.7 or higher (rare, since proximity is usually the limiting factor) reads as 100 here. The routing decision itself still runs on the real, uncalibrated numbers.';
 
 function ScoreCell({
   label,
@@ -154,10 +161,22 @@ export function CandidateBreakdown({
 
         <div className="candidate-head text-overline" style={{ fontSize: 10 }}>
           <span>Branch</span>
-          <span>Proximity</span>
-          <span>Fairness need</span>
-          <span>Stock safety</span>
-          <span>Total</span>
+          <span className="flex items-center">
+            Proximity
+            <InfoTooltip text={PROXIMITY_TOOLTIP} size={9} />
+          </span>
+          <span className="flex items-center">
+            Fairness need
+            <InfoTooltip text={FAIRNESS_TOOLTIP} size={9} />
+          </span>
+          <span className="flex items-center">
+            Stock safety
+            <InfoTooltip text={STOCK_SAFETY_TOOLTIP} size={9} />
+          </span>
+          <span className="flex items-center">
+            Fit Score
+            <InfoTooltip text={TOTAL_SCORE_TOOLTIP} size={9} />
+          </span>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -186,15 +205,20 @@ export function CandidateBreakdown({
                     </span>
                   )}
                 </div>
-                <ScoreCell label="Proximity" value={c.proximity_score} distanceKm={c.distance_km} tooltip={PROXIMITY_TOOLTIP} />
+                <ScoreCell
+                  label="Proximity"
+                  value={closenessPercent(c.distance_km) / 100}
+                  distanceKm={c.distance_km}
+                  tooltip={PROXIMITY_TOOLTIP}
+                />
                 <ScoreCell label="Fairness need" value={c.fairness_score} tooltip={FAIRNESS_TOOLTIP} />
                 <ScoreCell label="Stock safety" value={c.spoilage_risk_score} tooltip={STOCK_SAFETY_TOOLTIP} />
                 <div className="flex flex-col gap-1">
                   <span className="text-overline candidate-metric-label flex items-center" style={{ fontSize: 10 }}>
-                    Total
+                    Fit Score
                     <InfoTooltip text={TOTAL_SCORE_TOOLTIP} size={9} />
                   </span>
-                  <span className="text-title-2 tnum">{c.total_score.toFixed(2)}</span>
+                  <span className="text-title-2 tnum">{fitScore(c.total_score)}</span>
                 </div>
               </div>
 
@@ -273,10 +297,11 @@ export function CandidateBreakdown({
       )}
 
       <p className="text-caption" style={{ fontSize: 11 }}>
-        Score = {weights.proximity} × proximity + {weights.fairness} × fairness + {weights.spoilage} ×
+        Real formula: {weights.proximity} × proximity + {weights.fairness} × fairness + {weights.spoilage} ×
         stock safety (higher is safer — no competing near-expiry stock of this food type at the branch).
-        Each factor comes from a tool the branch&apos;s own agent called — expand any agent&apos;s tool
-        calls above to see the raw values it received.
+        Fit Score above is that same result recalibrated onto a 0-100 scale for legibility — the routing
+        decision runs on the real numbers either way. Each factor comes from a tool the branch&apos;s own
+        agent called — expand any agent&apos;s tool calls above to see the raw values it received.
       </p>
     </div>
   );
