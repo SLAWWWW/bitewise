@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { HandHeart, CheckCircle2, Clock3, ShieldCheck } from 'lucide-react';
+import { HandHeart, CheckCircle2, Clock3, ShieldCheck, Loader2 } from 'lucide-react';
 import { PublicShell } from '@/components/layout/PublicShell';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { FoodSafetyBadge } from '@/components/dashboard/FoodSafetyBadge';
@@ -346,12 +346,13 @@ export default function DonatePage() {
 
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary flex items-center justify-center gap-2"
             disabled={!form.agreed_to_regulations || submitting}
             aria-busy={submitting}
-            aria-label={submitting ? 'Submitting donation listing, please wait…' : 'Submit listing for NGO approval'}
+            aria-label={submitting ? 'Running food-safety check, please wait…' : 'Submit listing for NGO approval'}
           >
-            {submitting ? 'Submitting…' : 'Submit for NGO approval'}
+            {submitting && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
+            {submitting ? 'Running food-safety check…' : 'Submit for NGO approval'}
           </button>
         </GlassCard>
       </form>

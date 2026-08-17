@@ -192,32 +192,38 @@ export function FoodCard({
 
       {/* Key facts */}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 text-caption">
-          <MapPin size={12} style={{ flexShrink: 0 }} />
-          Collect from{' '}
-          <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-            {item.branch?.name.replace('Willing Hearts — ', '')}
-          </strong>
-          {item.branch?.area ? ` · ${item.branch.area}` : ''}
+        <div className="flex items-start gap-1.5 text-caption flex-wrap">
+          <MapPin size={12} style={{ flexShrink: 0, marginTop: 2 }} />
+          <span>
+            Collect from{' '}
+            <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+              {item.branch?.name.replace('Willing Hearts — ', '')}
+            </strong>
+            {item.branch?.area ? ` · ${item.branch.area}` : ''}
+          </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-caption">
+        <div className="flex items-start gap-1.5 text-caption flex-wrap">
           {needsCold ? (
-            <Snowflake size={12} color="var(--info)" style={{ flexShrink: 0 }} />
+            <Snowflake size={12} color="var(--info)" style={{ flexShrink: 0, marginTop: 2 }} />
           ) : (
-            <Box size={12} style={{ flexShrink: 0 }} />
+            <Box size={12} style={{ flexShrink: 0, marginTop: 2 }} />
           )}
-          <span className="capitalize">{item.storage_type}</span> storage — {item.storage_advice}
+          <span>
+            <span className="capitalize">{item.storage_type}</span> storage — {item.storage_advice}
+          </span>
         </div>
 
         {item.donated_by && (
-          <div className="flex items-center gap-1.5 text-caption">
-            <Building2 size={12} style={{ flexShrink: 0 }} />
-            Donated by{' '}
-            <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-              {item.donated_by}
-            </strong>
-            {item.donor_type ? <span className="capitalize"> · {item.donor_type}</span> : null}
+          <div className="flex items-start gap-1.5 text-caption flex-wrap">
+            <Building2 size={12} style={{ flexShrink: 0, marginTop: 2 }} />
+            <span>
+              Donated by{' '}
+              <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                {item.donated_by}
+              </strong>
+              {item.donor_type ? <span className="capitalize"> · {item.donor_type}</span> : null}
+            </span>
           </div>
         )}
       </div>

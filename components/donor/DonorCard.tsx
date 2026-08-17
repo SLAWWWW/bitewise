@@ -65,7 +65,7 @@ export function DonorCard({ donor, onClick }: { donor: Donor; onClick?: () => vo
           <Icon size={17} color={accent} strokeWidth={1.9} />
         </div>
         <Badge variant={reliabilityVariant(donor.reliability_score)}>
-          {(donor.reliability_score * 100).toFixed(0)}%
+          {(donor.reliability_score * 100).toFixed(0)}% reliable
         </Badge>
       </div>
 
