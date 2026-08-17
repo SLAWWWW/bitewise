@@ -487,6 +487,7 @@ export interface StorageItemView {
   reserved: boolean;
   escalated: boolean;
   distributed: boolean;
+  expired: boolean;
   within_escalation_window: boolean;
   /** Counted against this zone, but possibly still on the road. */
   delivery: DeliveryProgressView;
@@ -538,6 +539,10 @@ export interface StorageResponse {
     reserved: number;
     escalated: number;
     distributed: number;
+    /** Not counted in total_items (same reasoning as distributed) — surfaced
+     *  on its own so staff see how much expired stock is awaiting recycling. */
+    expired: number;
+    expired_kg: number;
     /** Stock counted at a branch that hasn't physically arrived yet. */
     in_transit: number;
   };

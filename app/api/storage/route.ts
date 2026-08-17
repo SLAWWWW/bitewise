@@ -24,6 +24,19 @@ import type { Branch, InventoryItem, StorageType } from '@/lib/types';
 export async function GET() {
   const supabase = createServerClient();
 
+  // Same lazy sweep as /api/inventory — staff can land on /storage without
+  // the public page ever having been hit, and without this, past-expiry
+  // stock would keep showing as 'in_stock'/'reserved'/'escalated' here
+  // indefinitely instead of ever becoming recyclable.
+  const { error: expiryError } = await supabase
+    .from('inventory_items')
+    .update({ status: 'expired' })
+    .in('status', ['in_stock', 'reserved', 'escalated'])
+    .lt('expiry_at', new Date().toISOString());
+  if (expiryError) {
+    console.error('[storage] retiring past-expiry stock failed:', expiryError.message);
+  }
+
   const [branchesRes, claimsRes, runsRes] = await Promise.all([
     supabase.from('branches').select('*').order('name'),
     supabase.from('claims').select('inventory_item_id, status, pickup_deadline_at'),
@@ -80,7 +93,11 @@ export async function GET() {
       // A picked-up item has physically left the branch — it stays visible
       // below (with its own "Picked up" badge, as confirmation staff can see
       // the action landed) but must not keep occupying rack space forever.
-      const occupying = zoneItems.filter((i) => i.status !== 'distributed');
+      // Expired stock is the same story: it's not usable inventory, just
+      // clutter awaiting recycling, so it can't count toward "rack full"
+      // either — a branch full of expired junk was blocking new stock from
+      // ever registering as fitting, with no way to clear it out.
+      const occupying = zoneItems.filter((i) => i.status !== 'distributed' && i.status !== 'expired');
       const usedKg = occupying.reduce((sum, i) => sum + (i.quantity ?? 0), 0);
       const capacityKg = allocation[zone.key as StorageType];
       const occupancy = capacityKg > 0 ? usedKg / capacityKg : usedKg > 0 ? 1.2 : 0;
@@ -114,6 +131,7 @@ export async function GET() {
           reserved: item.status === 'reserved' || (item.status === 'in_stock' && claimedIds.has(item.id)),
           escalated: item.status === 'escalated',
           distributed: item.status === 'distributed',
+          expired: item.status === 'expired',
           within_escalation_window: shelf.hours > 0 && shelf.hours <= ESCALATION_THRESHOLD_HOURS,
           pickup_deadline_at: deadlineByItem.get(item.id) ?? null,
         };
@@ -149,14 +167,15 @@ export async function GET() {
       has_cold_storage: branch.has_cold_storage,
       has_cooking: branch.has_cooking,
       zones,
-      total_items: branchItems.filter((i) => i.status !== 'distributed').length,
+      total_items: branchItems.filter((i) => i.status !== 'distributed' && i.status !== 'expired').length,
     };
   });
 
   const allZones = branchViews.flatMap((b) => b.zones);
+  const expiredItems = items.filter((i) => i.status === 'expired');
   const summary = {
     branches: branchViews.length,
-    total_items: items.filter((i) => i.status !== 'distributed').length,
+    total_items: items.filter((i) => i.status !== 'distributed' && i.status !== 'expired').length,
     racks_full: allZones.filter((z) => z.rack_state === 'full' || z.rack_state === 'over').length,
     zones_out_of_range: allZones.filter((z) => z.health !== 'nominal').length,
     unsupported_placements: allZones.filter((z) => z.unsupported_zone).length,
@@ -164,6 +183,11 @@ export async function GET() {
     reserved: items.filter((i) => i.status === 'reserved').length,
     escalated: items.filter((i) => i.status === 'escalated').length,
     distributed: items.filter((i) => i.status === 'distributed').length,
+    // Not counted in total_items (same reasoning as 'distributed' — it's not
+    // active stock) but surfaced on its own so staff can see, at a glance,
+    // how much expired clutter is sitting around waiting to be recycled.
+    expired: expiredItems.length,
+    expired_kg: Number(expiredItems.reduce((sum, i) => sum + (i.quantity ?? 0), 0).toFixed(1)),
     in_transit: allZones.reduce(
       (n, z) => n + z.items.filter((i) => !i.delivery.collectable).length,
       0
