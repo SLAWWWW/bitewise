@@ -174,7 +174,7 @@ export default function OrchestratorPage() {
               : mapBranches.map((b) => (
                   <NgoSaturationBar
                     key={b.id}
-                    name={b.name}
+                    name={b.name.replace('Willing Hearts — ', '')}
                     area={b.area}
                     color={b.color}
                     currentLoadKg={b.current_load_kg}

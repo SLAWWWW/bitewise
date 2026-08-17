@@ -108,11 +108,18 @@ Assess this donation's food safety. You may escalate the verdict to something mo
     };
 
     const finalVerdict = escalateOnly(floor.verdict, parsed.verdict);
+    // escalateOnly can reject the model's proposed verdict (when it tried to
+    // soften the floor) without rejecting its score/reasoning too — those
+    // still describe the verdict it proposed, not the floor that overrode
+    // it. When that happens, fall back to the floor's own score/reasoning
+    // (already computed in `base`) so the three fields never contradict
+    // each other on screen.
+    const wasOverridden = finalVerdict !== parsed.verdict;
     return {
       ...base,
       verdict: finalVerdict,
-      score: Math.max(0, Math.min(100, Math.round(parsed.score))),
-      reasoning: parsed.reasoning,
+      score: wasOverridden ? base.score : Math.max(0, Math.min(100, Math.round(parsed.score))),
+      reasoning: wasOverridden ? base.reasoning : parsed.reasoning,
       used_ai: true,
       recommended_storage_type: parsed.recommended_storage_type,
       recommended_expiry_hours: parsed.recommended_expiry_hours,

@@ -165,6 +165,40 @@ const record = (name, ok, note) => results.push({ name, ok, note });
   );
 }
 
+// --- 010 recipient_profiles privacy fix -------------------------------------
+{
+  const ANON_KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!ANON_KEY) {
+    record('010_recipient_profiles_privacy', false, 'no NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local to probe with');
+  } else {
+    const probeName = '__migration_010_probe__';
+    const insert = await fetch(`${URL_BASE}/rest/v1/recipient_profiles`, {
+      method: 'POST',
+      headers: { ...H, Prefer: 'return=representation' },
+      body: JSON.stringify({ name: probeName }),
+    });
+    const insertBody = insert.ok ? await insert.json() : [];
+    const [probeRow] = Array.isArray(insertBody) ? insertBody : [];
+    const anonRes = probeRow
+      ? await fetch(`${URL_BASE}/rest/v1/recipient_profiles?select=id&id=eq.${probeRow.id}`, {
+          headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
+        })
+      : null;
+    const anonRows = anonRes && anonRes.ok ? await anonRes.json() : [];
+    const stillPublic = Array.isArray(anonRows) && anonRows.length > 0;
+    record(
+      '010_recipient_profiles_privacy',
+      probeRow ? !stillPublic : false,
+      !probeRow
+        ? 'could not insert a probe row to test with'
+        : stillPublic
+          ? 'STILL PUBLIC — anon key can read recipient name/phone, drop the "Public read access" policy'
+          : 'recipient_profiles correctly denies anonymous reads'
+    );
+    if (probeRow) await rest(`recipient_profiles?id=eq.${probeRow.id}`, { method: 'DELETE' });
+  }
+}
+
 console.log('\nSupabase migration status\n');
 for (const { name, ok, note } of results) {
   console.log(`  ${ok ? '✓' : '✗'}  ${name.padEnd(24)} ${note}`);

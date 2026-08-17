@@ -376,23 +376,29 @@ export function SupplyChainPlan({
 
           <StageDetail stage={plan.stages[activeIndex]} />
 
-          {/* Constraint tools the planner actually consulted. */}
+          {/* Constraint tools the planner actually consulted. Wraps instead of
+              relying on horizontal scroll — a raw JSON.stringify blob forced
+              onto one nowrap line used to spill past the card edge, worst on
+              mobile. */}
           {plan.tool_calls && plan.tool_calls.length > 0 && (
-            <div className="glass-card-nested scroll-x" style={{ padding: '8px 10px' }}>
+            <div className="glass-card-nested" style={{ padding: '8px 10px' }}>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Wrench size={11} color="var(--text-tertiary)" />
                 <span className="text-caption" style={{ fontSize: 10.5 }}>
                   Constraints checked
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1.5">
                 {plan.tool_calls.map((call, i) => (
-                  <div key={i} className="flex items-baseline gap-2" style={{ whiteSpace: 'nowrap' }}>
+                  <div key={i} style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                     <span className="text-caption mono" style={{ color: 'var(--accent)', fontSize: 11 }}>
                       {call.name}()
                     </span>
                     <span className="text-caption mono" style={{ fontSize: 11 }}>
-                      → {JSON.stringify(call.result)}
+                      {' → '}
+                      {Object.entries(call.result)
+                        .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+                        .join(', ')}
                     </span>
                   </div>
                 ))}

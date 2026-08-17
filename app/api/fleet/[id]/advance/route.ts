@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServerClient } from '@/lib/supabase-server';
 import { RUN_ADVANCE, type RunStatus } from '@/lib/fleet';
+import { requireStaffKey } from '@/lib/staff-auth';
 
 const BodySchema = z.object({ action: z.enum(['advance', 'cancel']).default('advance') });
 
@@ -19,6 +20,9 @@ const TIMESTAMP_FIELD: Partial<Record<RunStatus, string>> = {
  * Same pattern as approvals and claims.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const authError = requireStaffKey(request);
+  if (authError) return authError;
+
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
   const parsed = BodySchema.safeParse(body);

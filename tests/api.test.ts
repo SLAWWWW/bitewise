@@ -44,6 +44,7 @@ const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUP
 const SERVICE_ROLE_KEY =
   env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const GEMINI_API_KEY = env.GEMINI_API_KEY ?? process.env.GEMINI_API_KEY ?? '';
+const STAFF_API_KEY = env.STAFF_API_KEY ?? process.env.STAFF_API_KEY ?? '';
 
 // ───── Helpers ────────────────────────────────────────────────────────────────
 
@@ -57,7 +58,10 @@ function supabase(): SupabaseClient {
 async function post(path: string, body: unknown): Promise<Response> {
   return fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(STAFF_API_KEY ? { 'x-staff-key': STAFF_API_KEY } : {}),
+    },
     body: JSON.stringify(body),
   });
 }

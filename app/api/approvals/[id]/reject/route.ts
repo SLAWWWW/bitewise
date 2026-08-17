@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase-server';
 import type { ApprovalActionResponse } from '@/lib/types';
+import { requireStaffKey } from '@/lib/staff-auth';
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const authError = requireStaffKey(request);
+  if (authError) return authError;
+
   const { id } = await params;
   const supabase = createServerClient();
 
@@ -20,13 +24,16 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json(response, { status: 409 });
   }
 
-  const { data: claimedRows } = await supabase
+  const { data: claimedRows, error: rejectError } = await supabase
     .from('food_listings')
     .update({ status: 'cancelled', reviewed_at: new Date().toISOString() })
     .eq('id', id)
     .eq('status', 'pending')
     .select('id');
 
+  if (rejectError) {
+    return NextResponse.json({ error: rejectError.message }, { status: 500 });
+  }
   if (!claimedRows || claimedRows.length === 0) {
     const response: ApprovalActionResponse = { success: false, message: 'This listing was already reviewed.' };
     return NextResponse.json(response, { status: 409 });

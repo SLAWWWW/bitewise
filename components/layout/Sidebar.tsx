@@ -15,8 +15,10 @@ import {
   HeartHandshake,
   X,
   Search,
+  KeyRound,
 } from 'lucide-react';
 import { openCommandPalette } from './CommandPalette';
+import { promptForStaffKey } from '@/lib/utils/staff-key';
 
 const NAV_ITEMS = [
   { href: '/orchestrator', label: 'Network Overview', icon: LayoutDashboard },
@@ -192,6 +194,15 @@ export function Sidebar({
           <ArrowLeftRight size={14} strokeWidth={1.8} style={{ opacity: 0.6 }} />
           Public View
         </Link>
+        <button
+          type="button"
+          onClick={promptForStaffKey}
+          className="nav-link"
+          style={{ margin: 0, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          <KeyRound size={14} strokeWidth={1.8} style={{ opacity: 0.6 }} />
+          Staff Key
+        </button>
         <p
           style={{
             fontSize: 10,

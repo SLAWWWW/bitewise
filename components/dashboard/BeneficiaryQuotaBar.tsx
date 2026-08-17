@@ -23,8 +23,8 @@ export function BeneficiaryQuotaBar({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2" style={{ minWidth: 0, flex: '1 1 220px' }}>
           <span
             aria-hidden="true"
             className="flex-shrink-0"
@@ -37,8 +37,14 @@ export function BeneficiaryQuotaBar({
             }}
           />
           <span
-            className="truncate"
-            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}
+            title={name}
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--text-primary)',
+              letterSpacing: '-0.01em',
+              overflowWrap: 'break-word',
+            }}
           >
             {name}
           </span>

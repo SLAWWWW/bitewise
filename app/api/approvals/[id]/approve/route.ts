@@ -7,8 +7,12 @@ import { beneficiariesForArea } from '@/lib/data/beneficiaries';
 import { runMatchingAgents, DEFAULT_MATCH_WEIGHTS, type AgentPipelineResult } from '@/lib/agents/run-pipeline';
 import { rankDispatchCandidates, isOpenRun, type FleetRunRow, type VehicleRow } from '@/lib/fleet';
 import type { ApprovalActionResponse, Branch, BeneficiaryAllocationDetails, MatchDecisionDetails } from '@/lib/types';
+import { requireStaffKey } from '@/lib/staff-auth';
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const authError = requireStaffKey(request);
+  if (authError) return authError;
+
   const { id } = await params;
   const supabase = createServerClient();
 
