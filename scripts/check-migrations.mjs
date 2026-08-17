@@ -211,6 +211,16 @@ const record = (name, ok, note) => results.push({ name, ok, note });
   );
 }
 
+// --- 012 partner dispatch runs ---------------------------------------------
+{
+  const res = await rest('partner_dispatch_runs?select=id&limit=1');
+  record(
+    '012_partner_dispatch_runs',
+    res.ok,
+    res.ok ? 'table present' : 'missing — the daily 6pm dispatch cron has nowhere to write its runs and will fail silently'
+  );
+}
+
 console.log('\nSupabase migration status\n');
 for (const { name, ok, note } of results) {
   console.log(`  ${ok ? '✓' : '✗'}  ${name.padEnd(24)} ${note}`);

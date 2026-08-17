@@ -65,6 +65,17 @@ function RunCard({ run }: { run: DispatchRun }) {
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
+          {run.dispatched_today_at ? (
+            <span className="badge badge-stable">
+              <CheckCircle2 size={9} />
+              Dispatched at {new Date(run.dispatched_today_at).toLocaleTimeString('en-SG', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          ) : (
+            <span className="badge badge-neutral">
+              <Clock3 size={9} />
+              Proposed — dispatches at 6pm
+            </span>
+          )}
           {run.needs_cold_chain && (
             <span className="badge badge-info">
               <Snowflake size={9} />
