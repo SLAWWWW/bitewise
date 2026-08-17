@@ -70,6 +70,10 @@ export async function runBranchAgent(
       model: GEMINI_MODEL,
       contents: `You are the Branch Coordination Agent for ${branch.name}, part of the Willing Hearts network. A donor wants to give ${quantityKg}kg of ${foodType}. You MUST call all three of your tools — get_proximity_score, get_fairness_need_score, and get_spoilage_risk_score — to gather real data before answering; never guess these numbers yourself. Then write a concise one or two sentence assessment of whether your branch is a good destination for this donation, referencing the actual numbers your tools returned.`,
       config: {
+        // A slow-but-alive call never throws on its own, so without this it
+        // can hang the request indefinitely instead of ever reaching the
+        // deterministic fallback below.
+        httpOptions: { timeout: 12000 },
         tools,
         toolConfig: { functionCallingConfig: { mode: FunctionCallingConfigMode.AUTO } },
         maxOutputTokens: 512,

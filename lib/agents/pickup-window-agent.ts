@@ -88,6 +88,10 @@ Give a pickup window in minutes appropriate to how urgent this is — tighter fo
       model: GEMINI_MODEL,
       contents: prompt,
       config: {
+        // A slow-but-alive call never throws on its own, so without this it
+        // can hang the request indefinitely instead of ever reaching the
+        // deterministic fallback below.
+        httpOptions: { timeout: 12000 },
         systemInstruction:
           'You set pickup deadlines for a food-rescue charity. Be conservative — an item that spoils soon needs a short window; never recommend a window that risks the food spoiling before the deadline arrives.',
         responseMimeType: 'application/json',

@@ -43,6 +43,10 @@ export async function runCoordinatorAgent(
       model: GEMINI_MODEL,
       contents: `You are the Network Coordinator Agent for Willing Hearts. ${reports.length} Branch Coordination Agents have each reported on whether their branch should receive a donation of ${quantityKg}kg of ${foodType}:\n\n${summary}\n\nDecide which single branch should receive this donation. You may agree with the highest combined score, or choose a different branch if the reports give you a well-justified reason to (for example a close tie where one branch's spoilage risk or fairness need is the bigger real-world concern). Base your decision only on the numbers and reports above — do not invent information the agents didn't report.`,
       config: {
+        // A slow-but-alive call never throws on its own, so without this it
+        // can hang the request indefinitely instead of ever reaching the
+        // deterministic fallback below.
+        httpOptions: { timeout: 12000 },
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,

@@ -88,6 +88,10 @@ Assess this donation's food safety. You may escalate the verdict to something mo
       model: GEMINI_MODEL,
       contents: prompt,
       config: {
+        // A slow-but-alive call never throws on its own, so without this it
+        // can hang the request indefinitely instead of ever reaching the
+        // deterministic fallback below.
+        httpOptions: { timeout: 12000 },
         systemInstruction:
           'You are a food-safety verification assistant for a charity donation intake form, standing between the public form and a human approval queue. You are grounded in a retrieved food-safety category and a pre-computed deterministic floor verdict — never report a verdict less severe than that floor, only equal or worse. Be conservative and concrete.',
         responseMimeType: 'application/json',
