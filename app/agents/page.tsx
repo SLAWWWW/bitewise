@@ -62,7 +62,12 @@ function DecisionCard({ decision }: { decision: Decision }) {
             AI
           </span>
         )}
-        <span className="badge badge-accent tnum">{((winner?.total_score ?? 0) * 100).toFixed(0)}%</span>
+        <span
+          className="badge badge-accent tnum"
+          title="A weighted composite of proximity, fairness, and stock safety — not a percentage. Realistic winning scores land between 0.2 and 0.5; this is the highest of the branches considered, not a low grade."
+        >
+          Score {(winner?.total_score ?? 0).toFixed(2)}
+        </span>
         {decision.entity_id && <ChevronRight size={16} color="var(--text-secondary)" />}
       </div>
     </div>
@@ -132,11 +137,19 @@ export default function AgentsPage() {
         })}
       </div>
 
-      <div className="flex items-start gap-2 mb-5 text-caption">
+      <div className="flex items-start gap-2 mb-2 text-caption">
         <ShieldCheck size={13} color="var(--success)" style={{ marginTop: 2, flexShrink: 0 }} />
         <span>
           If the model is ever unavailable, the identical formula runs with no AI involved so a live
           donation is never blocked — and any decision that fell back is labelled as such below.
+        </span>
+      </div>
+
+      <div className="flex items-start gap-2 mb-5 text-caption" style={{ color: 'var(--text-tertiary)' }}>
+        <Sparkles size={13} style={{ marginTop: 2, flexShrink: 0 }} />
+        <span>
+          Each score below blends proximity, fairness, and stock safety into one weighted number, capped
+          at 1.0 — it&apos;s not a 0-100% quality grade, so a winning score of 0.2-0.5 is normal, not weak.
         </span>
       </div>
 
