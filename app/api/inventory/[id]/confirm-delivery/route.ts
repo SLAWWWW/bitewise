@@ -25,7 +25,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .update({ status: 'distributed' })
     .eq('id', id)
     .eq('status', 'escalated')
-    .select('id')
+    .select('id, branch_id')
     .maybeSingle();
 
   if (updateError) {
@@ -45,6 +45,33 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       `[inventory/confirm-delivery] ${id} confirmed delivered but could not be deleted. Cause:`,
       deleteError.message
     );
+  }
+
+  // If this was the last escalated item at this branch, today's dispatch run
+  // (if one exists — migration 012) is actually finished, not just "in
+  // progress" — without this, the "ongoing dispatch" notification would
+  // stay lit forever after the real work is already done.
+  const { count: remaining } = await supabase
+    .from('inventory_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('branch_id', updated.branch_id)
+    .eq('status', 'escalated');
+
+  if (!remaining) {
+    const dispatchDate = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+    const { error: completeError } = await supabase
+      .from('partner_dispatch_runs')
+      .update({ status: 'completed' })
+      .eq('branch_id', updated.branch_id)
+      .eq('dispatch_date', dispatchDate)
+      .neq('status', 'completed');
+    if (completeError) {
+      console.error(
+        `[inventory/confirm-delivery] could not mark branch ${updated.branch_id}'s dispatch run completed — ` +
+          'likely migration 012 not applied yet. Cause:',
+        completeError.message
+      );
+    }
   }
 
   return NextResponse.json({ success: true });
