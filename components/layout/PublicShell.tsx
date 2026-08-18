@@ -8,11 +8,10 @@ import { ArrowLeftRight } from 'lucide-react';
 
 const TABS = [
   { href: '/recipient', label: 'Browse Food' },
-  { href: '/recipient/impact', label: 'My Impact' },
   { href: '/donate', label: 'Donate Food' },
 ];
 
-export function PublicShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
+export function PublicShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -63,7 +62,7 @@ export function PublicShell({ children, wide = false }: { children: ReactNode; w
         </Link>
       </div>
 
-      <div className="mx-auto px-5 py-10" style={{ maxWidth: wide ? 1160 : 640 }}>
+      <div className="mx-auto px-5 py-10" style={{ maxWidth: 640 }}>
         {children}
       </div>
     </div>
