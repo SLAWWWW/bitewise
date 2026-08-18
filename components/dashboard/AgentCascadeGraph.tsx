@@ -152,15 +152,6 @@ export function AgentCascadeGraph({ entry }: { entry: PipelineEntry }) {
   const candidateRows = dd.candidates.length + (dd.excluded_branches.length > 0 ? 1 : 0);
   const height = Math.max(320, candidateRows * ROW_H + 80);
 
-  const toolCallCount =
-    dd.candidates.reduce((s, c) => s + (c.tool_calls?.length ?? 0), 0) + (dd.supply_chain_plan?.tool_calls?.length ?? 0);
-  const stats = [
-    { label: 'Branches Evaluated', value: dd.candidates.length + dd.excluded_branches.length, color: 'var(--text-primary)' },
-    { label: 'Chosen', value: entry.branch_name ? 1 : 0, color: 'var(--success)' },
-    { label: 'Tool Calls', value: toolCallCount, color: 'var(--accent)' },
-    { label: 'Plan Stages', value: dd.supply_chain_plan?.stages.length ?? 0, color: 'var(--text-secondary)' },
-  ];
-
   return (
     <div style={{ position: 'relative' }}>
       <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
@@ -174,21 +165,6 @@ export function AgentCascadeGraph({ entry }: { entry: PipelineEntry }) {
           <div className="text-title-2" style={{ marginTop: 2 }}>
             Decision flow for this donation
           </div>
-        </div>
-        <div className="flex items-center gap-5 flex-wrap">
-          {stats.map((s) => (
-            <div key={s.label} className="flex flex-col items-end">
-              <span
-                className="tnum"
-                style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}
-              >
-                {s.label}
-              </span>
-              <span className="tnum" style={{ fontSize: 18, fontWeight: 700, color: s.color, letterSpacing: '-0.02em' }}>
-                {s.value}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
 
