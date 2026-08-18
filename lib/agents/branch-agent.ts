@@ -28,7 +28,7 @@ export interface BranchAgentReport {
   agent_ok: boolean;
 }
 
-const WEIGHTS = { proximity: 0.3, fairness: 0.5, spoilage: 0.2 };
+const WEIGHTS = { proximity: 0.4, fairness: 0.4, spoilage: 0.2 };
 
 /**
  * The Branch Coordination Agent for one branch. It has three real tools

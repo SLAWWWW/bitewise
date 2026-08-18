@@ -46,7 +46,7 @@ export interface ExcludedBranch {
   reason: 'at_capacity';
 }
 
-export const DEFAULT_MATCH_WEIGHTS: MatchWeights = { proximity: 0.3, fairness: 0.5, spoilage: 0.2 };
+export const DEFAULT_MATCH_WEIGHTS: MatchWeights = { proximity: 0.4, fairness: 0.4, spoilage: 0.2 };
 
 /**
  * Fairness + Spoilage-Aware Matching
