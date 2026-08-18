@@ -25,6 +25,7 @@ export async function GET() {
     vehiclesRes,
     fleetRunsRes,
     dispatchedRes,
+    claimsRes,
   ] = await Promise.all([
     supabase.from('food_listings').select('id, item_name, quantity_kg, created_at').eq('status', 'pending'),
     supabase.from('inventory_items').select('*'),
@@ -32,6 +33,7 @@ export async function GET() {
     supabase.from('vehicles').select('*'),
     supabase.from('fleet_runs').select('*'),
     supabase.from('partner_dispatch_runs').select('*').eq('dispatch_date', dispatchDate),
+    supabase.from('claims').select('id, status, pickup_deadline_at').eq('status', 'claimed'),
   ]);
 
   const notifications: NotificationItem[] = [];
@@ -86,6 +88,60 @@ export async function GET() {
         count: reservedUrgent.length,
         href: '/storage',
       });
+    }
+  }
+
+  // ── Claims: public reservations awaiting pickup confirmation ────────────
+  // Mirrors "awaiting delivery confirmation" for partner dispatch — a claim
+  // being reserved doesn't mean the food is gone yet; staff (or the
+  // recipient) still needs to actually hand it over and someone needs to hit
+  // "Mark picked up" on /storage, or it just sits reserved until it times out.
+  if (!claimsRes.error) {
+    const claimed = claimsRes.data ?? [];
+    if (claimed.length > 0) {
+      const overdue = claimed.filter(
+        (c) => c.pickup_deadline_at && new Date(c.pickup_deadline_at).getTime() < now
+      );
+      const dueSoon = claimed.filter((c) => {
+        if (!c.pickup_deadline_at) return false;
+        const hoursLeft = (new Date(c.pickup_deadline_at).getTime() - now) / 3_600_000;
+        return hoursLeft > 0 && hoursLeft < 3;
+      });
+
+      if (overdue.length > 0) {
+        notifications.push({
+          id: 'claims-overdue',
+          category: 'claims',
+          severity: 'critical',
+          title: `${overdue.length} claim${overdue.length === 1 ? '' : 's'} past their pickup deadline`,
+          detail: 'Recipient never showed — release back to public listing or mark picked up if it already happened.',
+          count: overdue.length,
+          href: '/storage',
+        });
+      }
+      if (dueSoon.length > 0) {
+        notifications.push({
+          id: 'claims-due-soon',
+          category: 'claims',
+          severity: 'warning',
+          title: `${dueSoon.length} claim${dueSoon.length === 1 ? '' : 's'} due for pickup soon`,
+          detail: 'Pickup window closing within 3 hours — confirm once the recipient collects it.',
+          count: dueSoon.length,
+          href: '/storage',
+        });
+      }
+      const stillOpen = claimed.length - overdue.length - dueSoon.length;
+      if (stillOpen > 0) {
+        notifications.push({
+          id: 'claims-awaiting-pickup',
+          category: 'claims',
+          severity: 'info',
+          title: `${stillOpen} claim${stillOpen === 1 ? '' : 's'} awaiting pickup confirmation`,
+          detail: 'Reserved by a recipient — hit "Mark picked up" on /storage once they collect it.',
+          count: stillOpen,
+          href: '/storage',
+        });
+      }
     }
   }
 

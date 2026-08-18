@@ -622,7 +622,7 @@ export interface FleetResponse {
  *  showing them together in one feed. */
 export interface NotificationItem {
   id: string;
-  category: 'approval' | 'storage' | 'dispatch' | 'fleet';
+  category: 'approval' | 'storage' | 'claims' | 'dispatch' | 'fleet';
   severity: 'critical' | 'warning' | 'info';
   title: string;
   detail: string;

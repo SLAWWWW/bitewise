@@ -76,13 +76,17 @@ function DecisionCard({ decision }: { decision: Decision }) {
     </div>
   );
 
+  // No overflow-hidden here — the Fit-score InfoTooltip inside `content`
+  // pops open above the row, and an ancestor with overflow-hidden clips it
+  // before it can ever be seen (nothing in this row bleeds past its rounded
+  // corners, so it isn't needed for the card itself either).
   if (!decision.entity_id) {
-    return <GlassCard className="overflow-hidden">{content}</GlassCard>;
+    return <GlassCard>{content}</GlassCard>;
   }
 
   return (
     <Link href={`/item/${decision.entity_id}`} className="block">
-      <GlassCard hover className="overflow-hidden cursor-pointer">
+      <GlassCard hover className="cursor-pointer">
         {content}
       </GlassCard>
     </Link>

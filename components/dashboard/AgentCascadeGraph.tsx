@@ -314,6 +314,16 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
 
   // ── Column 1: Sorting / Food-Safety Agent ─────────────────────────────
   const fsc = dd.food_safety_check;
+  // The score is deliberately vague ("a fixed band per verdict") — the ratio
+  // is the actual number that decided good/warning/bad, so it's what
+  // answers "why is this considered good?" rather than leaving that only
+  // one click deeper on the item page's FoodSafetyBadge.
+  const ratioLine =
+    fsc && fsc.ratio > 0
+      ? `Declared shelf life is ${fsc.ratio.toFixed(2)}× the safe window for ${fsc.category_label.toLowerCase()} in ${entry.storage_type} storage — ≤1.0× is 'good', up to 2.5× is 'warning', beyond that is 'bad'.`
+      : fsc
+        ? `${fsc.category_label} has no meaningful spoilage window at this storage type (e.g. canned or dry goods) — always rated good regardless of how long it's declared for.`
+        : undefined;
   nodes.push({
     id: 'gate',
     type: 'cascade',
@@ -323,9 +333,15 @@ function buildGraph(entry: PipelineEntry): { nodes: Node[]; edges: Edge[] } {
       title: fsc ? fsc.category_label : 'Safety check',
       meta: fsc ? `${fsc.verdict.toUpperCase()} · ${fsc.score}/100` : undefined,
       metaTooltip: fsc
-        ? 'Not a precise measurement — a fixed band per verdict (good≈90, warning≈55, bad≈15) the AI can nudge within, never below the deterministic floor.'
+        ? 'Score is informational only — a fixed band per verdict (good≈90, warning≈55, bad≈15) the AI can nudge within, never below the deterministic floor. Click the node for the actual number that decided the verdict.'
         : undefined,
       detail: fsc?.reasoning ?? 'This donation predates the automated safety-check feature.',
+      lines: fsc
+        ? [
+            ratioLine!,
+            `${fsc.perishable ? 'Perishable' : 'Shelf-stable'}${fsc.requires_cold_chain ? ' · needs cold chain' : ''} — ${fsc.safe_temp_note}`,
+          ]
+        : undefined,
       sectionId: fsc ? 'food-safety-section' : undefined,
       sectionLabel: 'View full safety check',
       variant: 'gate',
