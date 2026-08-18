@@ -1,4 +1,4 @@
-import { ShieldCheck, ShieldAlert, ShieldX, Bot } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, ShieldX, Bot, Lightbulb } from 'lucide-react';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { FoodSafetyCheckResult } from '@/lib/types';
 
@@ -44,6 +44,28 @@ export function FoodSafetyBadge({ check }: { check: FoodSafetyCheckResult }) {
         {check.category_label} · {check.perishable ? 'perishable' : 'shelf-stable'}
         {check.requires_cold_chain ? ' · needs cold chain' : ''} · {check.safe_temp_note}
       </span>
+      {check.recommended_storage_type && (
+        <div
+          className="text-caption flex items-start gap-1.5 p-2 rounded-lg"
+          style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}
+        >
+          <Lightbulb size={12} color="var(--accent)" style={{ flexShrink: 0, marginTop: 1 }} />
+          <span>
+            Declared at <strong style={{ color: 'var(--text-primary)' }}>{check.recommended_storage_type}</strong>{' '}
+            storage instead
+            {check.recommended_expiry_hours != null && (
+              <>
+                {' '}
+                it would safely last up to{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>{check.recommended_expiry_hours}h</strong>
+              </>
+            )}
+            {check.verdict === 'bad'
+              ? ' — update the storage type and resubmit instead of discarding it.'
+              : '.'}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

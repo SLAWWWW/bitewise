@@ -14,10 +14,13 @@ import type { FoodType } from '@/lib/types';
  * Thresholds are anchored to two real published sources, not guessed:
  * - Singapore Food Agency, "Guidelines for Food Donation": chilled ≤4°C,
  *   frozen ≤-18°C, hot-held >60°C, and the 5°C–60°C temperature danger zone.
- * - FDA/USDA: perishable food unrefrigerated more than 2 hours (1 hour above
- *   32°C / ~90°F, realistic for outdoor or non-air-conditioned handling in
- *   Singapore) is a discard risk; food-service guidance caps cumulative
- *   danger-zone time at 4 hours.
+ * - FDA/USDA: perishable food unrefrigerated more than 2 hours is a discard
+ *   risk, halved to 1 hour above 32°C / ~90°F — the realistic case here,
+ *   since Singapore's ambient temperature sits above that line effectively
+ *   year-round. `max_ambient_hours` on the high-risk perishable categories
+ *   below (cooked meals, dairy, cream-filled bakery, thawed frozen) uses that
+ *   1-hour figure rather than the temperate-climate 2-hour one; food-service
+ *   guidance caps cumulative danger-zone time at 4 hours regardless.
  * `max_ambient_hours: null` means the category is shelf-stable — there is no
  * bacterial-risk clock running at room temperature, so no ambient time limit
  * applies (canned goods, dry goods, sealed beverages).
@@ -44,7 +47,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     label: 'Cooked meat, poultry, seafood or mixed prepared meals',
     perishable: true,
     requires_cold_chain: true,
-    max_ambient_hours: 2,
+    max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: 2160,
     safe_temp_note: 'Hot-held above 60°C, chilled at or below 4°C, or frozen at or below -18°C.',
@@ -60,7 +63,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     label: 'Milk, yogurt, cheese, cream and other dairy',
     perishable: true,
     requires_cold_chain: true,
-    max_ambient_hours: 2,
+    max_ambient_hours: 1,
     max_cold_hours: 168,
     max_frozen_hours: 4320,
     safe_temp_note: 'Chilled at or below 4°C, or frozen at or below -18°C.',
@@ -108,7 +111,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     label: 'Cream cakes, custard pastries, and cream-filled desserts',
     perishable: true,
     requires_cold_chain: true,
-    max_ambient_hours: 2,
+    max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: null,
     safe_temp_note: 'Chilled at or below 4°C — treat like dairy, not like plain bakery.',
@@ -132,10 +135,10 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     label: 'Frozen meals, frozen meat, or frozen seafood, still frozen',
     perishable: true,
     requires_cold_chain: true,
-    max_ambient_hours: 2,
+    max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: 4320,
-    safe_temp_note: 'Frozen at or below -18°C. Once thawed, treat as cooked/high-risk (2-hour ambient limit).',
+    safe_temp_note: 'Frozen at or below -18°C. Once thawed, treat as cooked/high-risk (1-hour ambient limit in Singapore\'s climate).',
     keywords: ['frozen', 'ice cream'],
     default_food_types: [],
   },

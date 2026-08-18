@@ -27,7 +27,7 @@ describe('runFoodSafetyCheck — escalateOnly must not leave a mismatched score/
     const { runFoodSafetyCheck } = await import('@/lib/agents/food-safety-agent');
 
     // Cooked chicken curry declared safe for 48h at ambient — the
-    // deterministic floor for cooked_high_risk (2h ambient max) is 'bad'.
+    // deterministic floor for cooked_high_risk (1h ambient max) is 'bad'.
     // The model proposes 'good' anyway, with a reassuring score/reasoning —
     // exactly the disagreement escalateOnly exists to catch.
     mockGenerateContent.mockResolvedValue({

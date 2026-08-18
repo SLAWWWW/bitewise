@@ -52,24 +52,24 @@ describe('computeDeterministicVerdict', () => {
   });
 
   it('is exactly at the boundary (ratio 1.0) and still counts as good, not warning', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 2); // max_ambient_hours = 2
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1); // max_ambient_hours = 1 (Singapore's climate halves the temperate 2h rule)
     expect(v.ratio).toBe(1);
     expect(v.verdict).toBe('good');
   });
 
   it('is a warning when moderately over the safe ambient window', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 3); // 1.5x of 2h
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1.5); // 1.5x of 1h
     expect(v.verdict).toBe('warning');
   });
 
   it('is exactly at the warning/bad boundary (ratio 2.5) and still counts as warning', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 5); // 2.5x of 2h
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 2.5); // 2.5x of 1h
     expect(v.ratio).toBe(2.5);
     expect(v.verdict).toBe('warning');
   });
 
   it('is bad when grossly over the safe ambient window — cooked chicken declared safe for 2 days', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 48); // 24x of 2h
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 48); // 48x of 1h
     expect(v.verdict).toBe('bad');
   });
 

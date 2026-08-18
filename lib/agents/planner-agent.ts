@@ -240,7 +240,7 @@ export function buildDeterministicPlan(input: PlannerInput): SupplyChainPlan {
           location: `${input.donorArea} → ${input.branchName.replace('Willing Hearts — ', '')}`,
           detail: `Direct transfer to the branch the coordinator selected — roughly ${travelMinutes} minutes of road time.`,
           timing: `~${travelMinutes} min`,
-          risk_note: isCooked ? 'Cooked food must not sit at ambient temperature for more than 2 hours in transit.' : undefined,
+          risk_note: isCooked ? "Cooked food must not sit at ambient temperature for more than 1 hour in transit — Singapore's climate halves the usual 2-hour rule." : undefined,
         },
         storageStage,
         {
@@ -265,7 +265,7 @@ export function buildDeterministicPlan(input: PlannerInput): SupplyChainPlan {
           location: `${input.donorArea} → ${input.branchName.replace('Willing Hearts — ', '')}`,
           detail: `Direct transfer to the branch the coordinator selected — roughly ${travelMinutes} minutes of road time.`,
           timing: `~${travelMinutes} min`,
-          risk_note: isCooked ? 'Cooked food must not sit at ambient temperature for more than 2 hours in transit.' : undefined,
+          risk_note: isCooked ? "Cooked food must not sit at ambient temperature for more than 1 hour in transit — Singapore's climate halves the usual 2-hour rule." : undefined,
         },
         storageStage,
         {
