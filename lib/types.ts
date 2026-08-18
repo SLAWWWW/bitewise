@@ -616,20 +616,6 @@ export interface FleetResponse {
 
 // ───── Partner dispatch (from /api/dispatch) ─────
 
-/** One aggregated "needs attention" item on the Network Overview page —
- *  everything traces back to a count already computed elsewhere in the app
- *  (see app/api/notifications/route.ts); this is just the shared shape for
- *  showing them together in one feed. */
-export interface NotificationItem {
-  id: string;
-  category: 'approval' | 'storage' | 'claims' | 'dispatch' | 'fleet';
-  severity: 'critical' | 'warning' | 'info';
-  title: string;
-  detail: string;
-  count: number;
-  href: string;
-}
-
 export interface DispatchRun {
   branch_id: string;
   branch_name: string;

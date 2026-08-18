@@ -17,8 +17,6 @@ import {
   Hourglass,
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { URGENCY_TOOLTIP } from '@/lib/storage-zones';
-import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { PublicFoodItem } from '@/lib/types';
 
 /** Ticks every second once a deadline is set; null before the client has a
@@ -177,12 +175,9 @@ export function FoodCard({
             </span>
           )}
           {!pickedUp && (
-            <span className="flex items-center">
-              <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum`}>
-                <Clock3 size={9} />
-                {item.shelf_life_label}
-              </span>
-              <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
+            <span className={`badge ${URGENCY_BADGE[item.urgency] ?? 'badge-neutral'} tnum`}>
+              <Clock3 size={9} />
+              {item.shelf_life_label}
             </span>
           )}
         </div>
@@ -197,38 +192,32 @@ export function FoodCard({
 
       {/* Key facts */}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-start gap-1.5 text-caption flex-wrap">
-          <MapPin size={12} style={{ flexShrink: 0, marginTop: 2 }} />
-          <span style={{ minWidth: 0, flex: 1 }}>
-            Collect from{' '}
-            <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-              {item.branch?.name.replace('Willing Hearts — ', '')}
-            </strong>
-            {item.branch?.area ? ` · ${item.branch.area}` : ''}
-          </span>
+        <div className="flex items-center gap-1.5 text-caption">
+          <MapPin size={12} style={{ flexShrink: 0 }} />
+          Collect from{' '}
+          <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+            {item.branch?.name.replace('Willing Hearts — ', '')}
+          </strong>
+          {item.branch?.area ? ` · ${item.branch.area}` : ''}
         </div>
 
-        <div className="flex items-start gap-1.5 text-caption flex-wrap">
+        <div className="flex items-center gap-1.5 text-caption">
           {needsCold ? (
-            <Snowflake size={12} color="var(--info)" style={{ flexShrink: 0, marginTop: 2 }} />
+            <Snowflake size={12} color="var(--info)" style={{ flexShrink: 0 }} />
           ) : (
-            <Box size={12} style={{ flexShrink: 0, marginTop: 2 }} />
+            <Box size={12} style={{ flexShrink: 0 }} />
           )}
-          <span style={{ minWidth: 0, flex: 1 }}>
-            <span className="capitalize">{item.storage_type}</span> storage — {item.storage_advice}
-          </span>
+          <span className="capitalize">{item.storage_type}</span> storage — {item.storage_advice}
         </div>
 
         {item.donated_by && (
-          <div className="flex items-start gap-1.5 text-caption flex-wrap">
-            <Building2 size={12} style={{ flexShrink: 0, marginTop: 2 }} />
-            <span style={{ minWidth: 0, flex: 1 }}>
-              Donated by{' '}
-              <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                {item.donated_by}
-              </strong>
-              {item.donor_type ? <span className="capitalize"> · {item.donor_type}</span> : null}
-            </span>
+          <div className="flex items-center gap-1.5 text-caption">
+            <Building2 size={12} style={{ flexShrink: 0 }} />
+            Donated by{' '}
+            <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+              {item.donated_by}
+            </strong>
+            {item.donor_type ? <span className="capitalize"> · {item.donor_type}</span> : null}
           </div>
         )}
       </div>
