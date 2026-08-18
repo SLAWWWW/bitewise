@@ -6,28 +6,28 @@ import { ESCALATION_THRESHOLD_HOURS } from '@/lib/constants';
 import type { Branch, InventoryItem } from '@/lib/types';
 
 /**
- * Partner dispatch planning — the live, always-current view of what a daily
- * dispatch would look like right now. Read-only: it proposes routes, it
- * doesn't create them (that's `/api/cron/dispatch-partners`, which runs once
- * daily and reuses this exact same route-planning logic via
- * `lib/dispatch-planning.ts` so the two never disagree about what
- * "efficient" means).
+ * Partner dispatch planning — the live, always-current view of what dispatch
+ * would look like right now. Read-only: it proposes routes, it doesn't
+ * create them. Actual dispatch commits immediately and automatically —
+ * `runDispatchSweep` (lib/dispatch-planning.ts) is called right when a branch
+ * first has escalated stock and no run already in flight, from wherever that
+ * happens (approval, the near-expiry sweep) — so this view and what actually
+ * got committed can never disagree about what "efficient" means, and nothing
+ * here is waiting on a schedule.
  */
 export async function GET() {
   const supabase = createServerClient();
-
-  const dispatchDate = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
 
   const [branchesRes, itemsRes, vehiclesRes, runsRes, dispatchedRes] = await Promise.all([
     supabase.from('branches').select('*').order('name'),
     supabase.from('inventory_items').select('*').eq('status', 'escalated').order('expiry_at'),
     supabase.from('vehicles').select('*'),
     supabase.from('fleet_runs').select('*'),
-    // Optional — migration 012. A branch already committed to today's 6pm
-    // dispatch shows that instead of an ever-changing live proposal for the
+    // Optional — migration 012/014. A branch with a dispatch already in
+    // flight shows that instead of an ever-changing live proposal for the
     // same stock, so staff aren't looking at a "proposal" for a run that's
     // already locked in.
-    supabase.from('partner_dispatch_runs').select('branch_id, created_at').eq('dispatch_date', dispatchDate),
+    supabase.from('partner_dispatch_runs').select('branch_id, created_at').neq('status', 'completed'),
   ]);
 
   if (branchesRes.error) return NextResponse.json({ error: branchesRes.error.message }, { status: 500 });
@@ -58,7 +58,7 @@ export async function GET() {
   );
   const runsWithStatus = runs.map((r) => ({
     ...r,
-    dispatched_today_at: dispatchedAtByBranch.get(r.branch_id) ?? null,
+    dispatched_at: dispatchedAtByBranch.get(r.branch_id) ?? null,
   }));
 
   return NextResponse.json({

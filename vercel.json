@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/dispatch-partners",
-      "schedule": "0 10 * * *"
-    }
-  ]
-}

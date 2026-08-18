@@ -217,7 +217,7 @@ const record = (name, ok, note) => results.push({ name, ok, note });
   record(
     '012_partner_dispatch_runs',
     res.ok,
-    res.ok ? 'table present' : 'missing — the daily 6pm dispatch cron has nowhere to write its runs and will fail silently'
+    res.ok ? 'table present' : 'missing — immediate dispatch has nowhere to write its runs and will fail silently'
   );
 }
 

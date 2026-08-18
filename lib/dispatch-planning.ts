@@ -1,8 +1,11 @@
 import { beneficiariesForArea, type PartnerBeneficiary } from '@/lib/data/beneficiaries';
 import { optimiseRoute, type RouteStop } from '@/lib/routing';
 import { describeShelfLife } from '@/lib/storage-zones';
-import { rankDispatchCandidates, type FleetRunRow, type VehicleRow } from '@/lib/fleet';
+import { rankDispatchCandidates, isOpenRun, type FleetRunRow, type VehicleRow } from '@/lib/fleet';
+import type { createServerClient } from '@/lib/supabase-server';
 import type { Branch, InventoryItem } from '@/lib/types';
+
+type SupabaseServerClient = ReturnType<typeof createServerClient>;
 
 /** Cold-chain food can only go to a partner that can receive it that way. */
 function partnerAccepts(partner: PartnerBeneficiary, item: InventoryItem): boolean {
@@ -192,4 +195,94 @@ export function planDispatchRuns(input: {
     })
     .filter((r): r is NonNullable<typeof r> => r !== null)
     .sort((a, b) => a.soonest_expiry_hours - b.soonest_expiry_hours);
+}
+
+/**
+ * Commits any pending partner-dispatch runs right now — not on a fixed daily
+ * schedule. A branch with escalated (partner-allocated) stock and no dispatch
+ * already in flight gets one immediately; a branch that already has an open
+ * run just accumulates further escalated stock for its *next* run, created
+ * the moment the current one closes out (§014 — one active run per branch,
+ * not one per calendar day). Called right after the moment an item actually
+ * becomes escalated — at approval time for a direct beneficiary allocation,
+ * and from the near-expiry reactive sweep — so nothing genuinely critical
+ * ever waits on a clock. Safe to call from anywhere, any number of times:
+ * every write here is guarded by the one-open-run-per-branch constraint.
+ */
+export async function runDispatchSweep(
+  supabase: SupabaseServerClient
+): Promise<{ branch_name: string; status: 'dispatched' | 'skipped' | 'failed'; reason?: string }[]> {
+  const [branchesRes, itemsRes, vehiclesRes, runsRes, openDispatchRes] = await Promise.all([
+    supabase.from('branches').select('*').order('name'),
+    supabase.from('inventory_items').select('*').eq('status', 'escalated').order('expiry_at'),
+    supabase.from('vehicles').select('*'),
+    supabase.from('fleet_runs').select('*'),
+    supabase.from('partner_dispatch_runs').select('branch_id').neq('status', 'completed'),
+  ]);
+
+  if (branchesRes.error || itemsRes.error) {
+    console.error(
+      '[dispatch-sweep] could not load branches/inventory:',
+      branchesRes.error?.message ?? itemsRes.error?.message
+    );
+    return [];
+  }
+
+  const branches = (branchesRes.data ?? []) as Branch[];
+  const escalated = (itemsRes.data ?? []) as InventoryItem[];
+  const fleetAvailable = !vehiclesRes.error && !runsRes.error;
+  const vehicles = (fleetAvailable ? vehiclesRes.data ?? [] : []) as VehicleRow[];
+  const openFleetRuns = (fleetAvailable ? runsRes.data ?? [] : []).filter((r) =>
+    isOpenRun((r as FleetRunRow).status)
+  ) as FleetRunRow[];
+
+  // A branch already mid-dispatch doesn't get a second run layered on top —
+  // whatever escalates while one is open waits for it to close, same
+  // discipline as fleet_runs' own "one open run per vehicle" rule.
+  const branchesWithOpenRun = new Set((openDispatchRes.data ?? []).map((d: { branch_id: string }) => d.branch_id));
+
+  const runs = planDispatchRuns({
+    branches,
+    escalatedItems: escalated,
+    vehicles,
+    openRuns: openFleetRuns,
+    fleetAvailable,
+    now: Date.now(),
+  }).filter((r) => !branchesWithOpenRun.has(r.branch_id));
+
+  // Singapore is UTC+8 with no DST — today's date there, purely informational
+  // now (display/reporting), no longer the uniqueness key.
+  const dispatchDate = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
+
+  const results: { branch_name: string; status: 'dispatched' | 'skipped' | 'failed'; reason?: string }[] = [];
+
+  for (const run of runs) {
+    const { error: insertError } = await supabase.from('partner_dispatch_runs').insert({
+      branch_id: run.branch_id,
+      vehicle_id: run.suggested_vehicle
+        ? vehicles.find((v) => v.label === run.suggested_vehicle!.label)?.id ?? null
+        : null,
+      dispatch_date: dispatchDate,
+      item_count: run.item_count,
+      total_kg: run.total_kg,
+      total_distance_km: run.route.total_distance_km,
+      total_minutes: run.route.total_minutes,
+      stops: run.stops,
+    });
+
+    if (insertError) {
+      // 23505 = another concurrent sweep call already created this branch's
+      // run a moment ago — not a real failure, just lost a harmless race.
+      if ((insertError as { code?: string }).code === '23505') {
+        results.push({ branch_name: run.branch_name, status: 'skipped', reason: 'already dispatched' });
+      } else {
+        console.error(`[dispatch-sweep] failed to dispatch ${run.branch_name}:`, insertError.message);
+        results.push({ branch_name: run.branch_name, status: 'failed', reason: insertError.message });
+      }
+    } else {
+      results.push({ branch_name: run.branch_name, status: 'dispatched' });
+    }
+  }
+
+  return results;
 }

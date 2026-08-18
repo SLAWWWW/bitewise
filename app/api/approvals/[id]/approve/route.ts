@@ -6,6 +6,7 @@ import { findBestBeneficiaryMatch } from '@/lib/algorithms/beneficiary-matching'
 import { beneficiariesForArea } from '@/lib/data/beneficiaries';
 import { runMatchingAgents, DEFAULT_MATCH_WEIGHTS, type AgentPipelineResult } from '@/lib/agents/run-pipeline';
 import { rankDispatchCandidates, isOpenRun, type FleetRunRow, type VehicleRow } from '@/lib/fleet';
+import { runDispatchSweep } from '@/lib/dispatch-planning';
 import type { ApprovalActionResponse, Branch, BeneficiaryAllocationDetails, MatchDecisionDetails } from '@/lib/types';
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -344,6 +345,19 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
           'If this mentions "beneficiary_allocations", run supabase/migrations/008_beneficiary_allocations.sql. Cause:',
         allocInsertError.message
       );
+    }
+
+    // This item just landed in inventory as 'escalated' — it was never going
+    // to be publicly listed, so there's no reason to make it wait for a
+    // batch. Dispatch immediately if the branch doesn't already have a run
+    // in flight. Awaited (not fire-and-forget): a serverless function can be
+    // torn down the moment it returns, so an un-awaited sweep here could
+    // simply never run. Best-effort regardless — the approval itself already
+    // succeeded, a sweep failure here must not undo it.
+    try {
+      await runDispatchSweep(supabase);
+    } catch (err) {
+      console.error(`[approve] immediate dispatch sweep failed for listing ${id}:`, err);
     }
   }
 

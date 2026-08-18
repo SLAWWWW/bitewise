@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase-server';
 import { ESCALATION_THRESHOLD_HOURS } from '@/lib/constants';
 import { deliveryProgress, isOpenRun, type FleetRunRow } from '@/lib/fleet';
 import { autoRecycleExpiredEscalations } from '@/lib/inventory-sweep';
+import { runDispatchSweep } from '@/lib/dispatch-planning';
 import { describeShelfLife } from '@/lib/storage-zones';
 import { guidelineForFoodType } from '@/lib/knowledge/food-safety';
 import type { FoodType, InventoryItem, StorageType } from '@/lib/types';
@@ -55,11 +56,12 @@ export async function GET() {
   // is a background nicety, not something worth 500ing a page over), but it
   // now says so loudly in the server logs.
   const cutoff = new Date(Date.now() + ESCALATION_THRESHOLD_HOURS * 60 * 60 * 1000).toISOString();
-  const { error: escalationError } = await supabase
+  const { data: justEscalated, error: escalationError } = await supabase
     .from('inventory_items')
     .update({ status: 'escalated' })
     .eq('status', 'in_stock')
-    .lte('expiry_at', cutoff);
+    .lte('expiry_at', cutoff)
+    .select('id');
 
   if (escalationError) {
     console.error(
@@ -68,6 +70,16 @@ export async function GET() {
         `run supabase/migrations/003_escalation.sql. Cause:`,
       escalationError.message
     );
+  } else if (justEscalated && justEscalated.length > 0) {
+    // Something just crossed into 'escalated' this request — dispatch it now
+    // rather than waiting for a future page load to notice. Best-effort and
+    // awaited (not fire-and-forget): a serverless function can be torn down
+    // the instant it returns, so this must finish before the response does.
+    try {
+      await runDispatchSweep(supabase);
+    } catch (err) {
+      console.error('[inventory] immediate dispatch sweep failed:', err);
+    }
   }
 
   // Retire anything that has actually passed its expiry. Without this, stock

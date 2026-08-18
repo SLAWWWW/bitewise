@@ -591,9 +591,10 @@ export interface DispatchRun {
   needs_cold_chain: boolean;
   soonest_expiry_hours: number;
   route_exceeds_shelf_life: boolean;
-  /** Set once the scheduled 6pm dispatch has committed this branch's run for
-   *  today — null means this is still just a live proposal. */
-  dispatched_today_at: string | null;
+  /** Set once dispatch has actually committed a run for this branch — null
+   *  means this is still just a live proposal. Commits immediately when a
+   *  branch first has escalated stock and no run already in flight. */
+  dispatched_at: string | null;
   assignments: {
     item_id: string;
     item_name: string;

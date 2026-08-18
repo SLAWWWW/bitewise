@@ -72,10 +72,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     );
   }
 
-  // If this was the last escalated item at this branch, today's dispatch run
-  // (if one exists — migration 012) is actually finished, not just "in
-  // progress" — without this, the "ongoing dispatch" notification would
-  // stay lit forever after the real work is already done.
+  // If this was the last escalated item at this branch, its dispatch run (if
+  // one exists — migration 012) is actually finished, not just "in
+  // progress" — and closing it out is what lets the branch's *next* escalated
+  // item get an immediately-dispatched run of its own (§014 — one open run
+  // per branch at a time, not one per calendar day) instead of waiting on
+  // this one to age out.
   const { count: remaining } = await supabase
     .from('inventory_items')
     .select('id', { count: 'exact', head: true })
@@ -83,12 +85,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .eq('status', 'escalated');
 
   if (!remaining) {
-    const dispatchDate = new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10);
     const { error: completeError } = await supabase
       .from('partner_dispatch_runs')
       .update({ status: 'completed' })
       .eq('branch_id', updated.branch_id)
-      .eq('dispatch_date', dispatchDate)
       .neq('status', 'completed');
     if (completeError) {
       console.error(
