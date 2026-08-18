@@ -10,7 +10,20 @@ import { CandidateBreakdown } from '@/components/dashboard/CandidateBreakdown';
 import { FoodSafetyBadge } from '@/components/dashboard/FoodSafetyBadge';
 import { SupplyChainPlan } from '@/components/dashboard/SupplyChainPlan';
 import { fetchJson, FetchError } from '@/lib/utils/fetch-json';
+import { describeShelfLife } from '@/lib/storage-zones';
 import type { PendingListing } from '@/lib/types';
+
+// Same tiers/thresholds as the Storage page (lib/storage-zones.ts) — a
+// donation with hours left needs a visibly different badge than one that's
+// good for a week, not the same "urgent" red on every single card regardless
+// of how much time is actually left.
+const URGENCY_BADGE: Record<string, string> = {
+  expired: 'badge-critical',
+  critical: 'badge-critical',
+  urgent: 'badge-urgent',
+  monitor: 'badge-neutral',
+  stable: 'badge-neutral',
+};
 
 /**
  * The full approval card: reasoning breakdown, supply chain plan, Approve/Reject.
@@ -81,7 +94,7 @@ export function ApprovalCard({ listing, onDecided }: { listing: PendingListing; 
 
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
           {listing.donor?.status === 'pending' && <Badge variant="monitor">New donor</Badge>}
-          <span className="badge badge-urgent">
+          <span className={`badge ${URGENCY_BADGE[describeShelfLife(listing.expiry_at).tier]}`}>
             <Clock3 size={10} />
             spoils {formatDistanceToNow(new Date(listing.expiry_at), { addSuffix: true })}
           </span>
