@@ -288,6 +288,10 @@ export default function DonatePage() {
                 value={form.expiry_hours}
                 onChange={(e) => update('expiry_hours', e.target.value)}
               />
+              <p className="text-caption" style={{ color: 'var(--text-tertiary)', marginTop: 4 }}>
+                Counting from right now, not from when it was made — if it&rsquo;s already been sitting
+                out, that&rsquo;s already used up part of this window.
+              </p>
             </div>
           </div>
 

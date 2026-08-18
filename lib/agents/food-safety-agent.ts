@@ -75,14 +75,15 @@ export async function runFoodSafetyCheck(input: FoodSafetyCheckInput): Promise<F
 - Item: ${itemName}
 - Quantity: ${quantityKg}kg
 - Declared storage: ${storageType}
-- Declared time until it spoils: ${expiryHours} hours
+- Declared time until it spoils, counting from right now (already accounts for any time it's
+  already spent sitting out — it is NOT extra time on top of that): ${expiryHours} hours
 - Donor's note: ${note || '(none provided)'}
 
 Retrieved food-safety category: ${category.label} (matched keywords: ${matched_keywords.join(', ') || 'none — matched by declared food type instead'}).
 Perishable: ${category.perishable}. Requires cold chain: ${category.requires_cold_chain}. ${category.safe_temp_note}
 Deterministic safety floor already computed from this category: "${floor.verdict}" (declared shelf life is ${floor.ratio}× the recommended safe maximum for the declared storage type${floor.safe_max_hours !== null ? ` of ${floor.safe_max_hours} hours` : ''}).
 
-Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
+Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. In your reasoning, always phrase the ${expiryHours}h figure as "still needs to stay safe/edible for ${expiryHours} more hours from now" (never as "has already been stored for ${expiryHours} hours") — if the note mentions time already elapsed, reconcile the two explicitly (e.g. note that even accounting for time already elapsed, the remaining declared window still exceeds the safe maximum) rather than leaving them looking contradictory. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
 
     const response = await genai.models.generateContent({
       model: GEMINI_MODEL,
