@@ -10,6 +10,7 @@ import {
 } from '@/lib/storage-zones';
 import { ESCALATION_THRESHOLD_HOURS } from '@/lib/constants';
 import { deliveryProgress, isOpenRun, type FleetRunRow } from '@/lib/fleet';
+import { autoRecycleExpiredEscalations } from '@/lib/inventory-sweep';
 import type { Branch, InventoryItem, StorageType } from '@/lib/types';
 
 /**
@@ -26,16 +27,23 @@ export async function GET() {
 
   // Same lazy sweep as /api/inventory — staff can land on /storage without
   // the public page ever having been hit, and without this, past-expiry
-  // stock would keep showing as 'in_stock'/'reserved'/'escalated' here
-  // indefinitely instead of ever becoming recyclable.
+  // stock would keep showing as 'in_stock'/'reserved' here indefinitely
+  // instead of ever becoming recyclable.
   const { error: expiryError } = await supabase
     .from('inventory_items')
     .update({ status: 'expired' })
-    .in('status', ['in_stock', 'reserved', 'escalated'])
+    .in('status', ['in_stock', 'reserved'])
     .lt('expiry_at', new Date().toISOString());
   if (expiryError) {
     console.error('[storage] retiring past-expiry stock failed:', expiryError.message);
   }
+
+  // 'escalated' items are already committed to a specific partner beneficiary
+  // — handled separately (auto-completed as recycled) rather than lumped
+  // into the generic expired-stock sweep above, which would otherwise show
+  // them stuck as "Expired on the shelf" despite never having been publicly
+  // listed at all.
+  await autoRecycleExpiredEscalations(supabase);
 
   const [branchesRes, claimsRes, runsRes] = await Promise.all([
     supabase.from('branches').select('*').order('name'),

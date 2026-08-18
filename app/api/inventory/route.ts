@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase-server';
 import { ESCALATION_THRESHOLD_HOURS } from '@/lib/constants';
 import { deliveryProgress, isOpenRun, type FleetRunRow } from '@/lib/fleet';
+import { autoRecycleExpiredEscalations } from '@/lib/inventory-sweep';
 import { describeShelfLife } from '@/lib/storage-zones';
 import { guidelineForFoodType } from '@/lib/knowledge/food-safety';
 import type { FoodType, InventoryItem, StorageType } from '@/lib/types';
@@ -70,18 +71,24 @@ export async function GET() {
   }
 
   // Retire anything that has actually passed its expiry. Without this, stock
-  // that escalated but was never collected stays 'escalated' forever, so it
-  // keeps appearing on the partner dispatch board as work to schedule long
-  // after it stopped being edible.
+  // that was never claimed publicly stays 'in_stock'/'reserved' forever
+  // instead of ever becoming recyclable.
   const { error: expiryError } = await supabase
     .from('inventory_items')
     .update({ status: 'expired' })
-    .in('status', ['in_stock', 'reserved', 'escalated'])
+    .in('status', ['in_stock', 'reserved'])
     .lt('expiry_at', new Date().toISOString());
 
   if (expiryError) {
     console.error('[inventory] retiring past-expiry stock failed:', expiryError.message);
   }
+
+  // 'escalated' items are already committed to a specific partner beneficiary
+  // — there's no walk-in claimant checkpoint that applies to them, so a
+  // spoiled one is auto-completed as recycled here instead of joining the
+  // generic expired-stock sweep above (which would otherwise leave it stuck
+  // showing "Expired on the shelf" despite never having been publicly listed).
+  await autoRecycleExpiredEscalations(supabase);
 
   const BRANCH_JOIN = 'branch:branches(id, name, area, color, organization_name)';
   const LISTING_JOIN =
