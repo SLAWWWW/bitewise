@@ -169,7 +169,7 @@ export function AgentCascadeGraph({ entry }: { entry: PipelineEntry }) {
             className="tnum"
             style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}
           >
-            Agent Cascade
+            Workflow
           </div>
           <div className="text-title-2" style={{ marginTop: 2 }}>
             Decision flow for this donation
