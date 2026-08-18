@@ -15,7 +15,6 @@ import {
   Box,
   Truck,
   Hourglass,
-  Recycle,
 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -122,26 +121,6 @@ function StorageItemRow({
     }
   }
 
-  async function confirmRecycle() {
-    setBusy(true);
-    try {
-      const res = await fetchJson<{ success: boolean; message?: string }>(
-        `/api/inventory/${item.id}/confirm-recycle`,
-        { method: 'POST' }
-      );
-      if (res.success) {
-        toast('success', `${item.item_name} sent to food-waste recycling.`);
-        onUpdated();
-      } else {
-        toast('warning', res.message ?? 'Could not recycle this item.');
-      }
-    } catch (err) {
-      toast('warning', err instanceof FetchError ? err.message : 'Network error — try again.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div
       className="flex items-center justify-between gap-3 px-3.5 py-2.5 flex-wrap"
@@ -223,32 +202,13 @@ function StorageItemRow({
             <Globe size={9} />
             Listed publicly
           </span>
-        ) : item.expired ? (
-          <>
-            <span className="badge badge-critical">
-              <Recycle size={9} />
-              Expired
-            </span>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ padding: '4px 10px', fontSize: 11 }}
-              disabled={busy}
-              onClick={confirmRecycle}
-            >
-              {busy ? '…' : 'Recycle'}
-            </button>
-          </>
         ) : (
           <span className="badge badge-neutral capitalize">{item.status}</span>
         )}
-        {/* The "Expired" badge above already says this — no need to repeat it. */}
-        {!item.expired && (
-          <span className="flex items-center">
-            <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`}>{item.shelf_life_label}</span>
-            <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
-          </span>
-        )}
+        <span className="flex items-center">
+          <span className={`badge ${URGENCY_BADGE[item.urgency]} tnum`}>{item.shelf_life_label}</span>
+          <InfoTooltip text={URGENCY_TOOLTIP} size={9} />
+        </span>
       </div>
     </div>
   );
@@ -428,24 +388,6 @@ export default function StoragePage() {
               </span>
             </GlassCard>
           </div>
-
-          {(s?.expired ?? 0) > 0 && (
-            <GlassCard
-              className="p-4 mb-5 flex items-start gap-2.5"
-              style={{ borderColor: 'color-mix(in srgb, var(--critical) 40%, transparent)' }}
-            >
-              <Recycle size={15} color="var(--critical)" style={{ marginTop: 1, flexShrink: 0 }} />
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-body" style={{ fontWeight: 600 }}>
-                  {s?.expired} item{s?.expired === 1 ? '' : 's'} ({s?.expired_kg}kg) expired and ready to recycle
-                </span>
-                <span className="text-caption">
-                  No longer safe to distribute — doesn&apos;t count toward rack capacity below, but still needs
-                  clearing out. Expand a branch to find them and hit &quot;Recycle&quot; on each.
-                </span>
-              </div>
-            </GlassCard>
-          )}
 
           {(s?.unsupported_placements ?? 0) > 0 && (
             <GlassCard
