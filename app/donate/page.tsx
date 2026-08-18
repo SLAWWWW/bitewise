@@ -22,6 +22,7 @@ const initialForm = {
   storage_type: 'ambient' as (typeof STORAGE_TYPES)[number],
   expiry_hours: '',
   note: '',
+  was_hot_held: false,
   agreed_to_regulations: false,
 };
 
@@ -58,6 +59,8 @@ export default function DonatePage() {
           quantity_kg: Number(form.quantity_kg),
           storage_type: form.storage_type,
           expiry_hours: Number(form.expiry_hours),
+          note: form.note || undefined,
+          was_hot_held: form.was_hot_held,
           agreed_to_regulations: true,
         },
       });
@@ -253,6 +256,25 @@ export default function DonatePage() {
                   </option>
                 ))}
               </select>
+              {form.storage_type === 'ambient' && (
+                <label
+                  className="flex items-start gap-2 text-caption"
+                  style={{ marginTop: 8, cursor: 'pointer', color: 'var(--text-secondary)' }}
+                  htmlFor="was_hot_held"
+                >
+                  <input
+                    id="was_hot_held"
+                    type="checkbox"
+                    checked={form.was_hot_held}
+                    onChange={(e) => update('was_hot_held', e.target.checked)}
+                    style={{ marginTop: 2 }}
+                  />
+                  <span>
+                    Kept continuously hot (buffet warmer, chafing dish, 60°C+) the whole time, not
+                    sitting at room temperature — e.g. leftover catering or event food
+                  </span>
+                </label>
+              )}
             </div>
           </div>
 

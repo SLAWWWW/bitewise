@@ -54,7 +54,19 @@ export function retrieveFoodSafetyCategory(
   return { category: fallback, matched_keywords: [] };
 }
 
-function safeMaxHoursFor(category: FoodSafetyCategory, storageType: StorageType): number | null {
+function safeMaxHoursFor(
+  category: FoodSafetyCategory,
+  storageType: StorageType,
+  wasHotHeld: boolean
+): number | null {
+  // Continuously hot-held (≥60°C, buffet warmer/chafing dish) never enters
+  // the 5°C–60°C danger zone at all, regardless of what the donor picked as
+  // the storage type going forward — the elapsed time so far was governed by
+  // the hot-hold window, not the ambient one. `null` on the category (e.g.
+  // dairy, produce — states hot-holding doesn't apply to) falls through to
+  // the declared storage type's own limit instead of granting an exemption
+  // that was never real.
+  if (wasHotHeld && category.max_hot_hours !== null) return category.max_hot_hours;
   if (storageType === 'ambient') return category.max_ambient_hours;
   if (storageType === 'cold') return category.max_cold_hours;
   return category.max_frozen_hours;
@@ -75,9 +87,10 @@ function safeMaxHoursFor(category: FoodSafetyCategory, storageType: StorageType)
 export function computeDeterministicVerdict(
   category: FoodSafetyCategory,
   storageType: StorageType,
-  expiryHours: number
+  expiryHours: number,
+  wasHotHeld = false
 ): { verdict: FoodSafetyVerdict; ratio: number; safe_max_hours: number | null } {
-  const safeMax = safeMaxHoursFor(category, storageType);
+  const safeMax = safeMaxHoursFor(category, storageType, wasHotHeld);
   if (safeMax === null) {
     return { verdict: 'good', ratio: 0, safe_max_hours: null };
   }

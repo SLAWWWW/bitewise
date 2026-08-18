@@ -79,6 +79,24 @@ describe('computeDeterministicVerdict', () => {
     expect(v.safe_max_hours).toBeNull();
     expect(v.ratio).toBe(0);
   });
+
+  it('grants the hot-hold window instead of the ambient one when wasHotHeld is true', () => {
+    // A wedding buffet running 4 hours, genuinely hot-held the whole time —
+    // would be 'bad' against the 1h ambient limit, but 'good' against the
+    // 4h hot-hold window for cooked_high_risk.
+    const ambient = computeDeterministicVerdict(cookedHighRisk, 'ambient', 4, false);
+    expect(ambient.verdict).toBe('bad');
+
+    const hotHeld = computeDeterministicVerdict(cookedHighRisk, 'ambient', 4, true);
+    expect(hotHeld.verdict).toBe('good');
+    expect(hotHeld.safe_max_hours).toBe(4);
+  });
+
+  it('falls back to the declared storage type when the category has no hot-hold window', () => {
+    const dairy = findCategoryByKey('dairy')!;
+    const v = computeDeterministicVerdict(dairy, 'ambient', 2, true); // wasHotHeld ignored — dairy isn't hot-held
+    expect(v.safe_max_hours).toBe(dairy.max_ambient_hours);
+  });
 });
 
 describe('escalateOnly', () => {

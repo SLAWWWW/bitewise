@@ -10,6 +10,11 @@ export interface FoodSafetyCheckInput {
   quantityKg: number;
   expiryHours: number;
   note?: string;
+  /** Donor claims this was continuously hot-held at ≥60°C (buffet warmer,
+   *  chafing dish) rather than sitting at ambient temperature — self-reported
+   *  and unverifiable, so the AI layer is prompted to escalate rather than
+   *  trust it at face value if the note suggests otherwise. */
+  wasHotHeld?: boolean;
 }
 
 const AiVerdictSchema = {
@@ -24,17 +29,24 @@ const AiVerdictSchema = {
   required: ['verdict', 'score', 'reasoning', 'recommended_storage_type', 'recommended_expiry_hours'],
 };
 
-function templatedReasoning(verdict: FoodSafetyVerdict, categoryLabel: string, ratio: number, safeMaxHours: number | null): string {
+function templatedReasoning(
+  verdict: FoodSafetyVerdict,
+  categoryLabel: string,
+  ratio: number,
+  safeMaxHours: number | null,
+  wasHotHeld: boolean
+): string {
   if (safeMaxHours === null) {
     return `${categoryLabel} is shelf-stable — no meaningful spoilage clock at the declared storage.`;
   }
+  const window = wasHotHeld ? `${safeMaxHours}h hot-hold window (≥60°C)` : `${safeMaxHours}h limit for its storage type`;
   if (verdict === 'good') {
-    return `${categoryLabel} declared within the safe window for its storage type (${ratio}× the ${safeMaxHours}h limit).`;
+    return `${categoryLabel} declared within the safe window (${ratio}× the ${window}).`;
   }
   if (verdict === 'warning') {
-    return `${categoryLabel} declared ${ratio}× the recommended ${safeMaxHours}h safe window for its storage type — worth a second look before approving.`;
+    return `${categoryLabel} declared ${ratio}× the recommended ${window} — worth a second look before approving.`;
   }
-  return `${categoryLabel} declared ${ratio}× the recommended ${safeMaxHours}h safe window for its storage type — this exceeds food-safety guidance enough to reject outright.`;
+  return `${categoryLabel} declared ${ratio}× the recommended ${window} — this exceeds food-safety guidance enough to reject outright.`;
 }
 
 /**
@@ -50,9 +62,9 @@ function templatedReasoning(verdict: FoodSafetyVerdict, categoryLabel: string, r
  * just applied to a safety-facing decision instead of a routing one.
  */
 export async function runFoodSafetyCheck(input: FoodSafetyCheckInput): Promise<FoodSafetyCheckResult> {
-  const { itemName, foodType, storageType, quantityKg, expiryHours, note } = input;
+  const { itemName, foodType, storageType, quantityKg, expiryHours, note, wasHotHeld = false } = input;
   const { category, matched_keywords } = retrieveFoodSafetyCategory(itemName, foodType, note);
-  const floor = computeDeterministicVerdict(category, storageType, expiryHours);
+  const floor = computeDeterministicVerdict(category, storageType, expiryHours, wasHotHeld);
 
   const base: FoodSafetyCheckResult = {
     verdict: floor.verdict,
@@ -63,7 +75,7 @@ export async function runFoodSafetyCheck(input: FoodSafetyCheckInput): Promise<F
     requires_cold_chain: category.requires_cold_chain,
     safe_temp_note: category.safe_temp_note,
     ratio: floor.ratio,
-    reasoning: templatedReasoning(floor.verdict, category.label, floor.ratio, floor.safe_max_hours),
+    reasoning: templatedReasoning(floor.verdict, category.label, floor.ratio, floor.safe_max_hours, wasHotHeld),
     used_ai: false,
   };
 
@@ -75,15 +87,17 @@ export async function runFoodSafetyCheck(input: FoodSafetyCheckInput): Promise<F
 - Item: ${itemName}
 - Quantity: ${quantityKg}kg
 - Declared storage: ${storageType}
+- Continuously hot-held at ≥60°C until now (buffet warmer/chafing dish), not sitting at ambient
+  temperature: ${wasHotHeld ? 'YES, donor claims this' : 'no'}
 - Declared time until it spoils, counting from right now (already accounts for any time it's
   already spent sitting out — it is NOT extra time on top of that): ${expiryHours} hours
 - Donor's note: ${note || '(none provided)'}
 
 Retrieved food-safety category: ${category.label} (matched keywords: ${matched_keywords.join(', ') || 'none — matched by declared food type instead'}).
 Perishable: ${category.perishable}. Requires cold chain: ${category.requires_cold_chain}. ${category.safe_temp_note}
-Deterministic safety floor already computed from this category: "${floor.verdict}" (declared shelf life is ${floor.ratio}× the recommended safe maximum for the declared storage type${floor.safe_max_hours !== null ? ` of ${floor.safe_max_hours} hours` : ''}).
+Deterministic safety floor already computed from this category: "${floor.verdict}" (declared shelf life is ${floor.ratio}× the recommended safe maximum${floor.safe_max_hours !== null ? ` of ${floor.safe_max_hours} hours` : ''}${wasHotHeld && floor.safe_max_hours !== null ? ' for continuous hot-holding, not the shorter ambient window' : ' for the declared storage type'}).
 
-Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. In your reasoning, always phrase the ${expiryHours}h figure as "still needs to stay safe/edible for ${expiryHours} more hours from now" (never as "has already been stored for ${expiryHours} hours") — if the note mentions time already elapsed, reconcile the two explicitly (e.g. note that even accounting for time already elapsed, the remaining declared window still exceeds the safe maximum) rather than leaving them looking contradictory. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
+${wasHotHeld ? "The hot-hold claim is self-reported and cannot be verified from here — genuinely continuous ≥60°C holding (a real commercial warmer or chafing dish actively maintained) is safe for much longer than sitting at ambient, but food that was only briefly warm, reheated once, or left under a dying sterno flame is NOT hot-held in the safety sense. If the item name or note gives any reason to doubt the temperature was truly maintained throughout (e.g. it mentions being moved, cooling, sitting out, or uncertainty), escalate toward the ambient window instead of trusting the claim at face value — you may escalate above the deterministic floor for this reason even though the floor itself already gave the donor the benefit of the doubt.\n\n" : ''}Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. In your reasoning, always phrase the ${expiryHours}h figure as "still needs to stay safe/edible for ${expiryHours} more hours from now" (never as "has already been stored for ${expiryHours} hours") — if the note mentions time already elapsed, reconcile the two explicitly (e.g. note that even accounting for time already elapsed, the remaining declared window still exceeds the safe maximum) rather than leaving them looking contradictory. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
 
     const response = await genai.models.generateContent({
       model: GEMINI_MODEL,

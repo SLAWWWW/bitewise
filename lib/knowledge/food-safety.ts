@@ -34,6 +34,15 @@ export interface FoodSafetyCategory {
   max_ambient_hours: number | null;
   max_cold_hours: number | null;
   max_frozen_hours: number | null;
+  /** Genuinely, continuously hot-held at ≥60°C (buffet warmer, chafing dish
+   *  under sterno, bain-marie) never enters the 5°C–60°C danger zone at all —
+   *  it isn't "ambient" in the bacterial-growth sense, so it gets its own,
+   *  much longer window rather than being penalized by max_ambient_hours.
+   *  `null` for categories where hot-holding isn't a meaningful state (dry
+   *  goods, produce, dairy that isn't cooked into a dish). This trusts the
+   *  donor's self-report that temperature was actually maintained — the AI
+   *  check is prompted to escalate if the note suggests otherwise. */
+  max_hot_hours: number | null;
   safe_temp_note: string;
   /** Lowercase words matched against the donor's item name + note during retrieval. */
   keywords: string[];
@@ -50,6 +59,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: 2160,
+    max_hot_hours: 4,
     safe_temp_note: 'Hot-held above 60°C, chilled at or below 4°C, or frozen at or below -18°C.',
     keywords: [
       'chicken', 'meat', 'beef', 'pork', 'lamb', 'fish', 'seafood', 'prawn', 'shrimp', 'crab',
@@ -66,6 +76,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 1,
     max_cold_hours: 168,
     max_frozen_hours: 4320,
+    max_hot_hours: null,
     safe_temp_note: 'Chilled at or below 4°C, or frozen at or below -18°C.',
     keywords: ['milk', 'yogurt', 'yoghurt', 'cheese', 'cream', 'dairy', 'butter', 'custard'],
     default_food_types: ['dairy'],
@@ -78,6 +89,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 4,
     max_cold_hours: 120,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Chilled at or below 4°C once cut, peeled, or juiced.',
     keywords: ['salad', 'cut fruit', 'cut vegetable', 'sliced', 'juice', 'smoothie', 'coleslaw'],
     default_food_types: [],
@@ -90,6 +102,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 24,
     max_cold_hours: 240,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Ambient is acceptable short-term; chilled at or below 4°C extends shelf life.',
     keywords: ['fruit', 'vegetable', 'vegetables', 'produce', 'apple', 'banana', 'tomato', 'leafy'],
     default_food_types: ['produce'],
@@ -102,6 +115,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 72,
     max_cold_hours: null,
     max_frozen_hours: 2160,
+    max_hot_hours: null,
     safe_temp_note: 'Ambient storage is fine while dry; mould is the spoilage signal to watch, not bacteria.',
     keywords: ['bread', 'bun', 'loaf', 'baguette', 'roll', 'croissant', 'pastry', 'bakery', 'bagel'],
     default_food_types: ['bread'],
@@ -114,6 +128,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Chilled at or below 4°C — treat like dairy, not like plain bakery.',
     keywords: ['cream cake', 'cream puff', 'eclair', 'tiramisu', 'cheesecake', 'custard pastry'],
     default_food_types: [],
@@ -126,6 +141,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 24,
     max_cold_hours: 720,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Chilled at or below 4°C for extended storage; short ambient windows are acceptable.',
     keywords: ['egg', 'eggs'],
     default_food_types: [],
@@ -138,6 +154,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 1,
     max_cold_hours: 72,
     max_frozen_hours: 4320,
+    max_hot_hours: null,
     safe_temp_note: 'Frozen at or below -18°C. Once thawed, treat as cooked/high-risk (1-hour ambient limit in Singapore\'s climate).',
     keywords: ['frozen', 'ice cream'],
     default_food_types: [],
@@ -150,6 +167,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: null,
     max_cold_hours: null,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Ambient storage indefinitely while sealed and undamaged — no bulging, rust-through, or leaks.',
     keywords: ['canned', 'can', 'tin', 'tinned', 'jar', 'jarred', 'preserved', 'bottled sauce'],
     default_food_types: ['canned'],
@@ -162,6 +180,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: null,
     max_cold_hours: null,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Ambient storage for months while dry and pest-free — no refrigeration needed.',
     keywords: ['flour', 'cereal', 'dried', 'grain', 'grains', 'oats', 'beans', 'lentil', 'dry rice', 'dry pasta'],
     default_food_types: ['grain'],
@@ -174,6 +193,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: null,
     max_cold_hours: null,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'Ambient storage for long periods while sealed. Once opened, or if dairy-based/fresh-pressed, treat as dairy or cut produce instead.',
     keywords: ['bottled water', 'soda', 'soft drink', 'canned drink', 'juice box', 'beverage', 'drink'],
     default_food_types: ['beverage'],
@@ -186,6 +206,7 @@ export const FOOD_SAFETY_CATEGORIES: FoodSafetyCategory[] = [
     max_ambient_hours: 4,
     max_cold_hours: 96,
     max_frozen_hours: null,
+    max_hot_hours: null,
     safe_temp_note: 'No confident category match — defaulting to a conservative perishable assumption until reviewed.',
     keywords: [],
     default_food_types: ['other'],
@@ -212,5 +233,6 @@ function categoryForFoodType(foodType: FoodType): FoodSafetyCategory {
 export function guidelineForFoodType(foodType: FoodType): string {
   const c = categoryForFoodType(foodType);
   const ambient = c.max_ambient_hours === null ? 'no meaningful limit while sealed and dry' : `about ${c.max_ambient_hours}h`;
-  return `${c.label}. ${c.perishable ? 'Perishable' : 'Shelf-stable'}${c.requires_cold_chain ? ', requires cold chain' : ''}. Safe ambient window: ${ambient}. ${c.safe_temp_note}`;
+  const hotHold = c.max_hot_hours !== null ? ` If continuously hot-held at ≥60°C instead: about ${c.max_hot_hours}h.` : '';
+  return `${c.label}. ${c.perishable ? 'Perishable' : 'Shelf-stable'}${c.requires_cold_chain ? ', requires cold chain' : ''}. Safe ambient window: ${ambient}.${hotHold} ${c.safe_temp_note}`;
 }

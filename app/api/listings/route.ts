@@ -22,6 +22,8 @@ const ListingRequestSchema = z
     quantity_kg: z.number().positive().max(5000),
     storage_type: z.enum(['ambient', 'cold', 'frozen']).default('ambient'),
     expiry_hours: z.number().positive().max(8760),
+    note: z.string().max(500).optional(),
+    was_hot_held: z.boolean().optional().default(false),
     agreed_to_regulations: z.literal(true),
   })
   .refine((data) => !!data.donor_id || !!(data.donor_name && data.donor_type && data.address && data.area), {
@@ -55,6 +57,8 @@ export async function POST(request: Request) {
     quantity_kg,
     storage_type,
     expiry_hours,
+    note,
+    was_hot_held,
   } = parsed.data;
 
   // The standardized safety gate (PRD §7.7) runs before anything else —
@@ -69,6 +73,8 @@ export async function POST(request: Request) {
     storageType: storage_type,
     quantityKg: quantity_kg,
     expiryHours: expiry_hours,
+    note,
+    wasHotHeld: was_hot_held,
   });
 
   if (foodSafetyCheck.verdict === 'bad') {
