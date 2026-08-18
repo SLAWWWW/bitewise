@@ -64,6 +64,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         completeError.message
       );
     }
+  } else {
+    console.error(
+      `[inventory/confirm-delivery] item ${id} confirmed delivered but had no listing_id — ` +
+        'its food_listings row could not be stamped as completed and will keep showing a stale stage label. ' +
+        'Likely created before 007_inventory_provenance.sql was applied.'
+    );
   }
 
   // If this was the last escalated item at this branch, today's dispatch run

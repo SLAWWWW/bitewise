@@ -54,6 +54,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         completeError.message
       );
     }
+  } else {
+    console.error(
+      `[inventory/confirm-recycle] item ${id} confirmed recycled but had no listing_id — ` +
+        'its food_listings row could not be stamped as completed and will keep showing a stale stage label. ' +
+        'Likely created before 007_inventory_provenance.sql was applied.'
+    );
   }
 
   return NextResponse.json({ success: true });
