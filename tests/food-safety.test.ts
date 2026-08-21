@@ -79,9 +79,16 @@ describe('computeDeterministicVerdict', () => {
     expect(v.verdict).toBe('warning');
   });
 
-  it('does not apply the handling-time floor to categories that are not cold-chain-relevant', () => {
+  it('applies the handling-time floor to every category, not just cold-chain ones — this is about coordination time, not spoilage risk', () => {
     const bakeryPlain = findCategoryByKey('bakery_plain')!;
-    const v = computeDeterministicVerdict(bakeryPlain, 'ambient', 1); // bread, 1h — nowhere near its 72h ambient max
+    const v = computeDeterministicVerdict(bakeryPlain, 'ambient', 1); // bread, nowhere near its 72h ambient max, still declined
+    expect(v.insufficient_handling_time).toBe(true);
+    expect(v.verdict).toBe('bad');
+  });
+
+  it('leaves shelf-stable categories alone once past the handling-time floor', () => {
+    const cannedGoods = findCategoryByKey('canned_goods')!;
+    const v = computeDeterministicVerdict(cannedGoods, 'ambient', 2);
     expect(v.insufficient_handling_time).toBe(false);
     expect(v.verdict).toBe('good');
   });

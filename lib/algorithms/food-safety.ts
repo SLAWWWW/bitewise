@@ -54,13 +54,13 @@ export function retrieveFoodSafetyCategory(
   return { category: fallback, matched_keywords: [] };
 }
 
-/** Below this, a high-risk perishable donation is declined regardless of how
- *  safe the food technically still is right now — not a food-safety claim
- *  (a 1-hour item is chemically *less* risky than a 2-hour one, not more),
- *  an operational one: there usually isn't real time left to collect,
- *  approve, and deliver something before it's gone, so it sits in a queue
- *  it can't beat and ends up wasted anyway. Declining it plainly is more
- *  useful than accepting a donation that was never going to make it. */
+/** Below this, ANY donation is declined regardless of how safe the food
+ *  technically still is right now — not a food-safety claim (a 1-hour item
+ *  is chemically *less* risky than a 2-hour one, not more), an operational
+ *  one: a 1-hour window is too short to realistically coordinate collection,
+ *  approval, and delivery for anything, perishable or not, so it sits in a
+ *  queue it can't beat and ends up wasted anyway. Declining it plainly is
+ *  more useful than accepting a donation that was never going to make it. */
 export const MINIMUM_HANDLING_HOURS = 2;
 
 function safeMaxHoursFor(
@@ -93,10 +93,9 @@ function safeMaxHoursFor(
  * a single honest mistake (e.g. cooked food chilled for 3 days against a
  * 72h max) still lands at exactly 1×, not past it.
  *
- * Checked before any of that: high-risk, cold-chain-relevant categories
- * (cooked meals, dairy, cream-filled bakery, thawed frozen) declined outright
- * under `MINIMUM_HANDLING_HOURS`, regardless of ratio — see that constant's
- * comment for why this is an operational floor, not a safety one.
+ * Checked before any of that: anything declared under `MINIMUM_HANDLING_HOURS`
+ * is declined outright, regardless of ratio or category — see that
+ * constant's comment for why this is an operational floor, not a safety one.
  */
 export function computeDeterministicVerdict(
   category: FoodSafetyCategory,
@@ -111,7 +110,7 @@ export function computeDeterministicVerdict(
 } {
   const safeMax = safeMaxHoursFor(category, storageType, wasHotHeld);
 
-  if (category.requires_cold_chain && expiryHours < MINIMUM_HANDLING_HOURS) {
+  if (expiryHours < MINIMUM_HANDLING_HOURS) {
     return {
       verdict: 'bad',
       ratio: safeMax === null ? 0 : Number((expiryHours / safeMax).toFixed(2)),
