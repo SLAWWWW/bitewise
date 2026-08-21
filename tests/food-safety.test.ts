@@ -51,14 +51,25 @@ describe('computeDeterministicVerdict', () => {
     expect(v.ratio).toBeLessThanOrEqual(1);
   });
 
-  it('is exactly at the boundary (ratio 1.0) and still counts as good, not warning', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1); // max_ambient_hours = 1 (Singapore's climate halves the temperate 2h rule)
-    expect(v.ratio).toBe(1);
-    expect(v.verdict).toBe('good');
+  it('is declined under MINIMUM_HANDLING_HOURS regardless of ratio — not a safety claim, an operational one', () => {
+    // 1h is chemically fine for cooked/ambient (ratio 1.0, would otherwise be
+    // 'good') but there usually isn't enough real time to collect, approve,
+    // and deliver it before it's gone.
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1);
+    expect(v.verdict).toBe('bad');
+    expect(v.insufficient_handling_time).toBe(true);
   });
 
-  it('is a warning when moderately over the safe ambient window', () => {
-    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1.5); // 1.5x of 1h
+  it('the same short window is declined even where the ratio alone would only be a warning', () => {
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 1.5); // ratio 1.5x of 1h — still under the 2h floor
+    expect(v.verdict).toBe('bad');
+    expect(v.insufficient_handling_time).toBe(true);
+  });
+
+  it('is exactly at the handling-time boundary (2h) and evaluates on ratio again, not declined', () => {
+    const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 2); // 2h is not < MINIMUM_HANDLING_HOURS
+    expect(v.insufficient_handling_time).toBe(false);
+    expect(v.ratio).toBe(2);
     expect(v.verdict).toBe('warning');
   });
 
@@ -66,6 +77,13 @@ describe('computeDeterministicVerdict', () => {
     const v = computeDeterministicVerdict(cookedHighRisk, 'ambient', 2.5); // 2.5x of 1h
     expect(v.ratio).toBe(2.5);
     expect(v.verdict).toBe('warning');
+  });
+
+  it('does not apply the handling-time floor to categories that are not cold-chain-relevant', () => {
+    const bakeryPlain = findCategoryByKey('bakery_plain')!;
+    const v = computeDeterministicVerdict(bakeryPlain, 'ambient', 1); // bread, 1h — nowhere near its 72h ambient max
+    expect(v.insufficient_handling_time).toBe(false);
+    expect(v.verdict).toBe('good');
   });
 
   it('is bad when grossly over the safe ambient window — cooked chicken declared safe for 2 days', () => {

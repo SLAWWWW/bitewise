@@ -34,8 +34,18 @@ function templatedReasoning(
   categoryLabel: string,
   ratio: number,
   safeMaxHours: number | null,
-  wasHotHeld: boolean
+  wasHotHeld: boolean,
+  insufficientHandlingTime: boolean,
+  expiryHours: number
 ): string {
+  if (insufficientHandlingTime) {
+    return (
+      `${categoryLabel} declared safe for only ${expiryHours}h from now — not rejected for being unsafe ` +
+      `(a shorter window is, if anything, less risky than a longer one), but because there usually isn't ` +
+      `enough real time left to collect, approve, and deliver this before it's gone. Declining now is more ` +
+      `useful than accepting a donation that was never going to make it in time.`
+    );
+  }
   if (safeMaxHours === null) {
     return `${categoryLabel} is shelf-stable — no meaningful spoilage clock at the declared storage.`;
   }
@@ -75,7 +85,15 @@ export async function runFoodSafetyCheck(input: FoodSafetyCheckInput): Promise<F
     requires_cold_chain: category.requires_cold_chain,
     safe_temp_note: category.safe_temp_note,
     ratio: floor.ratio,
-    reasoning: templatedReasoning(floor.verdict, category.label, floor.ratio, floor.safe_max_hours, wasHotHeld),
+    reasoning: templatedReasoning(
+      floor.verdict,
+      category.label,
+      floor.ratio,
+      floor.safe_max_hours,
+      wasHotHeld,
+      floor.insufficient_handling_time,
+      expiryHours
+    ),
     used_ai: false,
   };
 
@@ -97,7 +115,7 @@ Retrieved food-safety category: ${category.label} (matched keywords: ${matched_k
 Perishable: ${category.perishable}. Requires cold chain: ${category.requires_cold_chain}. ${category.safe_temp_note}
 Deterministic safety floor already computed from this category: "${floor.verdict}" (declared shelf life is ${floor.ratio}× the recommended safe maximum${floor.safe_max_hours !== null ? ` of ${floor.safe_max_hours} hours` : ''}${wasHotHeld && floor.safe_max_hours !== null ? ' for continuous hot-holding, not the shorter ambient window' : ' for the declared storage type'}).
 
-${wasHotHeld ? "The hot-hold claim is self-reported and cannot be verified from here — genuinely continuous ≥60°C holding (a real commercial warmer or chafing dish actively maintained) is safe for much longer than sitting at ambient, but food that was only briefly warm, reheated once, or left under a dying sterno flame is NOT hot-held in the safety sense. If the item name or note gives any reason to doubt the temperature was truly maintained throughout (e.g. it mentions being moved, cooling, sitting out, or uncertainty), escalate toward the ambient window instead of trusting the claim at face value — you may escalate above the deterministic floor for this reason even though the floor itself already gave the donor the benefit of the doubt.\n\n" : ''}Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. In your reasoning, always phrase the ${expiryHours}h figure as "still needs to stay safe/edible for ${expiryHours} more hours from now" (never as "has already been stored for ${expiryHours} hours") — if the note mentions time already elapsed, reconcile the two explicitly (e.g. note that even accounting for time already elapsed, the remaining declared window still exceeds the safe maximum) rather than leaving them looking contradictory. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
+${floor.insufficient_handling_time ? `This "bad" floor is NOT a food-safety claim — a ${expiryHours}h window is chemically fine, if anything less risky than a longer one. It's an operational floor: this category is high-risk enough that under 2 hours rarely leaves real time to collect, approve, and deliver it before it's gone. In your reasoning, say exactly that — do not invent or imply a food-safety hazard that isn't there, and do not contradict this by claiming the food is somehow unsafe.\n\n` : ''}${wasHotHeld ? "The hot-hold claim is self-reported and cannot be verified from here — genuinely continuous ≥60°C holding (a real commercial warmer or chafing dish actively maintained) is safe for much longer than sitting at ambient, but food that was only briefly warm, reheated once, or left under a dying sterno flame is NOT hot-held in the safety sense. If the item name or note gives any reason to doubt the temperature was truly maintained throughout (e.g. it mentions being moved, cooling, sitting out, or uncertainty), escalate toward the ambient window instead of trusting the claim at face value — you may escalate above the deterministic floor for this reason even though the floor itself already gave the donor the benefit of the doubt.\n\n" : ''}Assess this donation's food safety. You may escalate the verdict to something more severe than the deterministic floor if the note or details reveal a real additional hazard, but you must never report a verdict less severe than the floor above — treat it as a hard minimum. In your reasoning, always phrase the ${expiryHours}h figure as "still needs to stay safe/edible for ${expiryHours} more hours from now" (never as "has already been stored for ${expiryHours} hours") — if the note mentions time already elapsed, reconcile the two explicitly (e.g. note that even accounting for time already elapsed, the remaining declared window still exceeds the safe maximum) rather than leaving them looking contradictory. Give a 0-100 safety score matching your verdict (good ≈ 70-100, warning ≈ 40-69, bad ≈ 0-39), plain-language reasoning a charity staff member would find useful, and only if the storage or expiry looks meaningfully wrong, a recommended correction.`;
 
     const response = await genai.models.generateContent({
       model: GEMINI_MODEL,
@@ -142,8 +160,12 @@ ${wasHotHeld ? "The hot-hold claim is self-reported and cannot be verified from 
     // one "if the storage or expiry looks meaningfully wrong," but models
     // don't always follow that reliably; enforce it here instead of trusting
     // the model alone.
+    // Also suppressed when the floor rejected for insufficient handling time
+    // — a different storage type doesn't fix "there wasn't enough time,"
+    // so suggesting one here would be its own kind of misleading.
     const suggestsCorrection =
       finalVerdict !== 'good' &&
+      !floor.insufficient_handling_time &&
       parsed.recommended_storage_type != null &&
       parsed.recommended_storage_type !== storageType;
     return {

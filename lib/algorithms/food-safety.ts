@@ -54,6 +54,15 @@ export function retrieveFoodSafetyCategory(
   return { category: fallback, matched_keywords: [] };
 }
 
+/** Below this, a high-risk perishable donation is declined regardless of how
+ *  safe the food technically still is right now — not a food-safety claim
+ *  (a 1-hour item is chemically *less* risky than a 2-hour one, not more),
+ *  an operational one: there usually isn't real time left to collect,
+ *  approve, and deliver something before it's gone, so it sits in a queue
+ *  it can't beat and ends up wasted anyway. Declining it plainly is more
+ *  useful than accepting a donation that was never going to make it. */
+export const MINIMUM_HANDLING_HOURS = 2;
+
 function safeMaxHoursFor(
   category: FoodSafetyCategory,
   storageType: StorageType,
@@ -83,21 +92,41 @@ function safeMaxHoursFor(
  * because it already requires being wrong about BOTH storage and duration —
  * a single honest mistake (e.g. cooked food chilled for 3 days against a
  * 72h max) still lands at exactly 1×, not past it.
+ *
+ * Checked before any of that: high-risk, cold-chain-relevant categories
+ * (cooked meals, dairy, cream-filled bakery, thawed frozen) declined outright
+ * under `MINIMUM_HANDLING_HOURS`, regardless of ratio — see that constant's
+ * comment for why this is an operational floor, not a safety one.
  */
 export function computeDeterministicVerdict(
   category: FoodSafetyCategory,
   storageType: StorageType,
   expiryHours: number,
   wasHotHeld = false
-): { verdict: FoodSafetyVerdict; ratio: number; safe_max_hours: number | null } {
+): {
+  verdict: FoodSafetyVerdict;
+  ratio: number;
+  safe_max_hours: number | null;
+  insufficient_handling_time: boolean;
+} {
   const safeMax = safeMaxHoursFor(category, storageType, wasHotHeld);
+
+  if (category.requires_cold_chain && expiryHours < MINIMUM_HANDLING_HOURS) {
+    return {
+      verdict: 'bad',
+      ratio: safeMax === null ? 0 : Number((expiryHours / safeMax).toFixed(2)),
+      safe_max_hours: safeMax,
+      insufficient_handling_time: true,
+    };
+  }
+
   if (safeMax === null) {
-    return { verdict: 'good', ratio: 0, safe_max_hours: null };
+    return { verdict: 'good', ratio: 0, safe_max_hours: null, insufficient_handling_time: false };
   }
 
   const ratio = expiryHours / safeMax;
   const verdict: FoodSafetyVerdict = ratio <= 1 ? 'good' : ratio <= 2.5 ? 'warning' : 'bad';
-  return { verdict, ratio: Number(ratio.toFixed(2)), safe_max_hours: safeMax };
+  return { verdict, ratio: Number(ratio.toFixed(2)), safe_max_hours: safeMax, insufficient_handling_time: false };
 }
 
 /** AI may only escalate severity, never soften it — the deterministic ratio
