@@ -133,14 +133,27 @@ ${wasHotHeld ? "The hot-hold claim is self-reported and cannot be verified from 
     // (already computed in `base`) so the three fields never contradict
     // each other on screen.
     const wasOverridden = finalVerdict !== parsed.verdict;
+    // A 'good' verdict means nothing needs correcting — there's nothing to
+    // recommend instead of. And even on a real warning/bad verdict, a
+    // "recommendation" that just echoes the storage type already declared
+    // reads as nonsensical ("declared at ambient instead" when ambient is
+    // what was declared) — only a genuinely different storage type is an
+    // actual correction. The prompt already tells the model to only propose
+    // one "if the storage or expiry looks meaningfully wrong," but models
+    // don't always follow that reliably; enforce it here instead of trusting
+    // the model alone.
+    const suggestsCorrection =
+      finalVerdict !== 'good' &&
+      parsed.recommended_storage_type != null &&
+      parsed.recommended_storage_type !== storageType;
     return {
       ...base,
       verdict: finalVerdict,
       score: wasOverridden ? base.score : Math.max(0, Math.min(100, Math.round(parsed.score))),
       reasoning: wasOverridden ? base.reasoning : parsed.reasoning,
       used_ai: true,
-      recommended_storage_type: parsed.recommended_storage_type,
-      recommended_expiry_hours: parsed.recommended_expiry_hours,
+      recommended_storage_type: suggestsCorrection ? parsed.recommended_storage_type : null,
+      recommended_expiry_hours: suggestsCorrection ? parsed.recommended_expiry_hours : null,
     };
   } catch (error) {
     console.error('[food-safety-agent] AI check failed — using deterministic floor verdict only:', error);
