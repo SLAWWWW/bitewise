@@ -831,48 +831,435 @@ select.input {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   LANDING PAGE
-   The public pitch surface at `/`. Same editorial-light system as the product
-   behind it — these classes exist only to carry responsive type/layout that
-   inline styles can't express, not to introduce a second visual language.
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LANDING PAGE — brutalism × minimalism, monochrome only
+   The public pitch surface at `/`. Deliberately its own visual register from
+   the product behind it: pure black/white, hard edges, heavy type, no colour
+   anywhere. Apple's discipline (SF system font, precise spacing, restraint)
+   applied to a brutalist structure (thick rules, sharp corners, huge type)
+   instead of Apple's usual softness. Motion carries the "dynamic" energy
+   colour would otherwise supply.
 ───────────────────────────────────────────────────────────────────────────── */
+.lp {
+  background: #ffffff;
+  color: #000000;
+}
+
 .lp-shell {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px 96px;
+  padding: 0 28px;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #ffffff;
+  border-bottom: 2px solid #000000;
+}
+
+.lp-wordmark {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.lp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lp-nav-link {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000000;
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.lp-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -3px;
+  height: 2px;
+  background: #000;
+  transition: right 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lp-nav-link:hover::after {
+  right: 0;
+}
+
+/* ── Buttons — the one place a pill survives, deliberately ────────────────── */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(0.32, 0.72, 0, 1), background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.lp-btn:active {
+  transform: scale(0.96);
+}
+
+.lp-btn-solid {
+  background: #000000;
+  color: #ffffff;
+  border: 2px solid #000000;
+}
+
+.lp-btn-solid:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+.lp-btn-outline {
+  background: transparent;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+.lp-btn-outline:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Inverted context (buttons sitting on a black slab) */
+.lp-invert .lp-btn-solid {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+.lp-invert .lp-btn-solid:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.lp-invert .lp-btn-outline {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.lp-invert .lp-btn-outline:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ── Hero type ──────────────────────────────────────────────────────────── */
+.lp-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .lp-hero {
-  padding: 88px 0 72px;
+  padding: 64px 0 0;
 }
 
 .lp-hero-title {
-  font-size: 62px;
-  font-weight: 700;
-  line-height: 1.02;
-  letter-spacing: -0.045em;
-  color: var(--text-primary);
-  margin: 0 0 24px;
+  font-size: 108px;
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  margin: 20px 0 28px;
 }
 
 .lp-hero-lede {
-  font-size: 17px;
-  max-width: 620px;
-  margin-bottom: 34px;
-}
-
-.lp-section {
-  padding: 64px 0;
-  border-top: 1px solid var(--border-default);
-}
-
-/* Wide measure for section headings — narrower than the shell so lines break
-   where the writing intends, not wherever the container happens to end. */
-.lp-measure {
+  font-size: 19px;
+  line-height: 1.55;
   max-width: 640px;
+  color: #3a3a3a;
 }
 
-/* Rows that read as table-like columns on desktop and stack on small screens. */
+/* ── Screenshot collage — the blur/fade strip ──────────────────────────── */
+.lp-collage {
+  position: relative;
+  height: 480px;
+  margin: 56px 0 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 96%);
+}
+
+.lp-collage-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.lp-collage-edge--left {
+  left: 0;
+  background: linear-gradient(to right, #fff 0%, transparent 100%);
+}
+
+.lp-collage-edge--right {
+  right: 0;
+  background: linear-gradient(to left, #fff 0%, transparent 100%);
+}
+
+.lp-frame {
+  position: absolute;
+  background: #fff;
+  border: 2px solid #000;
+  overflow: hidden;
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.9);
+}
+
+.lp-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.lp-frame-bar {
+  height: 22px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.lp-frame-bar span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.7;
+}
+
+.lp-frame--center {
+  left: 50%;
+  top: 0;
+  width: 620px;
+  height: 420px;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.lp-frame--left {
+  left: 2%;
+  top: 64px;
+  width: 420px;
+  height: 320px;
+  z-index: 1;
+  filter: blur(1.5px);
+  opacity: 0.72;
+}
+
+.lp-frame--right {
+  right: 2%;
+  top: 88px;
+  width: 420px;
+  height: 320px;
+  z-index: 1;
+  filter: blur(1.5px);
+  opacity: 0.72;
+}
+
+/* ── Marquee ticker ─────────────────────────────────────────────────────── */
+.lp-marquee-band {
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  overflow: hidden;
+  padding: 14px 0;
+  background: #000;
+}
+
+.lp-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: lp-scroll 26s linear infinite;
+}
+
+.lp-marquee-track span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  padding: 0 22px;
+  flex-shrink: 0;
+}
+
+.lp-marquee-track span.lp-dot::before {
+  content: '●';
+  margin-right: 22px;
+  font-size: 8px;
+  vertical-align: middle;
+  color: #fff;
+}
+
+@keyframes lp-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+.lp-section {
+  padding: 96px 0;
+  border-top: 2px solid #000;
+}
+
+.lp-section-invert {
+  background: #000;
+  color: #fff;
+}
+
+.lp-section-invert .lp-eyebrow {
+  color: #fff;
+}
+
+.lp-measure {
+  max-width: 680px;
+}
+
+.lp-h2 {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 14px 0 20px;
+}
+
+.lp-lede {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4a4a4a;
+  max-width: 620px;
+}
+
+.lp-section-invert .lp-lede {
+  color: #c7c7c7;
+}
+
+/* ── Brutalist cards ────────────────────────────────────────────────────── */
+.lp-card {
+  border: 2px solid #000;
+  padding: 26px 24px;
+  background: #fff;
+  color: #000;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.lp-section-invert .lp-card {
+  border-color: #fff;
+  background: #000;
+  color: #fff;
+}
+
+.lp-card--hover:hover {
+  background: #000;
+  color: #fff;
+}
+
+.lp-section-invert .lp-card--hover:hover {
+  background: #fff;
+  color: #000;
+}
+
+.lp-card--hover:hover .lp-card-sub {
+  color: #d8d8d8;
+}
+
+.lp-section-invert .lp-card--hover:hover .lp-card-sub {
+  color: #4a4a4a;
+}
+
+.lp-card-sub {
+  color: #666;
+  transition: color 180ms ease;
+}
+
+.lp-section-invert .lp-card-sub {
+  color: #9a9a9a;
+}
+
+/* Solid black card used for the single highest-severity boundary case */
+.lp-card--solid {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.lp-card--solid .lp-card-sub {
+  color: #b8b8b8;
+}
+
+/* Double-ruled border — the "human decides" card, given the most weight */
+.lp-card--double {
+  border: 2px solid #000;
+  box-shadow: 0 0 0 5px #fff, 0 0 0 7px #000;
+  margin: 2px;
+}
+
+/* ── Tags (replace colour-coded badges) ─────────────────────────────────── */
+.lp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border: 1.5px solid #000;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lp-section-invert .lp-tag {
+  border-color: #fff;
+}
+
+.lp-tag--solid {
+  background: #000;
+  color: #fff;
+}
+
+.lp-section-invert .lp-tag--solid {
+  background: #fff;
+  color: #000;
+}
+
+/* ── Numbers ────────────────────────────────────────────────────────────── */
+.lp-stat-num {
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── Rows (table-like, stack on mobile) ─────────────────────────────────── */
 .lp-row {
   display: flex;
   align-items: flex-start;
@@ -883,46 +1270,94 @@ select.input {
   align-items: center;
 }
 
-.lp-nav-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+/* ── Scroll-reveal (JS toggles .is-visible) ─────────────────────────────── */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.lp-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .lp-marquee-track {
+    animation: none;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 1023.98px) {
   .lp-hero-title {
-    font-size: 46px;
+    font-size: 64px;
+  }
+
+  .lp-h2 {
+    font-size: 38px;
+  }
+
+  .lp-nav-links {
+    display: none;
+  }
+
+  .lp-collage {
+    height: 320px;
+  }
+
+  .lp-frame--center {
+    width: 82%;
+    height: 300px;
+  }
+
+  .lp-frame--left {
+    left: -8%;
+    width: 260px;
+    height: 220px;
+    top: 40px;
+  }
+
+  .lp-frame--right {
+    right: -8%;
+    width: 260px;
+    height: 220px;
+    top: 56px;
+  }
+
+  .lp-section {
+    padding: 64px 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .lp-hero-title {
+    font-size: 42px;
     letter-spacing: -0.04em;
   }
 
-  .lp-hero {
-    padding: 56px 0 48px;
+  .lp-hero-lede {
+    font-size: 16px;
+  }
+
+  .lp-shell {
+    padding: 0 20px;
+  }
+
+  .lp-h2 {
+    font-size: 30px;
   }
 
   .lp-section {
     padding: 48px 0;
   }
 
-  .lp-nav-links {
-    display: none;
-  }
-}
-
-@media (max-width: 720px) {
-  .lp-shell {
-    padding: 0 18px 64px;
-  }
-
-  .lp-hero-title {
-    font-size: 34px;
-    letter-spacing: -0.03em;
-  }
-
-  .lp-hero-lede {
-    font-size: 15px;
-  }
-
-  /* Stack the table-like rows; fixed column widths become full-width blocks. */
   .lp-row {
     flex-direction: column;
     gap: 8px;
@@ -930,5 +1365,24 @@ select.input {
 
   .lp-row > * {
     flex: 1 1 auto !important;
+  }
+
+  .lp-collage {
+    height: 220px;
+    margin-top: 36px;
+  }
+
+  .lp-frame--center {
+    width: 90%;
+    height: 200px;
+  }
+
+  .lp-frame--left,
+  .lp-frame--right {
+    display: none;
+  }
+
+  .lp-card--double {
+    box-shadow: 0 0 0 4px #fff, 0 0 0 6px #000;
   }
 }
