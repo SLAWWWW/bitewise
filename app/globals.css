@@ -829,3 +829,106 @@ select.input {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LANDING PAGE
+   The public pitch surface at `/`. Same editorial-light system as the product
+   behind it — these classes exist only to carry responsive type/layout that
+   inline styles can't express, not to introduce a second visual language.
+───────────────────────────────────────────────────────────────────────────── */
+.lp-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
+}
+
+.lp-hero {
+  padding: 88px 0 72px;
+}
+
+.lp-hero-title {
+  font-size: 62px;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--text-primary);
+  margin: 0 0 24px;
+}
+
+.lp-hero-lede {
+  font-size: 17px;
+  max-width: 620px;
+  margin-bottom: 34px;
+}
+
+.lp-section {
+  padding: 64px 0;
+  border-top: 1px solid var(--border-default);
+}
+
+/* Wide measure for section headings — narrower than the shell so lines break
+   where the writing intends, not wherever the container happens to end. */
+.lp-measure {
+  max-width: 640px;
+}
+
+/* Rows that read as table-like columns on desktop and stack on small screens. */
+.lp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.lp-row-center {
+  align-items: center;
+}
+
+.lp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+@media (max-width: 1023.98px) {
+  .lp-hero-title {
+    font-size: 46px;
+    letter-spacing: -0.04em;
+  }
+
+  .lp-hero {
+    padding: 56px 0 48px;
+  }
+
+  .lp-section {
+    padding: 48px 0;
+  }
+
+  .lp-nav-links {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .lp-shell {
+    padding: 0 18px 64px;
+  }
+
+  .lp-hero-title {
+    font-size: 34px;
+    letter-spacing: -0.03em;
+  }
+
+  .lp-hero-lede {
+    font-size: 15px;
+  }
+
+  /* Stack the table-like rows; fixed column widths become full-width blocks. */
+  .lp-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .lp-row > * {
+    flex: 1 1 auto !important;
+  }
+}
