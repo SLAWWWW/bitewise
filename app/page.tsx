@@ -1,646 +1,933 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
-import { Reveal } from '@/components/landing/Reveal';
-import { CountUp } from '@/components/landing/CountUp';
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ArrowDown,
+  ArrowRight,
+  Boxes,
+  Globe2,
+  MapPin,
+  ShieldCheck,
+  User,
+} from "lucide-react";
+import { Reveal } from "@/components/landing/Reveal";
+import { CountUp } from "@/components/landing/CountUp";
 
 /**
  * Lumbung's public landing page — the pitch surface.
  *
- * Deliberately its own visual register from the product it sits in front
- * of: monochrome brutalism × minimalism rather than the product's editorial
- * light system. Pure black and white, hard edges, heavy type, thick rules —
- * Apple's typographic discipline (SF system font, precise scale, restraint)
- * applied to a raw structural language instead of Apple's usual softness.
- * Motion (scroll-reveal, count-up stats, a marquee ticker) supplies the
- * "dynamic" energy colour would otherwise carry.
+ * Its own visual register, separate from the product it sits in front of:
+ * glassmorphism on a white canvas. One animated black gradient field drifts
+ * behind the entire page (one `.lp-wave`, see globals.css) and every surface
+ * above it is translucent glass that blurs it, so depth comes from blur and
+ * light rather than from borders. Structure comes from hairline outlines —
+ * dashed frames with corner ticks, dotted page rails, ruled column joins.
  *
- * The hero collage uses real screenshots of the live product
- * (public/screenshots/*.png), desaturated to grayscale, so the monochrome
- * constraint applies to the proof, not just the marketing copy around it.
+ * The hero is one full screen of type over a stronger local bloom. Everything
+ * after it is a single continuous page (no per-screen slides): blocks
+ * separated by hairlines, in normal document scroll.
  */
 
-// ── Section 1: the scale of the problem ─────────────────────────────────────
+// ── The scale of the problem ────────────────────────────────────────────────
 const PROBLEM_STATS = [
-  { value: null, display: '23–48M', unit: 'tonnes', label: 'Food wasted in Indonesia every year', source: 'UNEP Food Waste Index, Bappenas' },
-  { value: null, display: '2nd', unit: 'globally', label: 'Largest food waster in the world', source: 'UNEP' },
-  { value: 23.36, decimals: 2, unit: 'million people', label: 'Living below the national poverty line', source: 'BPS, Sep 2025', suffix: 'M' },
-  { value: 21, decimals: 0, unit: 'of under-5s', label: 'Indonesian children affected by stunting', source: 'Indonesian health statistics', suffix: '%' },
+  {
+    value: null,
+    display: "23–48M",
+    unit: "tonnes a year",
+    label: "Food wasted in Indonesia",
+  },
+  {
+    value: null,
+    display: "2nd",
+    unit: "globally",
+    label: "Largest food waster in the world",
+  },
+  {
+    value: 23.36,
+    decimals: 2,
+    suffix: "M",
+    unit: "people",
+    label: "Below the national poverty line",
+  },
+  {
+    value: 21,
+    decimals: 0,
+    suffix: "%",
+    unit: "of under-5s",
+    label: "Affected by stunting",
+  },
 ];
 
-// ── Section 2: what the sector actually runs on today ───────────────────────
 const INCUMBENT_TOOLING = [
   {
-    org: 'FoodCycle Indonesia',
-    scale: '120+ donor partners · 100+ beneficiary organisations',
-    tooling: 'Zoho Creator forms',
-    gap: 'No automated matching, no fairness logic, no spoilage-aware routing',
+    org: "FoodCycle Indonesia",
+    scale: "120+ donors · 100+ beneficiaries",
+    tooling: "Zoho Creator forms",
   },
   {
-    org: 'Foodbank of Indonesia',
-    scale: '39 locations across Java · 4,454 volunteers',
-    tooling: 'Phone and WhatsApp',
-    gap: 'No documented allocation logic across 39 locations',
+    org: "Foodbank of Indonesia",
+    scale: "39 locations · 4,454 volunteers",
+    tooling: "Phone & WhatsApp",
   },
   {
-    org: 'Garda Pangan',
-    scale: '113 tonnes over 5 years · Surabaya + Malang',
-    tooling: 'Basic app, low adoption',
-    gap: 'Academically characterised as a "traditional consumptive model" — reactive, not coordinated',
+    org: "Garda Pangan",
+    scale: "113 tonnes over 5 years",
+    tooling: "Basic app, low adoption",
   },
   {
-    org: 'Foodbank Bandung',
-    scale: 'Regional',
-    tooling: 'Microsoft Excel',
-    gap: 'Documented limits in multi-user interaction and data management',
+    org: "Foodbank Bandung",
+    scale: "Regional network",
+    tooling: "Microsoft Excel",
   },
 ];
 
-// ── Section 3: the pipeline ─────────────────────────────────────────────────
+// ── The pipeline ────────────────────────────────────────────────────────────
 const PIPELINE = [
   {
-    step: '01',
-    title: 'Safety floor',
-    body: 'Every submission is scored against a standardised food-safety corpus before a listing exists. A deterministic floor decides the verdict; the AI may only make it stricter, never softer.',
+    step: "01",
+    title: "Safety floor",
+    body: "A deterministic floor scores every submission. The AI can only make it stricter, never softer.",
   },
   {
-    step: '02',
-    title: 'Fairness-weighted matching',
-    body: 'Each candidate branch is scored on real proximity, real spare capacity relative to its own size, and whether it already holds a glut of the same food type about to spoil.',
+    step: "02",
+    title: "Fair matching",
+    body: "Each branch is scored on real proximity, real spare capacity, and its own spoilage glut.",
   },
   {
-    step: '03',
-    title: 'Human approval gate',
-    body: 'Nothing reaches a branch automatically. Every allocation waits in a queue sorted by what spoils soonest until a staff member approves it. The AI recommends; a person decides.',
+    step: "03",
+    title: "Human approval",
+    body: "Nothing moves automatically. Allocations queue by what spoils soonest for a person to approve.",
   },
   {
-    step: '04',
-    title: 'Planned and dispatched',
-    body: 'A planner agent builds the stage-by-stage journey against real fleet and storage constraints. Critical stock dispatches the moment it is committed, not on a batch timer.',
+    step: "04",
+    title: "Plan & dispatch",
+    body: "A planner builds the route against real fleet limits. Critical stock leaves the moment it’s approved.",
   },
   {
-    step: '05',
-    title: 'Closed loop',
-    body: 'Collected, delivered to a partner, or recycled — every donation ends in a recorded outcome, not an open row. That record is the audit trail the compliance product is built on.',
+    step: "05",
+    title: "Closed loop",
+    body: "Collected, delivered, or recycled — every donation ends in a recorded, auditable outcome.",
   },
 ];
 
-// ── Section 6: build status, stated honestly ────────────────────────────────
+// ── Build status, stated honestly ───────────────────────────────────────────
 const BUILT = [
-  'Six specialised agents with real function-calling tool use',
-  'Deterministic safety floor with AI escalate-only override',
-  'Fairness-weighted branch matching (Jain’s Fairness Index)',
-  'Human approval gate on every allocation',
-  'Demand-quota allocation to partner beneficiaries',
-  'Immediate dispatch for time-critical stock',
-  'Live operations dashboard, storage, fleet and audit log',
-  'Deterministic fallback on every agent — nothing blocks if AI is down',
+  "Six agents with real function-calling tool use",
+  "Deterministic safety floor, AI escalate-only",
+  "Fairness-weighted matching (Jain’s Index)",
+  "Human approval gate on every allocation",
+  "Demand-quota allocation to beneficiaries",
+  "Immediate dispatch for time-critical stock",
+  "Live ops dashboard, storage, fleet, audit log",
+  "Deterministic fallback if AI is unavailable",
 ];
 
 const NEXT = [
-  { label: 'Bahasa Indonesia across every surface', priority: 'P0' },
-  { label: 'WhatsApp-first donor submission with photo parsing', priority: 'P0' },
-  { label: 'Indonesian donor legal protections surfaced at submission', priority: 'P0' },
-  { label: 'Real authentication with role separation', priority: 'P0' },
-  { label: 'Multi-organisation tenancy', priority: 'P1' },
-  { label: 'Structured allergen declaration', priority: 'P1' },
-  { label: 'Volunteer coordination module', priority: 'P1' },
-  { label: 'Corporate ESG compliance dashboard and export', priority: 'P2' },
+  { label: "Bahasa Indonesia across every surface", priority: "P0" },
+  { label: "WhatsApp-first donor flow with photo parsing", priority: "P0" },
+  { label: "Donor legal protections at submission", priority: "P0" },
+  { label: "Real authentication with role separation", priority: "P0" },
+  { label: "Multi-organisation tenancy", priority: "P1" },
+  { label: "Structured allergen declaration", priority: "P1" },
+  { label: "Volunteer coordination module", priority: "P1" },
+  { label: "Corporate ESG compliance export", priority: "P2" },
 ];
 
-// ── Section 7: roadmap ──────────────────────────────────────────────────────
+// ── Roadmap ─────────────────────────────────────────────────────────────────
 const PHASES = [
   {
-    phase: 'Phase 1',
-    window: 'Month 1–3',
-    title: 'Free pilot',
-    body: 'Embed inside one respected Indonesian food-rescue organisation. Prove reduced spoilage and reclaimed staff time. Ask only for the case study.',
-    revenue: 'Rp 0 — pure validation',
+    phase: "Phase 1",
+    window: "Month 1–3",
+    title: "Free pilot",
+    body: "Embed inside one respected food-rescue organisation. Prove reduced spoilage and reclaimed staff time.",
+    revenue: "Rp 0 — validation",
   },
   {
-    phase: 'Phase 2',
-    window: 'Month 4–8',
-    title: 'Monetise the charity side',
-    body: 'Convert the pilot to subscription, expand to a 39-location network where fairness-weighted matching genuinely earns its keep.',
-    revenue: 'Rp 500K–1.5M / month per org',
+    phase: "Phase 2",
+    window: "Month 4–8",
+    title: "Monetise the charity side",
+    body: "Convert the pilot to subscription; expand to a 39-location network.",
+    revenue: "Rp 500K–1.5M / mo",
   },
   {
-    phase: 'Phase 3',
-    window: 'Month 6–12',
-    title: 'Corporate compliance',
-    body: 'Sell the audit trail to the corporate donors already flowing through the platform, introduced warmly by the charities themselves.',
-    revenue: 'Rp 5M–40M / month per customer',
+    phase: "Phase 3",
+    window: "Month 6–12",
+    title: "Corporate compliance",
+    body: "Sell the audit trail to the corporate donors already flowing through the platform.",
+    revenue: "Rp 5M–40M / mo",
   },
   {
-    phase: 'Phase 4',
-    window: 'Month 12–18',
-    title: 'Deep moat',
-    body: 'Verified cold chain, tamper-evident audit anchoring, and shared routing intelligence across partner organisations.',
-    revenue: 'Network and international expansion',
+    phase: "Phase 4",
+    window: "Month 12–18",
+    title: "Deep moat",
+    body: "Verified cold chain, tamper-evident anchoring, shared routing intelligence.",
+    revenue: "Network expansion",
   },
 ];
 
-const TICKER_ITEMS = ['ZOHO CREATOR FORMS', 'MICROSOFT EXCEL', 'PHONE & WHATSAPP', 'BASIC APP, LOW ADOPTION'];
+const OJK_PHASES = [
+  {
+    group: "Group 1",
+    who: "Main-board issuers, major banks",
+    from: "Jan 2027",
+    active: true,
+  },
+  {
+    group: "Group 2",
+    who: "Development-board issuers",
+    from: "Jan 2028",
+    active: false,
+  },
+  {
+    group: "Group 3",
+    who: "Asset managers, public-interest entities",
+    from: "Jan 2029",
+    active: false,
+  },
+];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+const SHOTS = [
+  {
+    src: "/screenshots/dashboard.png",
+    w: 1370,
+    h: 560,
+    cap: "Live operations — fairness, saturation, deliveries in flight",
+  },
+  {
+    src: "/screenshots/agents.png",
+    w: 1370,
+    h: 340,
+    cap: "The agent pipeline, with every tool call inspectable",
+  },
+  {
+    src: "/screenshots/donate.png",
+    w: 1600,
+    h: 900,
+    cap: "Donor submission — safety-checked before a listing exists",
+  },
+];
+
+const TICKER_ITEMS = [
+  "ZOHO CREATOR FORMS",
+  "MICROSOFT EXCEL",
+  "PHONE & WHATSAPP",
+  "BASIC APP, LOW ADOPTION",
+  "PAPER LOGBOOKS",
+];
+
+/**
+ * Nodes on the dotted map. The SVG's viewBox is lng 94.5..141.5 by lat
+ * 6.5..-11.5, so a real coordinate converts to a percentage of the map box
+ * as x = (lng - 94.5) / 47 and y = (6.5 - lat) / 18. The values below are
+ * actual Indonesian cities put through that, so the pins land on land.
+ */
+const MAP_NODES = [
+  { x: 21.7, y: 52.8, icon: User, label: "Palembang" },
+  { x: 26.2, y: 70.6, icon: Boxes, ink: true, label: "Jakarta hub" },
+  { x: 53.0, y: 64.4, icon: User, delay: true, label: "Makassar" },
+  { x: 90.2, y: 61.1, icon: User, label: "Timika" },
+];
+
+/**
+ * Routes between those nodes, drawn in the map SVG's own coordinate space
+ * (x = lng, y = -lat) so they land on the same dots the pins do.
+ */
+const MAP_ROUTES = [
+  "M104.7 3 Q104.2 4.9 106.8 6.2",
+  "M106.8 6.2 Q113 3.4 119.4 5.1",
+  "M119.4 5.1 Q128 2 136.9 4.5",
+];
+
+const NETWORK_FEATURES = [
+  {
+    icon: Globe2,
+    title: "Coordinate everywhere",
+    body: "Branch networks, partner beneficiaries, and donors on one shared allocation layer instead of four inboxes.",
+  },
+  {
+    icon: MapPin,
+    title: "Route by what spoils first",
+    body: "Proximity, fairness, and spoilage risk are scored together, so the food that can’t wait moves first.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Prove every hand-off",
+    body: "Collected, delivered, or recycled — the outcome is recorded. No more capacity guesswork.",
+  },
+];
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
   return <div className="lp-eyebrow">{children}</div>;
 }
 
 export default function LandingPage() {
   return (
     <div className="lp">
-      {/* ── Nav ────────────────────────────────────────────────────────── */}
-      <header className="lp-nav">
-        <div className="lp-shell flex items-center justify-between gap-3" style={{ padding: '18px 0' }}>
-          <span className="lp-wordmark">Lumbung</span>
-
-          <nav className="lp-nav-links">
-            {[
-              ['Problem', '#problem'],
-              ['How it works', '#how'],
-              ['Boundary', '#boundary'],
-              ['Roadmap', '#roadmap'],
-            ].map(([label, href]) => (
-              <a key={href} href={href} className="lp-nav-link">
-                {label}
-              </a>
-            ))}
-          </nav>
-
-          <Link href="/orchestrator" className="lp-btn lp-btn-solid">
-            Live product
-            <ArrowRight size={14} />
-          </Link>
+      {/* ── The moving field every glass surface blurs ──────────────────── */}
+      <div className="lp-field" aria-hidden="true">
+        <div className="lp-wave lp-wave--soft">
+          <div className="lp-wave-shape" />
         </div>
-      </header>
+        <div className="lp-grain" />
+      </div>
 
-      <main>
-        {/* ── Hero ─────────────────────────────────────────────────────── */}
-        <section className="lp-hero">
+      {/* Dotted page-edge rails, in the manner of a technical drawing */}
+      <div className="lp-rail lp-rail--l" aria-hidden="true" />
+      <div className="lp-rail lp-rail--r" aria-hidden="true" />
+
+      <div className="lp-above">
+        {/* ── Nav — glass, blurred ──────────────────────────────────────── */}
+        <header className="lp-nav">
           <div className="lp-shell">
-            <Reveal>
-              <span className="lp-tag">Indonesia · food redistribution infrastructure</span>
-              <h1 className="lp-hero-title">
-                The coordination
-                <br />
-                layer Indonesia&apos;s
-                <br />
-                food banks don&apos;t
-                <br />
-                have yet.
-              </h1>
-              <p className="lp-hero-lede">
-                Indonesia is the world&apos;s second-largest food waster while 23 million of its people live below the
-                poverty line. Four serious food-rescue organisations already operate at scale — and every one of them
-                coordinates through Zoho forms, Excel, or WhatsApp. Lumbung is the software layer between surplus and
-                need: six AI agents that route, plan, and prove every donation, with a human approving every
-                allocation.
-              </p>
-              <div className="flex items-center gap-3 flex-wrap" style={{ marginTop: 30 }}>
-                <Link href="/orchestrator" className="lp-btn lp-btn-solid">
-                  See the working system
-                  <ArrowRight size={15} />
-                </Link>
-                <a href="#how" className="lp-btn lp-btn-outline">
-                  How it works
+            <span className="lp-wordmark">Lumbung</span>
+
+            <nav className="lp-nav-links">
+              {[
+                ["Problem", "#problem"],
+                ["How it works", "#how"],
+                ["Network", "#network"],
+                ["Product", "#product"],
+                ["Roadmap", "#roadmap"],
+              ].map(([label, href]) => (
+                <a key={href} href={href} className="lp-nav-link">
+                  {label}
                 </a>
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Screenshot collage — real product, desaturated, fading to white */}
-          <Reveal delay={120}>
-            <div className="lp-collage" aria-hidden="true">
-              <div className="lp-collage-edge lp-collage-edge--left" />
-              <div className="lp-collage-edge lp-collage-edge--right" />
-
-              <div className="lp-frame lp-frame--left">
-                <div className="lp-frame-bar">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <Image src="/screenshots/agents.png" alt="" width={1370} height={340} />
-              </div>
-
-              <div className="lp-frame lp-frame--center">
-                <div className="lp-frame-bar">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <Image src="/screenshots/dashboard.png" alt="" width={1370} height={560} priority />
-              </div>
-
-              <div className="lp-frame lp-frame--right">
-                <div className="lp-frame-bar">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <Image src="/screenshots/donate.png" alt="" width={1600} height={900} />
-              </div>
-            </div>
-          </Reveal>
-        </section>
-
-        {/* Ticker — the tools it replaces, stated flatly, on loop */}
-        <div className="lp-marquee-band">
-          <div className="lp-marquee-track">
-            {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => (
-              <span key={i} className="lp-dot">
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Problem ──────────────────────────────────────────────────── */}
-        <section id="problem" className="lp-section">
-          <div className="lp-shell">
-            <Reveal>
-              <SectionLabel>The problem</SectionLabel>
-              <h2 className="lp-h2 lp-measure">Not a generosity problem. A coordination problem.</h2>
-              <p className="lp-lede">
-                The food exists and the need exists, often in the same city on the same day. What&apos;s missing is
-                the layer that decides which surplus goes to which branch, at what time, against which spoilage
-                clock.
-              </p>
-            </Reveal>
-
-            <div className="grid-stats" style={{ marginTop: 44, marginBottom: 48 }}>
-              {PROBLEM_STATS.map((s, i) => (
-                <Reveal key={s.label} delay={i * 70}>
-                  <div className="lp-card lp-card--hover" style={{ height: '100%' }}>
-                    <div className="lp-stat-num">
-                      {s.value != null ? (
-                        <CountUp to={s.value} decimals={s.decimals} suffix={s.suffix} />
-                      ) : (
-                        s.display
-                      )}
-                    </div>
-                    <div className="text-caption lp-card-sub" style={{ marginBottom: 12, marginTop: 2 }}>
-                      {s.unit}
-                    </div>
-                    <div className="text-caption" style={{ fontWeight: 600, marginBottom: 8 }}>
-                      {s.label}
-                    </div>
-                    <div className="text-caption lp-card-sub" style={{ fontSize: 10.5 }}>
-                      {s.source}
-                    </div>
-                  </div>
-                </Reveal>
               ))}
+            </nav>
+
+            <Link href="/orchestrator" className="lp-btn lp-btn-solid">
+              Live product
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </header>
+
+        <main>
+          {/* ── Hero — type only, one full screen ──────────────────────── */}
+          <section className="lp-hero">
+            <div className="lp-hero-bloom" aria-hidden="true">
+              <div className="lp-wave">
+                <div className="lp-wave-shape" />
+              </div>
+              <div className="lp-grain" />
             </div>
 
-            <Reveal>
-              <div className="lp-card" style={{ padding: '30px 28px 16px' }}>
-                <h3 className="text-title-1" style={{ marginBottom: 6, fontWeight: 800 }}>
-                  What the sector coordinates with today
-                </h3>
-                <p className="lp-lede" style={{ marginBottom: 26 }}>
-                  Every organisation below is real, operating, and doing serious work — on generic tooling never
-                  designed for spoilage-aware allocation across a branch network.
+            <div className="lp-shell lp-hero-content">
+              <Reveal>
+                <h1 className="lp-hero-title">
+                  The coordination layer Indonesia&apos;s food banks don&apos;t
+                  have yet.
+                </h1>
+                <p className="lp-hero-meta">
+                  Indonesian food redistribution<span>✦</span>Six AI agents
+                  <span>✦</span>A human approves every allocation
                 </p>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <Link href="/orchestrator" className="lp-btn lp-btn-solid">
+                    See the working system
+                    <ArrowRight size={14} />
+                  </Link>
+                  <a href="#how" className="lp-btn lp-btn-ghost">
+                    How it works
+                  </a>
+                </div>
+              </Reveal>
+            </div>
 
-                <div className="flex flex-col">
-                  {INCUMBENT_TOOLING.map((row, i) => (
+            <a href="#problem" className="lp-scroll-cue">
+              Scroll
+              <ArrowDown size={12} />
+            </a>
+          </section>
+
+          {/* Ticker — the tools this replaces, on loop */}
+          <div className="lp-marquee-band">
+            <div className="lp-marquee-track">
+              {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map(
+                (t, i) => (
+                  <span key={i} className="lp-dot">
+                    {t}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+
+          {/* ── One continuous page from here down ─────────────────────── */}
+          <div className="lp-body">
+            {/* Problem */}
+            <section
+              id="problem"
+              className="lp-block lp-shell"
+              style={{ borderTop: "none" }}
+            >
+              <Reveal>
+                <Eyebrow>The problem</Eyebrow>
+                <h2 className="lp-h2 lp-measure">
+                  Not a generosity problem. A coordination problem.
+                </h2>
+                <p className="lp-lede">
+                  The food exists and the need exists, often in the same city on
+                  the same day. What&apos;s missing is the layer that decides
+                  which surplus goes where, at what time, against which spoilage
+                  clock.
+                </p>
+              </Reveal>
+
+              <div className="lp-grid-4" style={{ marginTop: 40 }}>
+                {PROBLEM_STATS.map((s, i) => (
+                  <Reveal key={s.label} delay={i * 70}>
+                    <div
+                      className="lp-card lp-card--lift"
+                      style={{ height: "100%" }}
+                    >
+                      <div className="lp-stat-num">
+                        {s.value != null ? (
+                          <CountUp
+                            to={s.value}
+                            decimals={s.decimals}
+                            suffix={s.suffix}
+                          />
+                        ) : (
+                          s.display
+                        )}
+                      </div>
+                      <div
+                        className="text-caption lp-card-sub"
+                        style={{ margin: "4px 0 10px" }}
+                      >
+                        {s.unit}
+                      </div>
+                      <div className="text-caption" style={{ fontWeight: 500 }}>
+                        {s.label}
+                      </div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+
+              <Reveal delay={80}>
+                <div
+                  className="lp-card"
+                  style={{ marginTop: 18, padding: "26px 28px 10px" }}
+                >
+                  <div
+                    className="lp-row"
+                    style={{
+                      justifyContent: "space-between",
+                      marginBottom: 18,
+                    }}
+                  >
+                    <div>
+                      <div className="text-title-1" style={{ fontWeight: 600 }}>
+                        What the sector coordinates with today
+                      </div>
+                      <p
+                        className="text-caption lp-card-sub"
+                        style={{ margin: "4px 0 0" }}
+                      >
+                        Every organisation below is real, operating, and doing
+                        serious work — on generic tooling never designed for
+                        spoilage-aware allocation.
+                      </p>
+                    </div>
+                    <span className="lp-tag">4 organisations</span>
+                  </div>
+
+                  {INCUMBENT_TOOLING.map((row) => (
                     <div
                       key={row.org}
                       className="lp-row"
-                      style={{ padding: '18px 0', borderTop: i === 0 ? 'none' : '2px solid #000' }}
+                      style={{
+                        justifyContent: "space-between",
+                        padding: "15px 0",
+                        borderTop: "1px solid var(--hair-soft)",
+                      }}
                     >
-                      <div style={{ flex: '0 0 210px' }}>
-                        <div className="text-title-2" style={{ fontWeight: 700 }}>
+                      <div>
+                        <div
+                          className="text-title-2"
+                          style={{ fontWeight: 600 }}
+                        >
                           {row.org}
                         </div>
-                        <div className="text-caption lp-card-sub" style={{ fontSize: 11.5 }}>
+                        <div className="text-caption lp-card-sub">
                           {row.scale}
                         </div>
                       </div>
-                      <div style={{ flex: '0 0 200px' }}>
-                        <span className="lp-tag">{row.tooling}</span>
-                      </div>
-                      <div className="text-caption" style={{ flex: 1, minWidth: 0 }}>
-                        {row.gap}
-                      </div>
+                      <span className="lp-tag">{row.tooling}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+              </Reveal>
+            </section>
 
-        {/* ── How it works (inverted) ──────────────────────────────────── */}
-        <section id="how" className="lp-section lp-section-invert">
-          <div className="lp-shell">
-            <Reveal>
-              <SectionLabel>How it works</SectionLabel>
-              <h2 className="lp-h2 lp-measure">Six agents. One human gate. Zero black boxes.</h2>
-              <p className="lp-lede">
-                Every agent calls real tools that read real data — proximity, spare capacity, spoilage risk, fleet
-                availability, storage headroom. The model can&apos;t invent a number; it can only decide whether to
-                act on the real one it was handed. Every call it makes is recorded and inspectable after the fact.
-              </p>
-            </Reveal>
+            {/* How it works */}
+            <section id="how" className="lp-block lp-shell">
+              <Reveal>
+                <Eyebrow>How it works</Eyebrow>
+                <h2 className="lp-h2 lp-measure">
+                  Six agents. One human gate. Zero black boxes.
+                </h2>
+                <p className="lp-lede">
+                  Every agent calls real tools reading real data — proximity,
+                  spare capacity, spoilage risk, fleet availability. It
+                  can&apos;t invent a number; it can only decide whether to act
+                  on the real one it was handed.
+                </p>
+              </Reveal>
 
-            <div className="flex flex-col gap-3" style={{ marginTop: 40 }}>
-              {PIPELINE.map((s, i) => (
-                <Reveal key={s.step} delay={i * 70}>
-                  <div className="lp-card lp-card--hover flex items-start gap-5" style={{ padding: '26px 26px' }}>
-                    <span className="lp-stat-num" style={{ fontSize: 34, flexShrink: 0 }}>
-                      {s.step}
-                    </span>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="text-title-1" style={{ marginBottom: 6, fontWeight: 800 }}>
+              <div className="lp-grid-3" style={{ marginTop: 38 }}>
+                {PIPELINE.map((s, i) => (
+                  <Reveal key={s.step} delay={i * 60}>
+                    <div
+                      className="lp-card lp-card--lift"
+                      style={{ height: "100%" }}
+                    >
+                      <div className="lp-step-num">{s.step}</div>
+                      <div
+                        className="text-title-1"
+                        style={{ fontWeight: 600, margin: "10px 0 6px" }}
+                      >
                         {s.title}
                       </div>
-                      <p className="text-caption lp-card-sub" style={{ margin: 0, maxWidth: 720, fontSize: 13 }}>
+                      <p
+                        className="text-caption lp-card-sub"
+                        style={{ margin: 0 }}
+                      >
                         {s.body}
                       </p>
                     </div>
+                  </Reveal>
+                ))}
+
+                <Reveal delay={360}>
+                  <div
+                    className="lp-card lp-card--ink"
+                    style={{ height: "100%" }}
+                  >
+                    <ShieldCheck size={18} style={{ opacity: 0.8 }} />
+                    <div
+                      className="text-title-1"
+                      style={{
+                        fontWeight: 600,
+                        margin: "10px 0 6px",
+                        color: "#fff",
+                      }}
+                    >
+                      The AI can stop something. It can never start something.
+                    </div>
+                    <p className="text-caption" style={{ margin: 0 }}>
+                      It blocks unsafe submissions on its own. It only ever
+                      recommends an allocation — no allocation is
+                      auto-committed. Full stop.
+                    </p>
                   </div>
                 </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
+              </div>
+            </section>
 
-        {/* ── AI/human boundary ────────────────────────────────────────── */}
-        <section id="boundary" className="lp-section">
-          <div className="lp-shell">
-            <Reveal>
-              <SectionLabel>The AI / human boundary</SectionLabel>
-              <h2 className="lp-h2 lp-measure">The AI can stop something. It can never start something.</h2>
-              <p className="lp-lede">
-                Most &ldquo;AI for good&rdquo; products are vague about where the model&apos;s authority ends.
-                Lumbung is specific, and the boundary is enforced in code rather than promised in policy.
-              </p>
-            </Reveal>
-
-            <div className="grid-thirds" style={{ marginTop: 40 }}>
-              <Reveal delay={0}>
-                <div className="lp-card lp-card--solid" style={{ height: '100%' }}>
-                  <div className="lp-tag lp-tag--solid" style={{ marginBottom: 16 }}>
-                    The AI decides alone
-                  </div>
-                  <p className="text-body" style={{ color: '#fff', fontSize: 14, marginBottom: 10 }}>
-                    Blocking a submission that fails the food-safety floor.
-                  </p>
-                  <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                    Bounded by a deterministic calculation it can escalate but never talk its way under.
-                  </p>
-                </div>
-              </Reveal>
-
-              <Reveal delay={70}>
-                <div className="lp-card lp-card--hover" style={{ height: '100%' }}>
-                  <div className="lp-tag" style={{ marginBottom: 16 }}>
-                    The AI advises
-                  </div>
-                  <p className="text-body" style={{ color: 'inherit', fontSize: 14, marginBottom: 10 }}>
-                    Which branch, which partner, what route, what timing.
-                  </p>
-                  <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                    Every recommendation carries its own reasoning and the tool calls behind it.
-                  </p>
-                </div>
-              </Reveal>
-
-              <Reveal delay={140}>
-                <div className="lp-card lp-card--double" style={{ height: '100%' }}>
-                  <div className="lp-tag" style={{ marginBottom: 16 }}>
-                    A human decides
-                  </div>
-                  <p className="text-body" style={{ color: 'inherit', fontSize: 14, marginBottom: 10 }}>
-                    Every allocation, every pickup confirmation, every delivery.
-                  </p>
-                  <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                    No allocation is ever auto-committed. Full stop.
-                  </p>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Regulatory tailwind ──────────────────────────────────────── */}
-        <section className="lp-section">
-          <div className="lp-shell">
-            <SectionLabel>Why now</SectionLabel>
-            <div className="lp-row" style={{ alignItems: 'flex-start', gap: 40 }}>
+            {/* Network — the dotted map */}
+            <section id="network" className="lp-block lp-shell">
               <Reveal>
-                <div style={{ maxWidth: 600 }}>
-                  <h2 className="lp-h2" style={{ maxWidth: 560 }}>
-                    The audit trail becomes a legal requirement in 2027.
+                <div style={{ textAlign: "center" }}>
+                  <Eyebrow>The network</Eyebrow>
+                  <h2
+                    className="lp-h2"
+                    style={{ maxWidth: 620, margin: "12px auto 14px" }}
+                  >
+                    Region: Indonesia
                   </h2>
-                  <p className="lp-lede" style={{ marginBottom: 18 }}>
-                    Indonesia&apos;s OJK ratified national Sustainability Disclosure Standards (PSPK 1 and 2) in July
-                    2025, aligned with IFRS S1/S2. PSPK 2 requires quantitative climate disclosures including waste
-                    indicators — precisely the data category that food-waste diversion tracking produces.
-                  </p>
-                  <p className="lp-lede" style={{ margin: 0 }}>
-                    Lumbung generates that record as a byproduct of normal operations. The charity gets coordination
-                    it can&apos;t currently buy; the corporate donor gets the defensible number their auditor is about
-                    to ask for. Same data, two customers.
+                  <p className="lp-lede" style={{ margin: "0 auto" }}>
+                    One coordination layer across the archipelago — close to the
+                    surplus, close to the need.
                   </p>
                 </div>
               </Reveal>
 
               <Reveal delay={100}>
-                <div className="lp-card" style={{ padding: '24px 24px 8px', flex: '0 0 380px' }}>
-                  <div className="lp-eyebrow" style={{ marginBottom: 16, fontSize: 11 }}>
-                    OJK PSPK phase-in
+                <div className="lp-map">
+                  <div className="lp-map-canvas">
+                    {/* `unoptimized` because the Next image optimizer refuses
+                      SVG unless dangerouslyAllowSVG is set; this file is our
+                      own generated asset, served as-is. */}
+                    <Image
+                      src="/indonesia-dots.svg"
+                      alt="Dotted map of the Indonesian archipelago"
+                      width={1400}
+                      height={540}
+                      unoptimized
+                      priority
+                    />
+
+                    <svg
+                      className="lp-map-routes"
+                      viewBox="94.5 -6.5 47 18"
+                      preserveAspectRatio="xMidYMid meet"
+                      aria-hidden="true"
+                    >
+                      {MAP_ROUTES.map((d) => (
+                        <path key={d} d={d} />
+                      ))}
+                    </svg>
+
+                    {MAP_NODES.map((n) => {
+                      const Icon = n.icon;
+                      return (
+                        <div
+                          key={n.label}
+                          className={`lp-map-node${n.ink ? " lp-map-node--ink" : ""}${n.delay ? " lp-map-node--delay" : ""}`}
+                          style={{ top: `${n.y}%`, left: `${n.x}%` }}
+                          title={n.label}
+                        >
+                          <Icon size={18} />
+                        </div>
+                      );
+                    })}
                   </div>
-                  {[
-                    { group: 'Group 1', who: 'Main-board issuers, major banks', from: 'Jan 2027', active: true },
-                    { group: 'Group 2', who: 'Development-board issuers', from: 'Jan 2028', active: false },
-                    { group: 'Group 3', who: 'Asset managers, public-interest entities', from: 'Jan 2029', active: false },
-                  ].map((g, i) => (
-                    <div key={g.group} style={{ padding: '16px 0', borderTop: i === 0 ? 'none' : '2px solid #000' }}>
-                      <div className="text-title-2" style={{ fontSize: 14, fontWeight: 700 }}>
-                        {g.group} <span className="tnum">· {g.from}</span>
-                        {g.active && <span className="lp-tag lp-tag--solid" style={{ marginLeft: 8, fontSize: 9 }}>Next</span>}
+
+                  <div
+                    className="lp-frame lp-map-label"
+                    style={{ top: "12%", right: 0 }}
+                  >
+                    Every donation is matched against real distance, real spare
+                    capacity, and the spoilage clock on the food itself — then
+                    held for a person to approve.
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Outlined feature row */}
+              <Reveal delay={140}>
+                <div
+                  className="lp-outline-row lp-grid-3"
+                  style={{ marginTop: 40, gap: 0 }}
+                >
+                  {NETWORK_FEATURES.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <div key={c.title} className="lp-outline-col">
+                        <Icon
+                          size={22}
+                          className="lp-outline-icon"
+                          strokeWidth={1.5}
+                        />
+                        <div
+                          className="text-title-1"
+                          style={{ fontWeight: 600, marginBottom: 6 }}
+                        >
+                          {c.title}
+                        </div>
+                        <p
+                          className="text-caption lp-card-sub"
+                          style={{ margin: 0, maxWidth: 320 }}
+                        >
+                          {c.body}
+                        </p>
                       </div>
-                      <div className="text-caption lp-card-sub" style={{ fontSize: 11.5 }}>
-                        {g.who}
+                    );
+                  })}
+                </div>
+              </Reveal>
+            </section>
+
+            {/* Product screenshots */}
+            <section id="product" className="lp-block lp-shell">
+              <Reveal>
+                <Eyebrow>The product</Eyebrow>
+                <h2 className="lp-h2 lp-measure">
+                  Not a mockup. The system, running.
+                </h2>
+                <p className="lp-lede">
+                  Live operations, the donor submission flow, and the agent
+                  pipeline — every screen below is the working product, not a
+                  render.
+                </p>
+              </Reveal>
+
+              <Reveal delay={100}>
+                <div className="lp-shots">
+                  {SHOTS.map((s) => (
+                    <div key={s.src} className="lp-shot">
+                      <div className="lp-shot-bar" aria-hidden="true">
+                        <span />
+                        <span />
+                        <span />
                       </div>
+                      <Image src={s.src} alt={s.cap} width={s.w} height={s.h} />
+                      <div className="lp-shot-cap">{s.cap}</div>
                     </div>
                   ))}
                 </div>
               </Reveal>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* ── Build status ─────────────────────────────────────────────── */}
-        <section className="lp-section">
-          <div className="lp-shell">
-            <Reveal>
-              <SectionLabel>Status</SectionLabel>
-              <h2 className="lp-h2 lp-measure">A working system, and an honest list of what it isn&apos;t yet.</h2>
-              <p className="lp-lede">
-                The coordination engine is built and running, not a prototype rendered for a deck. What it still
-                needs for the Indonesian market is named below rather than glossed over.
-              </p>
-            </Reveal>
-
-            <div className="grid-halves" style={{ marginTop: 40 }}>
-              <Reveal delay={0}>
-                <div className="lp-card" style={{ height: '100%' }}>
-                  <div className="lp-tag lp-tag--solid" style={{ marginBottom: 18 }}>
-                    Built and running
+            {/* Why now */}
+            <section className="lp-block lp-shell">
+              <div className="lp-split">
+                <Reveal>
+                  <div>
+                    <Eyebrow>Why now</Eyebrow>
+                    <h2 className="lp-h2" style={{ maxWidth: 520 }}>
+                      The audit trail becomes a legal requirement in 2027.
+                    </h2>
+                    <p className="lp-lede">
+                      Indonesia&apos;s OJK ratified Sustainability Disclosure
+                      Standards (PSPK 1/2) in July 2025, requiring quantitative
+                      waste disclosures from January 2027. Lumbung produces that
+                      record as a byproduct of normal operations — the charity
+                      gets coordination it can&apos;t buy today; the corporate
+                      donor gets the number their auditor is about to require.
+                    </p>
                   </div>
-                  <div className="flex flex-col gap-2.5">
-                    {BUILT.map((b) => (
-                      <div key={b} className="flex items-start gap-2.5">
-                        <span style={{ fontWeight: 800, flexShrink: 0 }}>—</span>
-                        <span className="text-caption">{b}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
+                </Reveal>
 
-              <Reveal delay={90}>
-                <div className="lp-card" style={{ height: '100%' }}>
-                  <div className="lp-tag" style={{ marginBottom: 18 }}>
-                    Required for Indonesia — not built yet
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    {NEXT.map((n) => (
-                      <div key={n.label} className="flex items-start gap-2.5">
-                        <span className="lp-tag" style={{ fontSize: 9.5, padding: '1px 7px', marginTop: 1, flexShrink: 0 }}>
-                          {n.priority}
-                        </span>
-                        <span className="text-caption">{n.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-
-            <div className="grid-halves" style={{ marginTop: 14 }}>
-              <Reveal delay={0}>
-                <div className="lp-card lp-card--hover" style={{ height: '100%' }}>
-                  <div className="text-title-2" style={{ marginBottom: 6, fontWeight: 800 }}>
-                    &ldquo;I don&apos;t have time for another app&rdquo;
-                  </div>
-                  <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                    Answered with a WhatsApp-first donor flow: one message and a photo, parsed into a structured
-                    listing. No install, no account, no login during a busy service.
-                  </p>
-                </div>
-              </Reveal>
-
-              <Reveal delay={90}>
-                <div className="lp-card lp-card--hover" style={{ height: '100%' }}>
-                  <div className="text-title-2" style={{ marginBottom: 6, fontWeight: 800 }}>
-                    &ldquo;I&apos;m worried about liability&rdquo;
-                  </div>
-                  <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                    Answered by surfacing the legal protections that apply to food donors at the moment of donation,
-                    rather than leaving the donor to guess at their exposure.
-                  </p>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Roadmap (inverted) ────────────────────────────────────────── */}
-        <section id="roadmap" className="lp-section lp-section-invert">
-          <div className="lp-shell">
-            <Reveal>
-              <SectionLabel>Roadmap</SectionLabel>
-              <h2 className="lp-h2 lp-measure">Earn the case study, then sell the proof.</h2>
-              <p className="lp-lede">
-                Partner-first, not customer-first. A cold pitch to a food bank in Month 1 fails; a quiet pilot that
-                produces a testimonial in Month 3 opens every door after it.
-              </p>
-            </Reveal>
-
-            <div className="flex flex-col gap-3" style={{ marginTop: 40 }}>
-              {PHASES.map((p, i) => (
-                <Reveal key={p.phase} delay={i * 70}>
-                  <div className="lp-card lp-card--hover lp-row lp-row-center" style={{ padding: '26px 26px' }}>
-                    <div style={{ flex: '0 0 132px' }}>
-                      <div className="lp-eyebrow" style={{ fontSize: 11 }}>
-                        {p.phase}
-                      </div>
-                      <div className="text-caption lp-card-sub tnum" style={{ fontSize: 11.5 }}>
-                        {p.window}
-                      </div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="text-title-2" style={{ marginBottom: 4, fontWeight: 800 }}>
-                        {p.title}
-                      </div>
-                      <p className="text-caption lp-card-sub" style={{ margin: 0 }}>
-                        {p.body}
-                      </p>
-                    </div>
-                    <div style={{ flex: '0 0 190px' }}>
-                      <span className="text-caption tnum" style={{ fontWeight: 700 }}>
-                        {p.revenue}
-                      </span>
+                <Reveal delay={100}>
+                  <div
+                    className="lp-card"
+                    style={{ padding: "24px 26px 12px" }}
+                  >
+                    <Eyebrow>OJK PSPK phase-in</Eyebrow>
+                    <div style={{ marginTop: 14 }}>
+                      {OJK_PHASES.map((g, i) => (
+                        <div
+                          key={g.group}
+                          style={{
+                            padding: "13px 0",
+                            borderTop:
+                              i === 0 ? "none" : "1px solid var(--hair-soft)",
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <span
+                              className="text-title-2"
+                              style={{ fontWeight: 600 }}
+                            >
+                              {g.group}{" "}
+                              <span className="tnum lp-card-sub">
+                                · {g.from}
+                              </span>
+                            </span>
+                            {g.active && (
+                              <span className="lp-tag lp-tag--ink">Next</span>
+                            )}
+                          </div>
+                          <div className="text-caption lp-card-sub">
+                            {g.who}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </Reveal>
-              ))}
+              </div>
+            </section>
+
+            {/* Status */}
+            <section className="lp-block lp-shell">
+              <Reveal>
+                <Eyebrow>Status</Eyebrow>
+                <h2 className="lp-h2 lp-measure">
+                  A working system, and an honest list of what it isn&apos;t
+                  yet.
+                </h2>
+              </Reveal>
+
+              <div className="lp-grid-2" style={{ marginTop: 34 }}>
+                <Reveal>
+                  <div className="lp-card" style={{ height: "100%" }}>
+                    <span className="lp-tag lp-tag--ink">
+                      Built and running
+                    </span>
+                    <div style={{ marginTop: 16 }}>
+                      {BUILT.map((b) => (
+                        <div key={b} className="lp-bullet">
+                          <ShieldCheck
+                            size={14}
+                            style={{
+                              marginTop: 2,
+                              flexShrink: 0,
+                              opacity: 0.45,
+                            }}
+                          />
+                          <span className="text-caption">{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+
+                <Reveal delay={90}>
+                  <div className="lp-card" style={{ height: "100%" }}>
+                    <span className="lp-tag">
+                      Required for Indonesia — not built yet
+                    </span>
+                    <div style={{ marginTop: 16 }}>
+                      {NEXT.map((n) => (
+                        <div key={n.label} className="lp-bullet">
+                          <span
+                            className="lp-step-num"
+                            style={{
+                              marginTop: 2,
+                              flexShrink: 0,
+                              width: 20,
+                              fontSize: 10.5,
+                            }}
+                          >
+                            {n.priority}
+                          </span>
+                          <span className="text-caption">{n.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+
+              <div className="lp-grid-2" style={{ marginTop: 18 }}>
+                <Reveal>
+                  <div
+                    className="lp-card lp-card--lift"
+                    style={{ height: "100%" }}
+                  >
+                    <div
+                      className="text-title-1"
+                      style={{ fontWeight: 600, marginBottom: 6 }}
+                    >
+                      &ldquo;I don&apos;t have time for another app&rdquo;
+                    </div>
+                    <p
+                      className="text-caption lp-card-sub"
+                      style={{ margin: 0 }}
+                    >
+                      Answered with a WhatsApp-first donor flow: one message and
+                      a photo, parsed into a listing. No install, no account, no
+                      login during a busy service.
+                    </p>
+                  </div>
+                </Reveal>
+
+                <Reveal delay={90}>
+                  <div
+                    className="lp-card lp-card--lift"
+                    style={{ height: "100%" }}
+                  >
+                    <div
+                      className="text-title-1"
+                      style={{ fontWeight: 600, marginBottom: 6 }}
+                    >
+                      &ldquo;I&apos;m worried about liability&rdquo;
+                    </div>
+                    <p
+                      className="text-caption lp-card-sub"
+                      style={{ margin: 0 }}
+                    >
+                      Answered by surfacing the legal protections that apply to
+                      food donors at the moment of donation, rather than leaving
+                      them to guess at their exposure.
+                    </p>
+                  </div>
+                </Reveal>
+              </div>
+            </section>
+
+            {/* Roadmap */}
+            <section id="roadmap" className="lp-block lp-shell">
+              <Reveal>
+                <Eyebrow>Roadmap</Eyebrow>
+                <h2 className="lp-h2 lp-measure">
+                  Earn the case study, then sell the proof.
+                </h2>
+                <p className="lp-lede">
+                  Partner-first, not customer-first. A cold pitch to a food bank
+                  in Month 1 fails; a quiet pilot that produces a testimonial in
+                  Month 3 opens every door after it.
+                </p>
+              </Reveal>
+
+              <div className="flex flex-col gap-3" style={{ marginTop: 34 }}>
+                {PHASES.map((p, i) => (
+                  <Reveal key={p.phase} delay={i * 70}>
+                    <div
+                      className="lp-card lp-card--lift lp-row"
+                      style={{ justifyContent: "space-between" }}
+                    >
+                      <div style={{ flex: "0 0 150px" }}>
+                        <div className="lp-step-num">
+                          {p.phase.toUpperCase()}
+                        </div>
+                        <div className="text-caption lp-card-sub tnum">
+                          {p.window}
+                        </div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          className="text-title-1"
+                          style={{ fontWeight: 600, marginBottom: 4 }}
+                        >
+                          {p.title}
+                        </div>
+                        <p
+                          className="text-caption lp-card-sub"
+                          style={{ margin: 0 }}
+                        >
+                          {p.body}
+                        </p>
+                      </div>
+                      <div style={{ flex: "0 0 180px" }}>
+                        <span className="lp-tag tnum">{p.revenue}</span>
+                      </div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </section>
+
+            {/* Closing CTA */}
+            <section className="lp-shell">
+              <Reveal>
+                <div className="lp-cta">
+                  <Eyebrow>Lumbung</Eyebrow>
+                  <h2 className="lp-h2">The system is live. Go use it.</h2>
+                  <p className="lp-lede">
+                    Submit a donation and watch it get safety-checked, routed,
+                    approved, planned and dispatched — with every agent&apos;s
+                    reasoning visible at each step.
+                  </p>
+                  <div className="flex items-center justify-center gap-3 flex-wrap">
+                    <Link href="/donate" className="lp-btn lp-btn-solid">
+                      Submit a donation
+                      <ArrowRight size={14} />
+                    </Link>
+                    <Link href="/orchestrator" className="lp-btn lp-btn-ghost">
+                      Open the operations view
+                    </Link>
+                  </div>
+                </div>
+              </Reveal>
+            </section>
+          </div>
+        </main>
+
+        {/* ── Footer ─────────────────────────────────────────────────────── */}
+        <footer className="lp-footer">
+          <div className="lp-shell flex items-center justify-between gap-4 flex-wrap">
+            <span>
+              Lumbung — a coordination layer for Indonesian food redistribution
+            </span>
+            <div className="flex items-center gap-6">
+              <Link href="/recipient" className="lp-nav-link">
+                Browse food
+              </Link>
+              <Link href="/donate" className="lp-nav-link">
+                Donate
+              </Link>
+              <Link href="/orchestrator" className="lp-nav-link">
+                Operations
+              </Link>
             </div>
           </div>
-        </section>
-
-        {/* ── Closing CTA ──────────────────────────────────────────────── */}
-        <section className="lp-invert" style={{ background: '#000', padding: '96px 0', textAlign: 'center' }}>
-          <div className="lp-shell">
-            <Reveal>
-              <div className="lp-wordmark" style={{ fontSize: 15, color: '#fff', marginBottom: 22 }}>
-                Lumbung
-              </div>
-              <h2 className="lp-h2" style={{ color: '#fff', maxWidth: 600, margin: '0 auto 16px' }}>
-                The system is live. Go use it.
-              </h2>
-              <p className="lp-lede" style={{ color: '#c7c7c7', maxWidth: 520, margin: '0 auto 32px' }}>
-                Submit a donation and watch it get safety-checked, routed, approved, planned and dispatched — with
-                every agent&apos;s reasoning visible at each step.
-              </p>
-              <div className="flex items-center justify-center gap-3 flex-wrap">
-                <Link href="/donate" className="lp-btn lp-btn-solid">
-                  Submit a donation
-                  <ArrowRight size={15} />
-                </Link>
-                <Link href="/orchestrator" className="lp-btn lp-btn-outline">
-                  Open the operations view
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      </main>
-
-      {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '2px solid #000', padding: '26px 0' }}>
-        <div className="lp-shell flex items-center justify-between gap-4 flex-wrap">
-          <span className="text-caption" style={{ fontWeight: 600 }}>
-            LUMBUNG — a coordination layer for Indonesian food redistribution
-          </span>
-          <div className="flex items-center gap-5">
-            <Link href="/recipient" className="lp-nav-link" style={{ fontSize: 11 }}>
-              Browse food
-            </Link>
-            <Link href="/donate" className="lp-nav-link" style={{ fontSize: 11 }}>
-              Donate
-            </Link>
-            <Link href="/orchestrator" className="lp-nav-link" style={{ fontSize: 11 }}>
-              Operations
-            </Link>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
