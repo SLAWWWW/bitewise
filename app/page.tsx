@@ -294,7 +294,7 @@ export default function LandingPage() {
               ))}
             </nav>
 
-            <Link href="/orchestrator" className="lp-btn lp-btn-solid">
+            <Link href="/ringkasan" className="lp-btn lp-btn-solid">
               Live product
               <ArrowRight size={14} />
             </Link>
@@ -322,7 +322,7 @@ export default function LandingPage() {
                   <span>✦</span>A human approves every allocation
                 </p>
                 <div className="flex items-center justify-center gap-3 flex-wrap">
-                  <Link href="/orchestrator" className="lp-btn lp-btn-solid">
+                  <Link href="/ringkasan" className="lp-btn lp-btn-solid">
                     See the working system
                     <ArrowRight size={14} />
                   </Link>
@@ -894,11 +894,11 @@ export default function LandingPage() {
                     reasoning visible at each step.
                   </p>
                   <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <Link href="/donate" className="lp-btn lp-btn-solid">
+                    <Link href="/donasi" className="lp-btn lp-btn-solid">
                       Submit a donation
                       <ArrowRight size={14} />
                     </Link>
-                    <Link href="/orchestrator" className="lp-btn lp-btn-ghost">
+                    <Link href="/ringkasan" className="lp-btn lp-btn-ghost">
                       Open the operations view
                     </Link>
                   </div>
@@ -915,13 +915,13 @@ export default function LandingPage() {
               Lumbung — a coordination layer for Indonesian food redistribution
             </span>
             <div className="flex items-center gap-6">
-              <Link href="/recipient" className="lp-nav-link">
+              <Link href="/flo" className="lp-nav-link">
                 Browse food
               </Link>
-              <Link href="/donate" className="lp-nav-link">
+              <Link href="/donasi" className="lp-nav-link">
                 Donate
               </Link>
-              <Link href="/orchestrator" className="lp-nav-link">
+              <Link href="/ringkasan" className="lp-nav-link">
                 Operations
               </Link>
             </div>

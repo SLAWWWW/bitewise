@@ -1,0 +1,9 @@
+import {CommandForm,dateField,reason} from '@/components/operations/CommandForm';
+import {notFound} from 'next/navigation';
+import {Header} from '@/components/layout/Header';
+import {Section} from '../../../ringkasan/_parts';
+import {directPage} from '@/src/application/direct/page-context';
+import {makeT} from '@/src/i18n';
+import {isUuid} from '@/src/lib/uuidv5';
+import {FloOperationsForm} from '@/components/operations/FloOperationsForm';
+export default async function Page({params}:{params:Promise<{id:string}>}){const {id}=await params;if(!isUuid(id))notFound();const {tx,locale,can}=await directPage();const t=makeT('ops',locale);const now=await tx(async c=>(await c.query<{v:string}>('SELECT lumbung.tenant_now()::text v')).rows[0].v);const data=await tx(async c=>({flo:(await c.query<{id:string;name:string;revision:number}>('SELECT id,name,revision FROM lumbung.flos WHERE id=$1',[id])).rows[0],categories:(await c.query<{id:string;name:string;comparable_unit:string}>('SELECT id,name_id AS name,comparable_unit FROM lumbung.categories ORDER BY code')).rows,contacts:(await c.query<{id:string;address_hint:string;consent_state:string}>('SELECT id,address_hint,consent_state FROM lumbung.flo_contacts WHERE flo_id=$1',[id])).rows}));if(!data.flo)notFound();return <><Header title={data.flo.name}/><div className="direct-page"><Section id="operations" title={t('settingsFlo')}><FloOperationsForm {...data} allowed={can('need.confirm')&&can('flo.edit')}/></Section>{can('flo.edit')&&<Section id="unavailable" title={locale==='id'?'Ketidaktersediaan sementara / hari libur':'Temporary unavailability / holiday'}><CommandForm url={`/api/flos/${id}/unavailability`} base={{expected_revision:data.flo.revision}} fields={[dateField('starts_at','pickupStart',now),dateField('ends_at','pickupEnd',new Date(Date.parse(now)+86400000).toISOString()),reason]}/></Section>}</div></>;}

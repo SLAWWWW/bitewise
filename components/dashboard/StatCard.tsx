@@ -52,7 +52,7 @@ export function StatCard({
       {/* Value — massive, tightly tracked */}
       <div className="flex items-baseline gap-2 mt-3">
         <span className="text-display tnum" style={{ lineHeight: 1 }}>
-          {typeof value === 'number' ? value.toLocaleString('en-SG') : value}
+          {typeof value === 'number' ? value.toLocaleString('id-ID') : value}
         </span>
         {suffix && (
           <span

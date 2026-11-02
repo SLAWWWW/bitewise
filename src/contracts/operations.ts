@@ -1,0 +1,10 @@
+import {z} from 'zod';
+import {qtyString} from '@/src/lib/qty';
+import {approvalBody} from './direct';
+import {CAPABILITIES} from '@/src/shared/capabilities';
+export const policyBody=z.object({body:z.record(z.string(),z.unknown()),reason:z.string().trim().min(3).max(3000)}).strict();
+export const memberBody=z.object({role_label:z.string().min(1).max(100),status:z.enum(['ACTIVE','SUSPENDED']),capabilities:z.array(z.enum(CAPABILITIES)).max(CAPABILITIES.length),reason:z.string().trim().min(3).max(3000)}).strict();
+export const decisionBody=z.object({status:z.enum(['APPROVED','NOT_DECIDED']),reason:z.string().trim().min(3).max(3000)}).strict();
+export const reasonBody=z.object({reason:z.string().trim().min(3).max(3000)}).strict();
+export const correctionBody=reasonBody.extend({lines:z.array(z.object({receipt_line_id:z.uuid(),accepted_quantity:qtyString,rejected_quantity:qtyString}).strict()).min(1).max(50)});
+export {approvalBody};

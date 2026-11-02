@@ -1,0 +1,250 @@
+{
+  "seed": 20261026,
+  "clock": "2026-10-26T01:00:00.000Z",
+  "schema_version": 93,
+  "counts": {
+    "activation_decisions_not_decided": 10,
+    "agreements_by_review_state": {
+      "APPROVED": 200,
+      "PENDING_VERIFICATION": 14
+    },
+    "agreements_by_status_at_clock": {
+      "ACTIVE": 165,
+      "EXPIRED": 25,
+      "PENDING_VERIFICATION": 14,
+      "SCHEDULED": 3,
+      "SUPERSEDED": 7
+    },
+    "allocations": 600,
+    "allocations_by_source_type": {
+      "BATCH": 150,
+      "DIRECT_ITEM": 450
+    },
+    "allocations_by_state": {
+      "ACCEPTED_RESERVED": 5,
+      "APPROVED": 3,
+      "AWAITING_FINAL_APPROVAL": 4,
+      "CANCELLED": 50,
+      "DISPATCHED": 4,
+      "EXPIRED": 25,
+      "LOGISTICS_PENDING": 4,
+      "OFFER_HELD": 5,
+      "PARTIALLY_RECEIVED": 40,
+      "RECEIVED": 460
+    },
+    "allocations_cancel_reason": {
+      "DECLINED:CAPACITY_FULL": 7,
+      "DECLINED:FEE_UNAFFORDABLE": 8,
+      "DECLINED:SUITABILITY": 7,
+      "DECLINED:TIMING": 8,
+      "DONOR_WITHDRAWN": 6,
+      "LOGISTICS_FEE_REFUSED": 10,
+      "STAFF_CANCELLED": 4
+    },
+    "allocations_with_accepted_receipt": 500,
+    "approvals_by_stage": {
+      "FINAL_DISPATCH": 507,
+      "OUTREACH": 409,
+      "QUARANTINE_RELEASE": 5
+    },
+    "audit_events": 2703,
+    "batch_balances": 428,
+    "batches_by_status": {
+      "AVAILABLE": 70,
+      "DEPLETED": 42,
+      "EXPIRED": 4,
+      "FULLY_RESERVED": 1,
+      "PARTIALLY_RESERVED": 2,
+      "QUARANTINED": 1
+    },
+    "categories": 6,
+    "category_demands": 540,
+    "clusters": 20,
+    "deliveries": 507,
+    "deliveries_by_state": {
+      "IN_TRANSIT": 4,
+      "PARTIALLY_RECEIVED": 40,
+      "PLANNED": 3,
+      "RECEIVED": 460
+    },
+    "dispositions": 6,
+    "distribution_events": 120,
+    "donation_items": 345,
+    "donation_orders": 300,
+    "donation_orders_by_route": {
+      "DIRECT": 220,
+      "WAREHOUSE_INBOUND": 80
+    },
+    "donation_orders_by_state": {
+      "ALLOCATING": 1,
+      "CLOSED": 283,
+      "DRAFT": 1,
+      "FULLY_ALLOCATED": 5,
+      "NEEDS_INFO": 1,
+      "READY": 8,
+      "SAFETY_REVIEW": 1
+    },
+    "donation_orders_today": 6,
+    "donor_source_locations": 40,
+    "donors": 30,
+    "evidence_obligations_by_state": {
+      "ACCEPTED": 977,
+      "EXCUSED": 6,
+      "NEEDS_CLARIFICATION": 5,
+      "OPEN": 123,
+      "REJECTED_FINAL": 3,
+      "UNDER_REVIEW": 10
+    },
+    "evidence_obligations_by_timeliness": {
+      "LATE": 177,
+      "MISSING": 3,
+      "ON_TIME": 800,
+      "UNRESOLVED": 144
+    },
+    "evidence_obligations_by_type": {
+      "BAST": 500,
+      "DISTRIBUTION": 120,
+      "RECEIPT_PHOTO": 504
+    },
+    "evidence_reviews": 989,
+    "evidence_reviews_by_outcome": {
+      "ADEQUATE": 977,
+      "NEEDS_CLARIFICATION": 9,
+      "REJECTED_FINAL": 3
+    },
+    "evidence_submissions": 999,
+    "evidence_submissions_resubmitted": 4,
+    "expected_inbounds": 80,
+    "expected_inbounds_by_state": {
+      "EXPECTED": 5,
+      "INSPECTED": 75
+    },
+    "expected_inbounds_due_today": 2,
+    "external_mappings": 25,
+    "flo_category_capacities_unknown": 42,
+    "flo_contacts": 400,
+    "flo_receipts": 500,
+    "flo_receipts_imported": 25,
+    "flos": 200,
+    "flos_by_agreement_class": {
+      "ACTIVE_GT30": 140,
+      "EXPIRED": 25,
+      "EXPIRING": 25,
+      "PENDING": 10
+    },
+    "flos_by_area": {
+      "BEKASI": 30,
+      "BOGOR": 35,
+      "DEPOK": 25,
+      "JAKARTA": 70,
+      "TANGERANG": 40
+    },
+    "flos_by_location_confidence": {
+      "HIGH": 174,
+      "MEDIUM": 20,
+      "UNVERIFIED": 6
+    },
+    "flos_by_people_band": {
+      "B10_30": 50,
+      "B201_500": 20,
+      "B31_80": 80,
+      "B81_200": 50
+    },
+    "flos_by_tenure": {
+      "ESTABLISHED": 180,
+      "NEW": 20
+    },
+    "flos_by_type": {
+      "NON_PANTI": 90,
+      "PANTI": 110
+    },
+    "inspection_lines": 120,
+    "inspection_lines_quarantined": 8,
+    "inspection_lines_rejected": 6,
+    "inspections": 75,
+    "inspections_by_lot_count": {
+      "1": 30,
+      "2": 45
+    },
+    "inventory_batches": 120,
+    "jobs_by_kind": {
+      "DISTRIBUTION_FOLLOWUP": 14
+    },
+    "media_duplicates": 2,
+    "media_files": 1213,
+    "memberships": 8,
+    "memberships_by_role": {
+      "ADMIN+COORDINATOR": 1,
+      "AGREEMENT_REVIEWER": 1,
+      "AUDITOR": 1,
+      "COORDINATOR": 2,
+      "EVIDENCE_REVIEWER": 1,
+      "WAREHOUSE": 1,
+      "WAREHOUSE_SUPERVISOR": 1
+    },
+    "movement_entries": 1088,
+    "need_assessments": 453,
+    "offers": 600,
+    "offers_by_exclusion": {
+      "NO_DELIVERY_RECEIPT": 16,
+      "OUTAGE": 10
+    },
+    "offers_by_state": {
+      "ACCEPTED": 515,
+      "DECLINED": 30,
+      "DELIVERED": 5,
+      "EXPIRED": 15,
+      "PARTIALLY_ACCEPTED": 35
+    },
+    "offers_fee_unaffordable_timely": 8,
+    "outreach_campaigns": 409,
+    "policy_versions": 7,
+    "products": 12,
+    "receipts_partial": 40,
+    "receipts_with_distribution": 100,
+    "renewal_tasks": 600,
+    "renewal_tasks_by_status": {
+      "DONE": 30,
+      "OPEN": 570
+    },
+    "renewal_tasks_due_by_status": {
+      "DONE": 26,
+      "OPEN": 115
+    },
+    "reservations_by_state": {
+      "HOLD:ACTIVE": 5,
+      "HOLD:EXPIRED": 15,
+      "HOLD:RELEASED": 30,
+      "RESERVATION:ACTIVE": 16,
+      "RESERVATION:CONSUMED": 504,
+      "RESERVATION:EXPIRED": 10,
+      "RESERVATION:RELEASED": 20
+    },
+    "stock_movements": 534,
+    "stock_movements_by_type": {
+      "DELIVERY_RECEIPT": 114,
+      "DISPATCH_TRANSFER": 115,
+      "QUARANTINE_RELEASE": 5,
+      "RECEIPT": 120,
+      "RESERVATION_RELEASE": 30,
+      "RESERVATION_TRANSFER": 150
+    },
+    "storage_locations": 6,
+    "tasks_by_kind": {
+      "BATCH_EXPIRED": 4,
+      "DISTRIBUTION_STATUS_UNKNOWN": 6,
+      "DUPLICATE_EVIDENCE": 2,
+      "QUARANTINE_REVIEW": 3
+    },
+    "transport_arrangements": 558,
+    "transport_by_quote_status": {
+      "AWAITING_QUOTE": 10,
+      "CONFIRMED": 234,
+      "NOT_APPLICABLE": 292,
+      "QUOTED": 4,
+      "REFUSED": 18
+    },
+    "unit_conversions": 7,
+    "warehouses": 2
+  }
+}
