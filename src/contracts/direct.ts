@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { positiveQtyString, qtyString } from '@/src/lib/qty';
+import { parseDbQty, positiveQtyString, qtyString } from '@/src/lib/qty';
 import { DECLINE_REASON_CODES } from '@/src/shared/codes';
 
 export const revisionBody = z.object({ expected_revision: z.number().int().positive() }).strict();
@@ -30,7 +30,27 @@ export const transportBody = revisionBody.extend({
   fee_idr: z.number().int().min(0).max(2147483647).nullable(),
 });
 export const dispatchBody = revisionBody.extend({ custodian: z.string().trim().min(3).max(300) });
-export const receiptBody = revisionBody.extend({ accepted_quantity: qtyString, rejected_quantity: qtyString, reason: z.string().trim().max(1000).optional() });
+const inspectionFinding = z.enum(['PASS','CONCERN']);
+export const receiptInspectionBody = z.object({
+  smell: inspectionFinding,
+  appearance: inspectionFinding,
+  texture: inspectionFinding,
+  packaging: inspectionFinding,
+  taste: z.enum(['NOT_PERFORMED','PASS','CONCERN']),
+  notes: z.string().trim().max(1000).optional(),
+}).strict();
+export const receiptBody = revisionBody.extend({
+  accepted_quantity: qtyString,
+  rejected_quantity: qtyString,
+  reason: z.string().trim().max(1000).optional(),
+  inspection: receiptInspectionBody,
+}).superRefine((value, ctx) => {
+  const concern = value.inspection.taste === 'CONCERN'
+    || [value.inspection.smell, value.inspection.appearance, value.inspection.texture, value.inspection.packaging].includes('CONCERN');
+  if (!concern) return;
+  if (parseDbQty(value.rejected_quantity) === 0n) ctx.addIssue({ code: 'custom', path: ['rejected_quantity'], message: 'An inspection concern requires a rejected quantity' });
+  if ((value.inspection.notes?.length ?? 0) < 3) ctx.addIssue({ code: 'custom', path: ['inspection','notes'], message: 'Describe the inspection concern' });
+});
 export const clockBody = z.object({ minutes: z.number().int().min(1).max(44640) }).strict();
 export const reviseBody=revisionBody.extend({condition:z.enum(['GOOD','UNKNOWN','OUTER_PACKAGING_DAMAGE','INNER_SEAL_DAMAGED','SPOILED']),
   prep_info:z.object({ready_at:z.iso.datetime({offset:true}).optional(),handling_confirmed:z.boolean().optional()}).strict(),

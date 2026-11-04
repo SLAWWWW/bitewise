@@ -40,7 +40,7 @@ export function IntakeForm({ refs }: { refs: IntakeReferences }) {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); const f = new FormData(e.currentTarget);
     const result = await cmd.run('/api/donations','POST', {
-      donor_id: donor, source_location_id: f.get('source'), donation_reason: 'SURPLUS', pickup_start: instant(f.get('pickup_start')), pickup_end: instant(f.get('pickup_end')),
+      donor_id: donor, source_location_id: f.get('source'), donation_reason: f.get('donation_reason'), pickup_start: instant(f.get('pickup_start')), pickup_end: instant(f.get('pickup_end')),
       items: [{ product_id: productId, quantity: String(f.get('quantity')), unit: product?.base_unit, condition: f.get('condition'), ...(f.get('weight_kg')?{[f.get('weight_type')==='MEASURED'?'measured_weight_kg':'est_weight_kg']:String(f.get('weight_kg')),weight_provenance:f.get('weight_type')}:{}),distribute_by: instant(f.get('distribute_by')),
         prep_info: { ...(f.get('ready_at') ? { ready_at: instant(f.get('ready_at')) } : {}), handling_confirmed: f.get('handling')==='on' },
         label_info: f.get('expiry_at') ? { expiry_at: instant(f.get('expiry_at')) } : {} }],
@@ -51,6 +51,7 @@ export function IntakeForm({ refs }: { refs: IntakeReferences }) {
     <Field label={t('donor')}><select value={donor} onChange={e=>setDonor(e.target.value)}>{refs.donors.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></Field>
     <Field label={t('source')}><select name="source" key={donor}>{refs.sources.filter(s=>s.donor_id===donor).map(s=><option key={s.id} value={s.id}>{s.code}</option>)}</select></Field>
     <Field label={t('product')}><select value={productId} onChange={e=>setProduct(e.target.value)}>{refs.products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></Field>
+    <Field label={t('donationReason')}><select name="donation_reason"><option value="SURPLUS">{t('surplus')}</option><option value="NEAR_EXPIRY">{t('nearExpiry')}</option><option value="COSMETIC_PRODUCE">{t('cosmeticProduce')}</option><option value="OUTER_PACKAGING_DAMAGE">{t('packagingDamage')}</option><option value="PRODUCTION_EXCESS">{t('productionExcess')}</option><option value="OTHER">{t('other')}</option></select></Field>
     <Field label={`${t('quantity')} (${product?.base_unit})`}><input name="quantity" inputMode="decimal" pattern="[0-9]+([.][0-9]{1,3})?" defaultValue="120" required /></Field>
     <Field label={t('weight')}><input name="weight_kg" inputMode="decimal" pattern="[0-9]+([.][0-9]{1,3})?"/></Field><Field label={t('weightType')}><select name="weight_type"><option value="ESTIMATED">{t('estimated')}</option><option value="MEASURED">{t('measured')}</option></select></Field>
     <Field label={t('condition')}><select name="condition"><option value="GOOD">{t('good')}</option><option value="UNKNOWN">{t('unknown')}</option><option value="OUTER_PACKAGING_DAMAGE">OUTER_PACKAGING_DAMAGE</option><option value="INNER_SEAL_DAMAGED">INNER_SEAL_DAMAGED</option></select></Field>
@@ -121,10 +122,14 @@ export function DeliveryActions({ delivery:d, dispatchAllowed, receiveAllowed }:
   const t=useT('direct');const cmd=useCommand();const receiving=d.state==='IN_TRANSIT';
   return <form className="direct-form" onSubmit={async e=>{
     e.preventDefault();const f=new FormData(e.currentTarget);await cmd.run(`/api/deliveries/${d.id}/${receiving?'receive':'dispatch'}`,'POST',{
-      expected_revision:d.revision,...(receiving?{accepted_quantity:String(f.get('accepted')),rejected_quantity:String(f.get('rejected')),reason:String(f.get('reason'))}:{custodian:String(f.get('custodian'))})});
+      expected_revision:d.revision,...(receiving?{accepted_quantity:String(f.get('accepted')),rejected_quantity:String(f.get('rejected')),reason:String(f.get('reason')),
+        inspection:{smell:f.get('smell'),appearance:f.get('appearance'),texture:f.get('texture'),packaging:f.get('packaging'),taste:f.get('taste'),notes:String(f.get('inspection_notes'))}}:{custodian:String(f.get('custodian'))})});
   }}>
     {receiving?<><Field label={`${t('accepted')} (${d.lines[0]?.unit})`}><input name="accepted" inputMode="decimal" required defaultValue={formatQty(d.lines.reduce((total,line)=>total+parseDbQty(line.dispatched_qty??'0'),0n))}/></Field>
-    <Field label={t('rejected')}><input name="rejected" inputMode="decimal" required defaultValue="0"/></Field><Field label={t('reason')}><input name="reason" maxLength={1000}/></Field></>:
+    <Field label={t('rejected')}><input name="rejected" inputMode="decimal" required defaultValue="0"/></Field>
+    {(['smell','appearance','texture','packaging'] as const).map(name=><Field key={name} label={t(name)}><select name={name}><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></Field>)}
+    <Field label={t('taste')}><select name="taste"><option value="NOT_PERFORMED">{t('notPerformed')}</option><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></Field>
+    <p className="text-caption">{t('tasteCaveat')}</p><Field label={t('inspectionNotes')}><input name="inspection_notes" maxLength={1000}/></Field><Field label={t('reason')}><input name="reason" maxLength={1000}/></Field></>:
     <Field label={t('custodian')}><input name="custodian" required minLength={3}/></Field>}
     <div><Button type="submit" loading={cmd.pending} disabledReason={(receiving?receiveAllowed:dispatchAllowed)?null:t('permission')}>{t(receiving?'receive':'dispatch')}</Button><Status {...cmd}/></div>
   </form>;

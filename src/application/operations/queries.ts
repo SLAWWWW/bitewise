@@ -2,7 +2,7 @@ import 'server-only';
 import type { Queryable } from '@/src/db/types';
 export interface Obligation {id:string;type:string;state:string;due_at:string;anchor_at:string;revision:number;subject_id:string;delivery_id:string;flo_name:string;resolved_timeliness:string|null;excuse_explanation:string|null}
 export interface Submission {id:string;version:number;note:string;submitted_at:string;media:{id:string;mime:string}[];reviews:{outcome:string;comments:string;reviewed_at:string}[]}
-export interface Receipt {id:string;delivery_id:string;received_at:string;lines:{id:string;accepted_qty:string;rejected_qty:string;remaining:string;unit:string;name:string}[]}
+export interface Receipt {id:string;delivery_id:string;received_at:string;inspection_outcome:string|null;inspection_observations:{smell:string;appearance:string;texture:string;packaging:string;taste:string;notes?:string}|null;lines:{id:string;accepted_qty:string;rejected_qty:string;remaining:string;unit:string;name:string}[]}
 export interface Conversation {id:string;flo_name:string;flo_contact_id:string;agent_paused:boolean;human_owner_id:string|null;revision:number;state:string;resume_summary:string|null}
 export interface Message {id:string;direction:string;body:string;status:string;created_at:string}
 export interface Batch {id:string;batch_code:string;name:string;base_unit:string;restriction:string;expires_at:string|null;handling_deadline:string|null;warehouse:string;balances:Record<string,string>;inspection_id:string|null;external_lot:string|null}

@@ -111,7 +111,10 @@ npm run worker                 # durable expirations + simulated message process
 6. Confirm the actual collection arrangement and FLO agreement to any IDR courier
    fee. Enter a reason for **Setujui pengiriman**, open the delivery, and record pickup
    with its custodian. Pickup rechecks the agreement, food window, reservation and approval.
-7. Record actual accepted/rejected quantities. Discrepancies create staff tasks.
+7. Record the FLO's receiving checks for smell, appearance, texture, packaging and,
+   only when appropriate, taste, together with actual accepted/rejected quantities.
+   Any inspection concern must reject the affected receipt quantity and include an
+   observation; discrepancies create staff tasks.
    BAST and receipt-photo obligations stay visible independently of physical receipt.
 
 Urgent reservations last 15 simulated minutes. **Pengaturan → Majukan waktu** uses
