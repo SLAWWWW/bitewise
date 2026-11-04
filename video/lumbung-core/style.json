@@ -1,0 +1,70 @@
+{
+  "direction": "Monochrome routing and human decisions",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "target_seconds": 60,
+  "seed": 261104,
+  "palette": {
+    "background": "#060606",
+    "panel": "#121212",
+    "foreground": "#F8F8F8",
+    "secondary": "#A3A3A3",
+    "line": "#393939",
+    "active": "#FFFFFF"
+  },
+  "typography": {
+    "family": "Geist",
+    "display_px": 174,
+    "heading_px_range": [
+      90,
+      110
+    ],
+    "body_px_range": [
+      28,
+      46
+    ],
+    "metadata_px_range": [
+      21,
+      27
+    ]
+  },
+  "geometry": {
+    "heading_inset_px": 112,
+    "panel_radius_px": 24,
+    "center": [
+      960,
+      540
+    ]
+  },
+  "motion": {
+    "entry_seconds_range": [
+      0.45,
+      0.85
+    ],
+    "easing": [
+      "cubic_out",
+      "smoothstep"
+    ],
+    "cuts": "semantic cuts with recurring donation and orbital motifs",
+    "approval_gate_times_seconds": [
+      31.25,
+      35.05
+    ],
+    "timing_source": "authored text and animation cues; no speech"
+  },
+  "sound": {
+    "music": "original instrumental synth score; generated locally",
+    "narration": "none",
+    "mix_target_lufs": -18,
+    "true_peak_ceiling_dbtp": -1.5,
+    "silent_edition": true
+  },
+  "exclusions": [
+    "No colored neon",
+    "No presenter or voiceover",
+    "No fabricated live integrations or impact statistics",
+    "No unrelated stock footage",
+    "No soundtrack required to understand the explanation"
+  ]
+}

@@ -235,6 +235,10 @@ retention settings must be approved and operationalised for real personal data.
 No photo face counting, carbon savings or cross-organisation unique-person claims
 are made.
 
+### Public landing page
+
+The public `/` page uses a monochrome identity with a dotted workflow hero, keyboard-accessible workflow tabs, a revolving network globe, current demo product screenshots, and responsive navigation. A marker travels between workflow nodes as each step becomes active. Both animations have pause/play controls, stop offscreen or when the tab is hidden, and start paused for reduced-motion preferences. Selecting or focusing a workflow step pauses automatic playback. The globe loads its 3D renderer on demand and keeps an illustration fallback when WebGL is unavailable. The existing pitch copy and section topics are retained. The primary actions open the current Lumbung routes, including `/donasi/baru` for a new donation. Landing styles are isolated in `components/landing/landing.module.css`; shared operations styles are unaffected. Visual comparison notes are in `design-qa.md`, and illustration provenance is in `public/landing/asset-notes.md`.
+
 ### In-app walkthrough and readable lists
 
 After signing in, choose **Mulai panduan** (English: **Start walkthrough**) above the page heading. The guided tour scrolls to individual fields, records, and actions, dims the surrounding page, and points to each highlighted control with a short explanation. You can type into highlighted fields and open records normally. Opening a different screen pauses the tour; choose **Tampilkan sorotan** to return, or **Berikutnya** to continue. The tour follows your role’s navigation and remembers the current step for the browser tab. Press **Esc** or the close button to exit. Missing records and unavailable approval actions are explained without inventing a target. Finishing the tour marks the explanation as read; the tour never creates or approves operational records.

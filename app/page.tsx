@@ -1,933 +1,194 @@
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link';
+import Image, { type StaticImageData } from 'next/image';
 import {
-  ArrowDown,
-  ArrowRight,
-  Boxes,
-  Globe2,
-  MapPin,
-  ShieldCheck,
-  User,
-} from "lucide-react";
-import { Reveal } from "@/components/landing/Reveal";
-import { CountUp } from "@/components/landing/CountUp";
+  ArrowDown, ArrowRight, ArrowUpRight, Boxes, Check, CircleCheck, ClipboardList,
+  FileCheck2, GitBranch, Globe2, Hand, LayoutDashboard, MapPin, MessageSquare,
+  PackageCheck, ShieldCheck, Truck, Users, Warehouse,
+} from 'lucide-react';
+import { LandingNav } from '@/components/landing/LandingNav';
+import { WorkflowPreview } from '@/components/landing/WorkflowPreview';
+import { RevolvingGlobe } from '@/components/landing/RevolvingGlobe';
+import { BUILT, INCUMBENT_TOOLING, NEXT, OJK_PHASES, PHASES, PIPELINE, PROBLEM_STATS } from '@/components/landing/content';
+import s from '@/components/landing/landing.module.css';
+import operationsPreview from '@/public/landing/operations.webp';
+import donationPreview from '@/public/landing/donation.webp';
+import recommendationPreview from '@/public/landing/recommendation.webp';
 
-/**
- * Lumbung's public landing page — the pitch surface.
- *
- * Its own visual register, separate from the product it sits in front of:
- * glassmorphism on a white canvas. One animated black gradient field drifts
- * behind the entire page (one `.lp-wave`, see globals.css) and every surface
- * above it is translucent glass that blurs it, so depth comes from blur and
- * light rather than from borders. Structure comes from hairline outlines —
- * dashed frames with corner ticks, dotted page rails, ruled column joins.
- *
- * The hero is one full screen of type over a stronger local bloom. Everything
- * after it is a single continuous page (no per-screen slides): blocks
- * separated by hairlines, in normal document scroll.
- */
-
-// ── The scale of the problem ────────────────────────────────────────────────
-const PROBLEM_STATS = [
-  {
-    value: null,
-    display: "23–48M",
-    unit: "tonnes a year",
-    label: "Food wasted in Indonesia",
-  },
-  {
-    value: null,
-    display: "2nd",
-    unit: "globally",
-    label: "Largest food waster in the world",
-  },
-  {
-    value: 23.36,
-    decimals: 2,
-    suffix: "M",
-    unit: "people",
-    label: "Below the national poverty line",
-  },
-  {
-    value: 21,
-    decimals: 0,
-    suffix: "%",
-    unit: "of under-5s",
-    label: "Affected by stunting",
-  },
+const stepIcons = [ShieldCheck, GitBranch, Hand, Truck, CircleCheck];
+const networkFeatures = [
+  { icon: Globe2, title: 'Coordinate everywhere', body: 'Branch networks, partner beneficiaries, and donors on one shared allocation layer instead of four inboxes.' },
+  { icon: MapPin, title: 'Route by what spoils first', body: 'Proximity, fairness, and spoilage risk are scored together, so the food that can’t wait moves first.' },
+  { icon: ShieldCheck, title: 'Prove every hand-off', body: 'Collected, delivered, or recycled — the outcome is recorded. No more capacity guesswork.' },
+];
+const productFeatures = [
+  { icon: Users, title: 'FLO network', body: 'Branch networks, partner beneficiaries, and donors on one shared allocation layer.', href: '/flo' },
+  { icon: GitBranch, title: 'Fair matching', body: PIPELINE[1].body, href: '/rekomendasi' },
+  { icon: Warehouse, title: 'Storage & dispatch', body: PIPELINE[3].body, href: '/persediaan' },
+  { icon: FileCheck2, title: 'A closed loop', body: PIPELINE[4].body, href: '/pelaporan' },
 ];
 
-const INCUMBENT_TOOLING = [
-  {
-    org: "FoodCycle Indonesia",
-    scale: "120+ donors · 100+ beneficiaries",
-    tooling: "Zoho Creator forms",
-  },
-  {
-    org: "Foodbank of Indonesia",
-    scale: "39 locations · 4,454 volunteers",
-    tooling: "Phone & WhatsApp",
-  },
-  {
-    org: "Garda Pangan",
-    scale: "113 tonnes over 5 years",
-    tooling: "Basic app, low adoption",
-  },
-  {
-    org: "Foodbank Bandung",
-    scale: "Regional network",
-    tooling: "Microsoft Excel",
-  },
-];
+function Eyebrow({ children, number }: { children: React.ReactNode; number?: string }) {
+  return <p className={s.eyebrow}>{number && <span>{number} / </span>}{children}</p>;
+}
 
-// ── The pipeline ────────────────────────────────────────────────────────────
-const PIPELINE = [
-  {
-    step: "01",
-    title: "Safety floor",
-    body: "A deterministic floor scores every submission. The AI can only make it stricter, never softer.",
-  },
-  {
-    step: "02",
-    title: "Fair matching",
-    body: "Each branch is scored on real proximity, real spare capacity, and its own spoilage glut.",
-  },
-  {
-    step: "03",
-    title: "Human approval",
-    body: "Nothing moves automatically. Allocations queue by what spoils soonest for a person to approve.",
-  },
-  {
-    step: "04",
-    title: "Plan & dispatch",
-    body: "A planner builds the route against real fleet limits. Critical stock leaves the moment it’s approved.",
-  },
-  {
-    step: "05",
-    title: "Closed loop",
-    body: "Collected, delivered, or recycled — every donation ends in a recorded, auditable outcome.",
-  },
-];
-
-// ── Build status, stated honestly ───────────────────────────────────────────
-const BUILT = [
-  "Six agents with real function-calling tool use",
-  "Deterministic safety floor, AI escalate-only",
-  "Fairness-weighted matching (Jain’s Index)",
-  "Human approval gate on every allocation",
-  "Demand-quota allocation to beneficiaries",
-  "Immediate dispatch for time-critical stock",
-  "Live ops dashboard, storage, fleet, audit log",
-  "Deterministic fallback if AI is unavailable",
-];
-
-const NEXT = [
-  { label: "Bahasa Indonesia across every surface", priority: "P0" },
-  { label: "WhatsApp-first donor flow with photo parsing", priority: "P0" },
-  { label: "Donor legal protections at submission", priority: "P0" },
-  { label: "Real authentication with role separation", priority: "P0" },
-  { label: "Multi-organisation tenancy", priority: "P1" },
-  { label: "Structured allergen declaration", priority: "P1" },
-  { label: "Volunteer coordination module", priority: "P1" },
-  { label: "Corporate ESG compliance export", priority: "P2" },
-];
-
-// ── Roadmap ─────────────────────────────────────────────────────────────────
-const PHASES = [
-  {
-    phase: "Phase 1",
-    window: "Month 1–3",
-    title: "Free pilot",
-    body: "Embed inside one respected food-rescue organisation. Prove reduced spoilage and reclaimed staff time.",
-    revenue: "Rp 0 — validation",
-  },
-  {
-    phase: "Phase 2",
-    window: "Month 4–8",
-    title: "Monetise the charity side",
-    body: "Convert the pilot to subscription; expand to a 39-location network.",
-    revenue: "Rp 500K–1.5M / mo",
-  },
-  {
-    phase: "Phase 3",
-    window: "Month 6–12",
-    title: "Corporate compliance",
-    body: "Sell the audit trail to the corporate donors already flowing through the platform.",
-    revenue: "Rp 5M–40M / mo",
-  },
-  {
-    phase: "Phase 4",
-    window: "Month 12–18",
-    title: "Deep moat",
-    body: "Verified cold chain, tamper-evident anchoring, shared routing intelligence.",
-    revenue: "Network expansion",
-  },
-];
-
-const OJK_PHASES = [
-  {
-    group: "Group 1",
-    who: "Main-board issuers, major banks",
-    from: "Jan 2027",
-    active: true,
-  },
-  {
-    group: "Group 2",
-    who: "Development-board issuers",
-    from: "Jan 2028",
-    active: false,
-  },
-  {
-    group: "Group 3",
-    who: "Asset managers, public-interest entities",
-    from: "Jan 2029",
-    active: false,
-  },
-];
-
-const SHOTS = [
-  {
-    src: "/screenshots/dashboard.png",
-    w: 1370,
-    h: 560,
-    cap: "Live operations — fairness, saturation, deliveries in flight",
-  },
-  {
-    src: "/screenshots/agents.png",
-    w: 1370,
-    h: 340,
-    cap: "The agent pipeline, with every tool call inspectable",
-  },
-  {
-    src: "/screenshots/donate.png",
-    w: 1600,
-    h: 900,
-    cap: "Donor submission — safety-checked before a listing exists",
-  },
-];
-
-const TICKER_ITEMS = [
-  "ZOHO CREATOR FORMS",
-  "MICROSOFT EXCEL",
-  "PHONE & WHATSAPP",
-  "BASIC APP, LOW ADOPTION",
-  "PAPER LOGBOOKS",
-];
-
-/**
- * Nodes on the dotted map. The SVG's viewBox is lng 94.5..141.5 by lat
- * 6.5..-11.5, so a real coordinate converts to a percentage of the map box
- * as x = (lng - 94.5) / 47 and y = (6.5 - lat) / 18. The values below are
- * actual Indonesian cities put through that, so the pins land on land.
- */
-const MAP_NODES = [
-  { x: 21.7, y: 52.8, icon: User, label: "Palembang" },
-  { x: 26.2, y: 70.6, icon: Boxes, ink: true, label: "Jakarta hub" },
-  { x: 53.0, y: 64.4, icon: User, delay: true, label: "Makassar" },
-  { x: 90.2, y: 61.1, icon: User, label: "Timika" },
-];
-
-/**
- * Routes between those nodes, drawn in the map SVG's own coordinate space
- * (x = lng, y = -lat) so they land on the same dots the pins do.
- */
-const MAP_ROUTES = [
-  "M104.7 3 Q104.2 4.9 106.8 6.2",
-  "M106.8 6.2 Q113 3.4 119.4 5.1",
-  "M119.4 5.1 Q128 2 136.9 4.5",
-];
-
-const NETWORK_FEATURES = [
-  {
-    icon: Globe2,
-    title: "Coordinate everywhere",
-    body: "Branch networks, partner beneficiaries, and donors on one shared allocation layer instead of four inboxes.",
-  },
-  {
-    icon: MapPin,
-    title: "Route by what spoils first",
-    body: "Proximity, fairness, and spoilage risk are scored together, so the food that can’t wait moves first.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Prove every hand-off",
-    body: "Collected, delivered, or recycled — the outcome is recorded. No more capacity guesswork.",
-  },
-];
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <div className="lp-eyebrow">{children}</div>;
+function ProductImage({ src, alt }: { src: StaticImageData; alt: string }) {
+  return <div className={s.productImage}>
+    <div className={s.previewBar}><span>lumbung / workspace</span><span>DEMO</span></div>
+    <Image src={src} alt={alt} sizes="(max-width: 760px) 90vw, 42vw" />
+  </div>;
 }
 
 export default function LandingPage() {
-  return (
-    <div className="lp">
-      {/* ── The moving field every glass surface blurs ──────────────────── */}
-      <div className="lp-field" aria-hidden="true">
-        <div className="lp-wave lp-wave--soft">
-          <div className="lp-wave-shape" />
+  return <div className={s.landing} lang="en">
+    <a className={s.skipLink} href="#landing-main">Skip to content</a>
+    <LandingNav />
+    <main id="landing-main" tabIndex={-1}>
+      <section className={s.hero} aria-labelledby="hero-title">
+        <div className={s.heroCopy}>
+          <Eyebrow>Indonesian food redistribution</Eyebrow>
+          <h1 id="hero-title">The coordination layer<br />Indonesia&apos;s food banks<br /><span>don&apos;t have yet.</span></h1>
+          <p className={s.heroMeta}>Six AI agents. A human approves every allocation.</p>
+          <div className={s.actions}>
+            <Link href="/ringkasan" className={`${s.button} ${s.primary}`}>See the working system <ArrowUpRight size={17} aria-hidden="true" /></Link>
+            <a href="#how" className={`${s.button} ${s.secondary}`}>How it works <ArrowDown size={16} aria-hidden="true" /></a>
+          </div>
         </div>
-        <div className="lp-grain" />
-      </div>
+        <WorkflowPreview />
+      </section>
 
-      {/* Dotted page-edge rails, in the manner of a technical drawing */}
-      <div className="lp-rail lp-rail--l" aria-hidden="true" />
-      <div className="lp-rail lp-rail--r" aria-hidden="true" />
+      <section id="problem" className={`${s.section} ${s.problem}`} aria-labelledby="problem-title">
+        <div className={s.container}>
+          <div className={s.sectionIntro}>
+            <Eyebrow number="01">The problem</Eyebrow>
+            <h2 id="problem-title"><span>Not a generosity problem.</span><br />A coordination problem.</h2>
+            <p className={s.lede}>The food exists and the need exists, often in the same city on the same day. What&apos;s missing is the layer that decides which surplus goes where, at what time, against which spoilage clock.</p>
+          </div>
+          <div className={s.stats}>
+            {PROBLEM_STATS.map(stat => <div key={stat.label} className={s.stat}>
+              <strong>{stat.display ?? `${stat.value}${stat.suffix}`}</strong><span>{stat.unit}</span><p>{stat.label}</p>
+            </div>)}
+          </div>
+          <div className={s.problemSplit}>
+            <div className={s.currentTools}>
+              <Eyebrow>What the sector coordinates with today</Eyebrow>
+              <h3>Same mission.<br />Separate inboxes.</h3>
+              <p>Every organisation below is real, operating, and doing serious work — on generic tooling never designed for spoilage-aware allocation.</p>
+              <div className={s.toolList}>{['Zoho Creator forms', 'Microsoft Excel', 'Phone & WhatsApp', 'Basic app, low adoption', 'Paper logbooks'].map(tool => <span key={tool}>{tool}</span>)}</div>
+            </div>
+            <div className={s.organisations}>
+              <div className={s.listTop}><span>Organisation</span><span>Current tooling</span></div>
+              {INCUMBENT_TOOLING.map(org => <div className={s.orgRow} key={org.org}><div><h4>{org.org}</h4><p>{org.scale}</p></div><span>{org.tooling}</span></div>)}
+              <p className={s.orgFoot}>4 organisations. One shared coordination problem.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="lp-above">
-        {/* ── Nav — glass, blurred ──────────────────────────────────────── */}
-        <header className="lp-nav">
-          <div className="lp-shell">
-            <span className="lp-wordmark">Lumbung</span>
+      <section id="how" className={`${s.section} ${s.how}`} aria-labelledby="how-title">
+        <div className={s.container}>
+          <div className={s.sectionIntro}>
+            <Eyebrow number="02">How it works</Eyebrow>
+            <h2 id="how-title">Six agents. One human gate.<br /><span>Zero black boxes.</span></h2>
+            <p className={s.lede}>Every agent calls real tools reading real data — proximity, spare capacity, spoilage risk, fleet availability. It can&apos;t invent a number; it can only decide whether to act on the real one it was handed.</p>
+          </div>
+          <div className={s.pipeline}>
+            {PIPELINE.map((step, index) => {
+              const Icon = stepIcons[index];
+              return <article key={step.step} className={s.pipelineStep}><span className={s.stepIndex}>{step.step}</span><Icon size={28} strokeWidth={1.5} aria-hidden="true" /><h3>{step.title}</h3><p>{step.body}</p></article>;
+            })}
+          </div>
+          <div className={s.humanGate}>
+            <div><ShieldCheck size={30} strokeWidth={1.4} aria-hidden="true" /><h3>The AI can stop something.<br />It can never start something.</h3></div>
+            <p>It blocks unsafe submissions on its own. It only ever recommends an allocation — no allocation is auto-committed. Full stop.</p>
+          </div>
+        </div>
+      </section>
 
-            <nav className="lp-nav-links">
-              {[
-                ["Problem", "#problem"],
-                ["How it works", "#how"],
-                ["Network", "#network"],
-                ["Product", "#product"],
-                ["Roadmap", "#roadmap"],
-              ].map(([label, href]) => (
-                <a key={href} href={href} className="lp-nav-link">
-                  {label}
-                </a>
-              ))}
-            </nav>
+      <div className={s.darkRegion}>
+        <section id="network" className={`${s.section} ${s.network}`} aria-labelledby="network-title">
+          <div className={`${s.container} ${s.technicalFrame}`}>
+            <div className={`${s.sectionIntro} ${s.centered}`}>
+              <Eyebrow number="03">The network</Eyebrow>
+              <h2 id="network-title">Region: Indonesia</h2>
+              <p className={s.lede}>One coordination layer across the archipelago —<br className={s.desktopBreak} /> close to the surplus, close to the need.</p>
+            </div>
+            <div className={s.globeScene}>
+              <RevolvingGlobe />
+              <div className={`${s.networkCallout} ${s.calloutLeft}`}><MapPin size={18} aria-hidden="true" /><p>Real distance.<br />Real spare capacity.</p></div>
+              <div className={`${s.networkCallout} ${s.calloutRight}`}><Hand size={18} aria-hidden="true" /><p>Matched against the spoilage clock.<br />Held for a person to approve.</p></div>
+              <span className={s.globeCaption}>Surplus → coordination → need</span>
+            </div>
+            <div className={s.networkFeatures}>{networkFeatures.map(feature => {
+              const Icon = feature.icon;
+              return <article key={feature.title}><Icon size={27} strokeWidth={1.45} aria-hidden="true" /><h3>{feature.title}</h3><p>{feature.body}</p></article>;
+            })}</div>
+          </div>
+        </section>
 
-            <Link href="/ringkasan" className="lp-btn lp-btn-solid">
-              Live product
-              <ArrowRight size={14} />
+        <section id="product" className={`${s.section} ${s.product}`} aria-labelledby="product-title">
+          <div className={s.container}>
+            <div className={s.productIntro}>
+              <div><Eyebrow number="04">The product</Eyebrow><h2 id="product-title"><span>Not a mockup.</span><br />The system, running.</h2></div>
+              <Link href="/ringkasan" className={s.textLink}>Open the operations view <ArrowUpRight size={17} aria-hidden="true" /></Link>
+            </div>
+            <p className={s.lede}>Live operations, the donor submission flow, and the agent pipeline — every screen below is the working product, not a render.</p>
+            <div className={s.productGrid}>
+              <Link href="/ringkasan" className={s.productCard}>
+                <div className={s.cardCopy}><LayoutDashboard size={24} aria-hidden="true" /><ArrowUpRight className={s.cardArrow} size={20} aria-hidden="true" /><h3>Live operations</h3><p>Live operations — fairness, saturation, deliveries in flight</p></div>
+                <ProductImage src={operationsPreview} alt="Lumbung operations dashboard with the work queue and network overview" />
+              </Link>
+              <Link href="/donasi/baru" className={s.productCard}>
+                <div className={s.cardCopy}><PackageCheck size={24} aria-hidden="true" /><ArrowUpRight className={s.cardArrow} size={20} aria-hidden="true" /><h3>Donor submission</h3><p>Donor submission — safety-checked before a listing exists</p></div>
+                <ProductImage src={donationPreview} alt="Lumbung donation form for food, quantities, and pickup details" />
+              </Link>
+              {productFeatures.map(feature => {
+                const Icon = feature.icon;
+                return <Link key={feature.title} href={feature.href} className={s.featureCard}><Icon size={24} strokeWidth={1.5} aria-hidden="true" /><ArrowUpRight className={s.cardArrow} size={16} aria-hidden="true" /><h3>{feature.title}</h3><p>{feature.body}</p></Link>;
+              })}
+            </div>
+            <Link href="/rekomendasi" className={s.pipelinePreview} data-testid="pipeline-preview">
+              <div className={s.pipelineCopy}><GitBranch size={26} aria-hidden="true" /><h3>The agent pipeline,<br />with every tool call inspectable</h3><span className={s.textLink}>Explore the pipeline <ArrowUpRight size={17} aria-hidden="true" /></span></div>
+              <div className={s.pipelineScreen}>
+                <div className={s.previewBar}><span>lumbung / recommendations</span><span>DEMO</span></div>
+                <Image src={recommendationPreview} alt="A real demo recommendation showing the selected FLO, allocation quantity and scoring factors" sizes="(max-width: 900px) 85vw, 50vw" />
+              </div>
             </Link>
           </div>
-        </header>
-
-        <main>
-          {/* ── Hero — type only, one full screen ──────────────────────── */}
-          <section className="lp-hero">
-            <div className="lp-hero-bloom" aria-hidden="true">
-              <div className="lp-wave">
-                <div className="lp-wave-shape" />
-              </div>
-              <div className="lp-grain" />
-            </div>
-
-            <div className="lp-shell lp-hero-content">
-              <Reveal>
-                <h1 className="lp-hero-title">
-                  The coordination layer Indonesia&apos;s food banks don&apos;t
-                  have yet.
-                </h1>
-                <p className="lp-hero-meta">
-                  Indonesian food redistribution<span>✦</span>Six AI agents
-                  <span>✦</span>A human approves every allocation
-                </p>
-                <div className="flex items-center justify-center gap-3 flex-wrap">
-                  <Link href="/ringkasan" className="lp-btn lp-btn-solid">
-                    See the working system
-                    <ArrowRight size={14} />
-                  </Link>
-                  <a href="#how" className="lp-btn lp-btn-ghost">
-                    How it works
-                  </a>
-                </div>
-              </Reveal>
-            </div>
-
-            <a href="#problem" className="lp-scroll-cue">
-              Scroll
-              <ArrowDown size={12} />
-            </a>
-          </section>
-
-          {/* Ticker — the tools this replaces, on loop */}
-          <div className="lp-marquee-band">
-            <div className="lp-marquee-track">
-              {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map(
-                (t, i) => (
-                  <span key={i} className="lp-dot">
-                    {t}
-                  </span>
-                ),
-              )}
-            </div>
-          </div>
-
-          {/* ── One continuous page from here down ─────────────────────── */}
-          <div className="lp-body">
-            {/* Problem */}
-            <section
-              id="problem"
-              className="lp-block lp-shell"
-              style={{ borderTop: "none" }}
-            >
-              <Reveal>
-                <Eyebrow>The problem</Eyebrow>
-                <h2 className="lp-h2 lp-measure">
-                  Not a generosity problem. A coordination problem.
-                </h2>
-                <p className="lp-lede">
-                  The food exists and the need exists, often in the same city on
-                  the same day. What&apos;s missing is the layer that decides
-                  which surplus goes where, at what time, against which spoilage
-                  clock.
-                </p>
-              </Reveal>
-
-              <div className="lp-grid-4" style={{ marginTop: 40 }}>
-                {PROBLEM_STATS.map((s, i) => (
-                  <Reveal key={s.label} delay={i * 70}>
-                    <div
-                      className="lp-card lp-card--lift"
-                      style={{ height: "100%" }}
-                    >
-                      <div className="lp-stat-num">
-                        {s.value != null ? (
-                          <CountUp
-                            to={s.value}
-                            decimals={s.decimals}
-                            suffix={s.suffix}
-                          />
-                        ) : (
-                          s.display
-                        )}
-                      </div>
-                      <div
-                        className="text-caption lp-card-sub"
-                        style={{ margin: "4px 0 10px" }}
-                      >
-                        {s.unit}
-                      </div>
-                      <div className="text-caption" style={{ fontWeight: 500 }}>
-                        {s.label}
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-
-              <Reveal delay={80}>
-                <div
-                  className="lp-card"
-                  style={{ marginTop: 18, padding: "26px 28px 10px" }}
-                >
-                  <div
-                    className="lp-row"
-                    style={{
-                      justifyContent: "space-between",
-                      marginBottom: 18,
-                    }}
-                  >
-                    <div>
-                      <div className="text-title-1" style={{ fontWeight: 600 }}>
-                        What the sector coordinates with today
-                      </div>
-                      <p
-                        className="text-caption lp-card-sub"
-                        style={{ margin: "4px 0 0" }}
-                      >
-                        Every organisation below is real, operating, and doing
-                        serious work — on generic tooling never designed for
-                        spoilage-aware allocation.
-                      </p>
-                    </div>
-                    <span className="lp-tag">4 organisations</span>
-                  </div>
-
-                  {INCUMBENT_TOOLING.map((row) => (
-                    <div
-                      key={row.org}
-                      className="lp-row"
-                      style={{
-                        justifyContent: "space-between",
-                        padding: "15px 0",
-                        borderTop: "1px solid var(--hair-soft)",
-                      }}
-                    >
-                      <div>
-                        <div
-                          className="text-title-2"
-                          style={{ fontWeight: 600 }}
-                        >
-                          {row.org}
-                        </div>
-                        <div className="text-caption lp-card-sub">
-                          {row.scale}
-                        </div>
-                      </div>
-                      <span className="lp-tag">{row.tooling}</span>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </section>
-
-            {/* How it works */}
-            <section id="how" className="lp-block lp-shell">
-              <Reveal>
-                <Eyebrow>How it works</Eyebrow>
-                <h2 className="lp-h2 lp-measure">
-                  Six agents. One human gate. Zero black boxes.
-                </h2>
-                <p className="lp-lede">
-                  Every agent calls real tools reading real data — proximity,
-                  spare capacity, spoilage risk, fleet availability. It
-                  can&apos;t invent a number; it can only decide whether to act
-                  on the real one it was handed.
-                </p>
-              </Reveal>
-
-              <div className="lp-grid-3" style={{ marginTop: 38 }}>
-                {PIPELINE.map((s, i) => (
-                  <Reveal key={s.step} delay={i * 60}>
-                    <div
-                      className="lp-card lp-card--lift"
-                      style={{ height: "100%" }}
-                    >
-                      <div className="lp-step-num">{s.step}</div>
-                      <div
-                        className="text-title-1"
-                        style={{ fontWeight: 600, margin: "10px 0 6px" }}
-                      >
-                        {s.title}
-                      </div>
-                      <p
-                        className="text-caption lp-card-sub"
-                        style={{ margin: 0 }}
-                      >
-                        {s.body}
-                      </p>
-                    </div>
-                  </Reveal>
-                ))}
-
-                <Reveal delay={360}>
-                  <div
-                    className="lp-card lp-card--ink"
-                    style={{ height: "100%" }}
-                  >
-                    <ShieldCheck size={18} style={{ opacity: 0.8 }} />
-                    <div
-                      className="text-title-1"
-                      style={{
-                        fontWeight: 600,
-                        margin: "10px 0 6px",
-                        color: "#fff",
-                      }}
-                    >
-                      The AI can stop something. It can never start something.
-                    </div>
-                    <p className="text-caption" style={{ margin: 0 }}>
-                      It blocks unsafe submissions on its own. It only ever
-                      recommends an allocation — no allocation is
-                      auto-committed. Full stop.
-                    </p>
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-
-            {/* Network — the dotted map */}
-            <section id="network" className="lp-block lp-shell">
-              <Reveal>
-                <div style={{ textAlign: "center" }}>
-                  <Eyebrow>The network</Eyebrow>
-                  <h2
-                    className="lp-h2"
-                    style={{ maxWidth: 620, margin: "12px auto 14px" }}
-                  >
-                    Region: Indonesia
-                  </h2>
-                  <p className="lp-lede" style={{ margin: "0 auto" }}>
-                    One coordination layer across the archipelago — close to the
-                    surplus, close to the need.
-                  </p>
-                </div>
-              </Reveal>
-
-              <Reveal delay={100}>
-                <div className="lp-map">
-                  <div className="lp-map-canvas">
-                    {/* `unoptimized` because the Next image optimizer refuses
-                      SVG unless dangerouslyAllowSVG is set; this file is our
-                      own generated asset, served as-is. */}
-                    <Image
-                      src="/indonesia-dots.svg"
-                      alt="Dotted map of the Indonesian archipelago"
-                      width={1400}
-                      height={540}
-                      unoptimized
-                      priority
-                    />
-
-                    <svg
-                      className="lp-map-routes"
-                      viewBox="94.5 -6.5 47 18"
-                      preserveAspectRatio="xMidYMid meet"
-                      aria-hidden="true"
-                    >
-                      {MAP_ROUTES.map((d) => (
-                        <path key={d} d={d} />
-                      ))}
-                    </svg>
-
-                    {MAP_NODES.map((n) => {
-                      const Icon = n.icon;
-                      return (
-                        <div
-                          key={n.label}
-                          className={`lp-map-node${n.ink ? " lp-map-node--ink" : ""}${n.delay ? " lp-map-node--delay" : ""}`}
-                          style={{ top: `${n.y}%`, left: `${n.x}%` }}
-                          title={n.label}
-                        >
-                          <Icon size={18} />
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div
-                    className="lp-frame lp-map-label"
-                    style={{ top: "12%", right: 0 }}
-                  >
-                    Every donation is matched against real distance, real spare
-                    capacity, and the spoilage clock on the food itself — then
-                    held for a person to approve.
-                  </div>
-                </div>
-              </Reveal>
-
-              {/* Outlined feature row */}
-              <Reveal delay={140}>
-                <div
-                  className="lp-outline-row lp-grid-3"
-                  style={{ marginTop: 40, gap: 0 }}
-                >
-                  {NETWORK_FEATURES.map((c) => {
-                    const Icon = c.icon;
-                    return (
-                      <div key={c.title} className="lp-outline-col">
-                        <Icon
-                          size={22}
-                          className="lp-outline-icon"
-                          strokeWidth={1.5}
-                        />
-                        <div
-                          className="text-title-1"
-                          style={{ fontWeight: 600, marginBottom: 6 }}
-                        >
-                          {c.title}
-                        </div>
-                        <p
-                          className="text-caption lp-card-sub"
-                          style={{ margin: 0, maxWidth: 320 }}
-                        >
-                          {c.body}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Reveal>
-            </section>
-
-            {/* Product screenshots */}
-            <section id="product" className="lp-block lp-shell">
-              <Reveal>
-                <Eyebrow>The product</Eyebrow>
-                <h2 className="lp-h2 lp-measure">
-                  Not a mockup. The system, running.
-                </h2>
-                <p className="lp-lede">
-                  Live operations, the donor submission flow, and the agent
-                  pipeline — every screen below is the working product, not a
-                  render.
-                </p>
-              </Reveal>
-
-              <Reveal delay={100}>
-                <div className="lp-shots">
-                  {SHOTS.map((s) => (
-                    <div key={s.src} className="lp-shot">
-                      <div className="lp-shot-bar" aria-hidden="true">
-                        <span />
-                        <span />
-                        <span />
-                      </div>
-                      <Image src={s.src} alt={s.cap} width={s.w} height={s.h} />
-                      <div className="lp-shot-cap">{s.cap}</div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </section>
-
-            {/* Why now */}
-            <section className="lp-block lp-shell">
-              <div className="lp-split">
-                <Reveal>
-                  <div>
-                    <Eyebrow>Why now</Eyebrow>
-                    <h2 className="lp-h2" style={{ maxWidth: 520 }}>
-                      The audit trail becomes a legal requirement in 2027.
-                    </h2>
-                    <p className="lp-lede">
-                      Indonesia&apos;s OJK ratified Sustainability Disclosure
-                      Standards (PSPK 1/2) in July 2025, requiring quantitative
-                      waste disclosures from January 2027. Lumbung produces that
-                      record as a byproduct of normal operations — the charity
-                      gets coordination it can&apos;t buy today; the corporate
-                      donor gets the number their auditor is about to require.
-                    </p>
-                  </div>
-                </Reveal>
-
-                <Reveal delay={100}>
-                  <div
-                    className="lp-card"
-                    style={{ padding: "24px 26px 12px" }}
-                  >
-                    <Eyebrow>OJK PSPK phase-in</Eyebrow>
-                    <div style={{ marginTop: 14 }}>
-                      {OJK_PHASES.map((g, i) => (
-                        <div
-                          key={g.group}
-                          style={{
-                            padding: "13px 0",
-                            borderTop:
-                              i === 0 ? "none" : "1px solid var(--hair-soft)",
-                          }}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <span
-                              className="text-title-2"
-                              style={{ fontWeight: 600 }}
-                            >
-                              {g.group}{" "}
-                              <span className="tnum lp-card-sub">
-                                · {g.from}
-                              </span>
-                            </span>
-                            {g.active && (
-                              <span className="lp-tag lp-tag--ink">Next</span>
-                            )}
-                          </div>
-                          <div className="text-caption lp-card-sub">
-                            {g.who}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-
-            {/* Status */}
-            <section className="lp-block lp-shell">
-              <Reveal>
-                <Eyebrow>Status</Eyebrow>
-                <h2 className="lp-h2 lp-measure">
-                  A working system, and an honest list of what it isn&apos;t
-                  yet.
-                </h2>
-              </Reveal>
-
-              <div className="lp-grid-2" style={{ marginTop: 34 }}>
-                <Reveal>
-                  <div className="lp-card" style={{ height: "100%" }}>
-                    <span className="lp-tag lp-tag--ink">
-                      Built and running
-                    </span>
-                    <div style={{ marginTop: 16 }}>
-                      {BUILT.map((b) => (
-                        <div key={b} className="lp-bullet">
-                          <ShieldCheck
-                            size={14}
-                            style={{
-                              marginTop: 2,
-                              flexShrink: 0,
-                              opacity: 0.45,
-                            }}
-                          />
-                          <span className="text-caption">{b}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-
-                <Reveal delay={90}>
-                  <div className="lp-card" style={{ height: "100%" }}>
-                    <span className="lp-tag">
-                      Required for Indonesia — not built yet
-                    </span>
-                    <div style={{ marginTop: 16 }}>
-                      {NEXT.map((n) => (
-                        <div key={n.label} className="lp-bullet">
-                          <span
-                            className="lp-step-num"
-                            style={{
-                              marginTop: 2,
-                              flexShrink: 0,
-                              width: 20,
-                              fontSize: 10.5,
-                            }}
-                          >
-                            {n.priority}
-                          </span>
-                          <span className="text-caption">{n.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
-
-              <div className="lp-grid-2" style={{ marginTop: 18 }}>
-                <Reveal>
-                  <div
-                    className="lp-card lp-card--lift"
-                    style={{ height: "100%" }}
-                  >
-                    <div
-                      className="text-title-1"
-                      style={{ fontWeight: 600, marginBottom: 6 }}
-                    >
-                      &ldquo;I don&apos;t have time for another app&rdquo;
-                    </div>
-                    <p
-                      className="text-caption lp-card-sub"
-                      style={{ margin: 0 }}
-                    >
-                      Answered with a WhatsApp-first donor flow: one message and
-                      a photo, parsed into a listing. No install, no account, no
-                      login during a busy service.
-                    </p>
-                  </div>
-                </Reveal>
-
-                <Reveal delay={90}>
-                  <div
-                    className="lp-card lp-card--lift"
-                    style={{ height: "100%" }}
-                  >
-                    <div
-                      className="text-title-1"
-                      style={{ fontWeight: 600, marginBottom: 6 }}
-                    >
-                      &ldquo;I&apos;m worried about liability&rdquo;
-                    </div>
-                    <p
-                      className="text-caption lp-card-sub"
-                      style={{ margin: 0 }}
-                    >
-                      Answered by surfacing the legal protections that apply to
-                      food donors at the moment of donation, rather than leaving
-                      them to guess at their exposure.
-                    </p>
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-
-            {/* Roadmap */}
-            <section id="roadmap" className="lp-block lp-shell">
-              <Reveal>
-                <Eyebrow>Roadmap</Eyebrow>
-                <h2 className="lp-h2 lp-measure">
-                  Earn the case study, then sell the proof.
-                </h2>
-                <p className="lp-lede">
-                  Partner-first, not customer-first. A cold pitch to a food bank
-                  in Month 1 fails; a quiet pilot that produces a testimonial in
-                  Month 3 opens every door after it.
-                </p>
-              </Reveal>
-
-              <div className="flex flex-col gap-3" style={{ marginTop: 34 }}>
-                {PHASES.map((p, i) => (
-                  <Reveal key={p.phase} delay={i * 70}>
-                    <div
-                      className="lp-card lp-card--lift lp-row"
-                      style={{ justifyContent: "space-between" }}
-                    >
-                      <div style={{ flex: "0 0 150px" }}>
-                        <div className="lp-step-num">
-                          {p.phase.toUpperCase()}
-                        </div>
-                        <div className="text-caption lp-card-sub tnum">
-                          {p.window}
-                        </div>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div
-                          className="text-title-1"
-                          style={{ fontWeight: 600, marginBottom: 4 }}
-                        >
-                          {p.title}
-                        </div>
-                        <p
-                          className="text-caption lp-card-sub"
-                          style={{ margin: 0 }}
-                        >
-                          {p.body}
-                        </p>
-                      </div>
-                      <div style={{ flex: "0 0 180px" }}>
-                        <span className="lp-tag tnum">{p.revenue}</span>
-                      </div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-            </section>
-
-            {/* Closing CTA */}
-            <section className="lp-shell">
-              <Reveal>
-                <div className="lp-cta">
-                  <Eyebrow>Lumbung</Eyebrow>
-                  <h2 className="lp-h2">The system is live. Go use it.</h2>
-                  <p className="lp-lede">
-                    Submit a donation and watch it get safety-checked, routed,
-                    approved, planned and dispatched — with every agent&apos;s
-                    reasoning visible at each step.
-                  </p>
-                  <div className="flex items-center justify-center gap-3 flex-wrap">
-                    <Link href="/donasi" className="lp-btn lp-btn-solid">
-                      Submit a donation
-                      <ArrowRight size={14} />
-                    </Link>
-                    <Link href="/ringkasan" className="lp-btn lp-btn-ghost">
-                      Open the operations view
-                    </Link>
-                  </div>
-                </div>
-              </Reveal>
-            </section>
-          </div>
-        </main>
-
-        {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="lp-footer">
-          <div className="lp-shell flex items-center justify-between gap-4 flex-wrap">
-            <span>
-              Lumbung — a coordination layer for Indonesian food redistribution
-            </span>
-            <div className="flex items-center gap-6">
-              <Link href="/flo" className="lp-nav-link">
-                Browse food
-              </Link>
-              <Link href="/donasi" className="lp-nav-link">
-                Donate
-              </Link>
-              <Link href="/ringkasan" className="lp-nav-link">
-                Operations
-              </Link>
-            </div>
-          </div>
-        </footer>
+        </section>
       </div>
-    </div>
-  );
+
+      <section className={`${s.section} ${s.whyNow}`} aria-labelledby="why-title">
+        <div className={`${s.container} ${s.whyGrid}`}>
+          <div><Eyebrow number="05">Why now</Eyebrow><h2 id="why-title">The audit trail becomes a legal requirement in 2027.</h2><p className={s.lede}>Indonesia&apos;s OJK ratified Sustainability Disclosure Standards (PSPK 1/2) in July 2025, requiring quantitative waste disclosures from January 2027. Lumbung produces that record as a byproduct of normal operations — the charity gets coordination it can&apos;t buy today; the corporate donor gets the number their auditor is about to require.</p></div>
+          <div className={s.phaseIn}><Eyebrow>OJK PSPK phase-in</Eyebrow>{OJK_PHASES.map(phase => <div key={phase.group} className={s.phaseRow}><span className={s.phaseDate}>{phase.from}</span><div><h3>{phase.group}{phase.active && <span className={s.tag}>Next</span>}</h3><p>{phase.who}</p></div></div>)}</div>
+        </div>
+      </section>
+
+      <section className={`${s.section} ${s.statusSection}`} aria-labelledby="status-title">
+        <div className={s.container}>
+          <div className={`${s.sectionIntro} ${s.centered}`}><Eyebrow number="06">Status</Eyebrow><h2 id="status-title">A working system,<br /><span>and an honest list of what it isn&apos;t yet.</span></h2></div>
+          <div className={s.statusGrid}>
+            <div className={s.built}><Eyebrow>Today</Eyebrow><h3>Built<br />and running.</h3><ul>{BUILT.map(item => <li key={item}><Check size={17} aria-hidden="true" /><span>{item}</span></li>)}</ul></div>
+            <div className={s.next}><Eyebrow>Up next</Eyebrow><h3>Required<br />for Indonesia.</h3><p className={s.statusNote}>Not built yet</p><ul>{NEXT.map(item => <li key={item.label}><span className={s.priority}>{item.priority}</span><span>{item.label}</span></li>)}</ul></div>
+          </div>
+          <div className={s.objections}>
+            <article><MessageSquare size={23} aria-hidden="true" /><h3>&ldquo;I don&apos;t have time for another app&rdquo;</h3><p>Answered with a WhatsApp-first donor flow: one message and a photo, parsed into a listing. No install, no account, no login during a busy service.</p></article>
+            <article><ShieldCheck size={23} aria-hidden="true" /><h3>&ldquo;I&apos;m worried about liability&rdquo;</h3><p>Answered by surfacing the legal protections that apply to food donors at the moment of donation, rather than leaving them to guess at their exposure.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap" className={`${s.section} ${s.roadmap}`} aria-labelledby="roadmap-title">
+        <div className={s.container}><div className={s.sectionIntro}><Eyebrow number="07">Roadmap</Eyebrow><h2 id="roadmap-title"><span>Earn the case study,</span><br />then sell the proof.</h2><p className={s.lede}>Partner-first, not customer-first. A cold pitch to a food bank in Month 1 fails; a quiet pilot that produces a testimonial in Month 3 opens every door after it.</p></div>
+          <div className={s.roadmapGrid}>{PHASES.map((phase, index) => <article key={phase.phase}><div className={s.roadmapTop}><span>{phase.phase}</span><span>{phase.window}</span></div><span className={s.roadmapNumber}>0{index + 1}</span><h3>{phase.title}</h3><p>{phase.body}</p><span className={s.revenue}>{phase.revenue}</span></article>)}</div>
+        </div>
+      </section>
+
+      <section className={s.closing} aria-labelledby="closing-title">
+        <div className={s.closingIcons} aria-hidden="true">{[Boxes, Users, ClipboardList, Truck, ShieldCheck, Globe2].map((Icon, index) => <div key={index}><Icon size={28} strokeWidth={1.3} /></div>)}</div>
+        <div className={s.closingCopy}><Eyebrow>Lumbung</Eyebrow><h2 id="closing-title">The system is live.<br /><span>Go use it.</span></h2><p className={s.lede}>Submit a donation and watch it get safety-checked, routed, approved, planned and dispatched — with every agent&apos;s reasoning visible at each step.</p><div className={s.actions}><Link href="/donasi/baru" className={`${s.button} ${s.primary}`}>Submit a donation <ArrowUpRight size={17} aria-hidden="true" /></Link><Link href="/ringkasan" className={`${s.button} ${s.secondary}`}>Open the operations view <ArrowRight size={17} aria-hidden="true" /></Link></div></div>
+      </section>
+    </main>
+    <footer className={s.footer}><div className={s.container}><div className={s.footerBrand}><Link href="/" className={s.brand}><Image src="/brand/logo-mark-black.png" width={32} height={32} alt="" /><span>lumbung.</span></Link><p>A coordination layer for<br />Indonesian food redistribution.</p></div><nav aria-label="Footer navigation"><Link href="/flo">Browse food <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/donasi">Donate <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/ringkasan">Operations <ArrowUpRight size={14} aria-hidden="true" /></Link></nav><a href="#hero-title" className={s.backTop}>Back to top <ArrowUpRight size={15} aria-hidden="true" /></a></div></footer>
+  </div>;
 }
