@@ -71,12 +71,12 @@ describe('navigation config', () => {
     const auditor = navForCapabilities(ROLE_CAPABILITIES.AUDITOR);
     expect(auditor.map((i) => i.href)).toEqual(['/ringkasan', '/donasi', '/flo', '/persediaan', '/pengiriman', '/pengaturan', '/audit']);
     expect(navForCapabilities(ROLE_CAPABILITIES.AUDITOR,{enabledStage:1}).map(i=>i.href)).toEqual(['/ringkasan','/flo','/pengaturan','/audit']);
-    const all = navForCapabilities(CAPABILITIES, { enabledStage: 5 });
+    const all = navForCapabilities(CAPABILITIES, { enabledStage: 5, prototypeGuide: true });
     expect(all).toHaveLength(NAV_ITEMS.length);
   });
 
   it('keeps PRD §16 navigation order', () => {
-    expect(NAV_ITEMS.map((i) => i.labelKey)).toEqual([
+    expect(NAV_ITEMS.filter(i => !i.prototypeOnly).map((i) => i.labelKey)).toEqual([
       'nav.ringkasan',
       'nav.donasi',
       'nav.rekomendasi',

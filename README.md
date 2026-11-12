@@ -244,6 +244,15 @@ The public `/` page uses a monochrome identity with a dotted workflow hero, keyb
 
 ### In-app walkthrough and readable lists
 
+The temporary **Panduan visual / Visual guide** sidebar page (`/panduan`) explains
+the complete workflow and system architecture with clickable nodes and arrows.
+It includes allocation, warehouse, background-work and data diagrams, optional
+step-by-step playback, and a Markdown/Mermaid documentation download. Examples are
+illustrative and do not change records. Both Bahasa Indonesia and English are supported.
+Set `PROTOTYPE_GUIDE_ENABLED=false` and restart to hide the page and return 404 on
+direct access; it is always unavailable for a LIVE process or tenant. The isolated
+feature and deletion steps are documented in `components/prototype-guide/README.md`.
+
 After signing in, choose **Mulai panduan** (English: **Start walkthrough**) above the page heading. The guided tour scrolls to individual fields, records, and actions, dims the surrounding page, and points to each highlighted control with a short explanation. You can type into highlighted fields and open records normally. Opening a different screen pauses the tour; choose **Tampilkan sorotan** to return, or **Berikutnya** to continue. The tour follows your role’s navigation and remembers the current step for the browser tab. Press **Esc** or the close button to exit. Missing records and unavailable approval actions are explained without inventing a target. Finishing the tour marks the explanation as read; the tour never creates or approves operational records.
 
 Donations, deliveries, inventory, conversations, and reports have searchable lists with status filters. Search and filters apply to the current page of results; use pagination to browse further. Quantities use the selected language’s decimal separator and omit redundant trailing zeros. Stock balances remain distinct from food-safety eligibility; expand a batch’s balances or open its detail to inspect the full record.

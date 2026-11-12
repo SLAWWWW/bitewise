@@ -10,6 +10,7 @@ import type { Capability } from '@/src/shared/capabilities';
 
 export type NavIcon =
   | 'LayoutDashboard'
+  | 'Network'
   | 'Package'
   | 'Sparkles'
   | 'ShieldCheck'
@@ -31,6 +32,8 @@ export interface NavItem {
   /** Visible when the actor holds ANY of these (empty/undefined = every signed-in user). */
   anyOf?: readonly Capability[];
   stage: 1 | 2 | 3 | 4 | 5;
+  /** Temporary documentation, explicitly opted in by the server layout. */
+  prototypeOnly?: boolean;
 }
 
 /** Highest build stage whose pages exist. */
@@ -38,6 +41,7 @@ export const ENABLED_STAGE: NavItem['stage'] = 5;
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { href: '/ringkasan', labelKey: 'nav.ringkasan', hintKey: 'nav.hint.ringkasan', icon: 'LayoutDashboard', stage: 1 },
+  { href: '/panduan', labelKey: 'nav.panduan', hintKey: 'nav.hint.panduan', icon: 'Network', stage: 5, prototypeOnly: true },
   {
     href: '/donasi',
     labelKey: 'nav.donasi',
@@ -102,11 +106,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
 /** Items the actor may see, in display order. */
 export function navForCapabilities(
   capabilities: readonly string[],
-  opts: { enabledStage?: number; items?: readonly NavItem[] } = {},
+  opts: { enabledStage?: number; items?: readonly NavItem[]; prototypeGuide?: boolean } = {},
 ): NavItem[] {
   const stage = opts.enabledStage ?? ENABLED_STAGE;
   return (opts.items ?? NAV_ITEMS).filter(
-    (i) => i.stage <= stage && (!i.anyOf || i.anyOf.length === 0 || i.anyOf.some((c) => capabilities.includes(c))),
+    (i) => i.stage <= stage && (!i.prototypeOnly || opts.prototypeGuide === true)
+      && (!i.anyOf || i.anyOf.length === 0 || i.anyOf.some((c) => capabilities.includes(c))),
   );
 }
 
