@@ -11,6 +11,7 @@ import { closeOwnerPool, ownerPool, withAppTx, withOwner } from '../setup/db-hel
 
 const slugs: string[]=[];
 const idem=()=>({idempotencyKey:randomUUID(),requestHash:randomUUID()});
+const inspection={smell:'PASS',appearance:'PASS',texture:'PASS',packaging:'PASS',taste:'NOT_PERFORMED'} as const;
 afterAll(async()=>{await withOwner(async c=>{for(const s of slugs)await c.query('SELECT lumbung.demo_reset_begin($1)',[s]);});await closeOwnerPool();},120000);
 
 async function fixture(quantity='120') {
@@ -61,7 +62,7 @@ describe('persistent direct donation vertical slice',()=>{
     const dispatched=await f.exec('dispatch',deliveryId,{expected_revision:1,custodian:'FLO collection driver'},key);
     expect(await f.exec('dispatch',deliveryId,{expected_revision:1,custodian:'FLO collection driver'},key)).toEqual(dispatched);
     await expect(f.exec('dispatch',deliveryId,{expected_revision:1,custodian:'Different driver'},key)).rejects.toMatchObject({code:'IDEMPOTENCY_PAYLOAD_MISMATCH'});
-    const receipt=await f.exec('receive',deliveryId,{expected_revision:dispatched.revision,accepted_quantity:offer.quantity,rejected_quantity:'0'});
+    const receipt=await f.exec('receive',deliveryId,{expected_revision:dispatched.revision,accepted_quantity:offer.quantity,rejected_quantity:'0',inspection});
     expect(receipt.state).toBe('RECEIVED');
     const d=(await withAppTx(f.ctx,c=>listDeliveries(c,deliveryId)))[0];
     expect(d.obligations.map(o=>o.type).sort()).toEqual(['BAST','RECEIPT_PHOTO']);
@@ -79,7 +80,7 @@ describe('persistent direct donation vertical slice',()=>{
     const t2=await f.exec('transport',a2.id,{expected_revision:a2.revision,method:'SELF_PICKUP',decision:'ACCEPT',arranger:'Second FLO self collection',fee_idr:null,contact_id:a2.contact_id});
     const ap2=await f.exec('approve-dispatch',a2.id,{expected_revision:t2.revision,reason:'Second reviewed delivery'});
     const d2=await f.exec('dispatch',ap2.delivery_id!,{expected_revision:1,custodian:'Second FLO driver'});
-    await f.exec('receive',d2.id,{expected_revision:d2.revision,accepted_quantity:second.quantity,rejected_quantity:'0'});
+    await f.exec('receive',d2.id,{expected_revision:d2.revision,accepted_quantity:second.quantity,rejected_quantity:'0',inspection});
     const order=await withAppTx(f.ctx,c=>getDonation(c,f.order.id));expect(Number(order!.items[0].available_quantity)).toBe(20);
     const invariants=await ownerPool().query('SELECT * FROM lumbung.verify_tenant_invariants($1)',[f.ctx.tenantId]);expect(invariants.rows).toEqual([]);
   });
@@ -172,13 +173,24 @@ describe('persistent direct donation vertical slice',()=>{
   it('receipt discrepancy counts only actual accepted food, once',async()=>{
     const f=await fixture('10');const {offer,approved}=await acceptAndApprove(f);
     const d=await f.exec('dispatch',approved.delivery_id!,{expected_revision:1,custodian:'FLO collection driver'});
-    await expect(f.exec('receive',d.id,{expected_revision:d.revision,accepted_quantity:'11',rejected_quantity:'0'})).rejects.toMatchObject({code:'RECEIPT_EXCEEDS_DISPATCHED'});
-    const key=idem();const body={expected_revision:d.revision,accepted_quantity:'7',rejected_quantity:'2',reason:'Two damaged; one unaccounted for'};
+    await expect(f.exec('receive',d.id,{expected_revision:d.revision,accepted_quantity:'11',rejected_quantity:'0',inspection})).rejects.toMatchObject({code:'RECEIPT_EXCEEDS_DISPATCHED'});
+    const key=idem();const body={expected_revision:d.revision,accepted_quantity:'7',rejected_quantity:'2',reason:'Two damaged; one unaccounted for',inspection};
     const received=await f.exec('receive',d.id,body,key);await f.exec('receive',d.id,body,key);expect(received.state).toBe('PARTIALLY_RECEIVED');
     const line=await withAppTx(f.ctx,c=>c.query<{q:string;n:number}>('SELECT sum(accepted_qty)::text AS q,count(*)::int AS n FROM lumbung.receipt_lines WHERE receipt_id=$1',[received.receipt_id]));
     expect(Number(line.rows[0].q)).toBe(7);expect(line.rows[0].n).toBe(1);
     const snapshot=await withAppTx(f.ctx,async c=>(await c.query<{s:{candidates:{id:string;committed:string}[]}}>('SELECT lumbung.direct_features($1,$2,$3) AS s',[f.item.id,'2026-10-26T02:00:00Z','2026-10-26T03:00:00Z'])).rows[0].s);
     expect(Number(snapshot.candidates.find(c=>c.id===offer.flo_id)!.committed)).toBe(0);
+  });
+
+  it('requires FLO organoleptic checks and blocks acceptance when a concern is recorded',async()=>{
+    const f=await fixture('10');const {approved}=await acceptAndApprove(f);
+    const d=await f.exec('dispatch',approved.delivery_id!,{expected_revision:1,custodian:'FLO collection driver'});
+    await expect(f.exec('receive',d.id,{expected_revision:d.revision,accepted_quantity:'10',rejected_quantity:'0'})).rejects.toMatchObject({code:'BAD_REQUEST'});
+    const concern={...inspection,packaging:'CONCERN',notes:'Seal and outer package were damaged'} as const;
+    await expect(f.exec('receive',d.id,{expected_revision:d.revision,accepted_quantity:'10',rejected_quantity:'0',inspection:concern})).rejects.toMatchObject({code:'RECIPIENT_INSPECTION_FAILED'});
+    const received=await f.exec('receive',d.id,{expected_revision:d.revision,accepted_quantity:'0',rejected_quantity:'10',reason:'FLO rejected the damaged package',inspection:concern});
+    const saved=await withAppTx(f.ctx,async c=>(await c.query<{inspection_outcome:string;inspection_observations:{packaging:string;notes:string}}>('SELECT inspection_outcome,inspection_observations FROM lumbung.flo_receipts WHERE id=$1',[received.receipt_id])).rows[0]);
+    expect(saved).toMatchObject({inspection_outcome:'REJECTED',inspection_observations:{packaging:'CONCERN',notes:'Seal and outer package were damaged'}});
   });
 
   it('locks FLO capacity across competing donations from different source items',async()=>{

@@ -6,6 +6,8 @@ import { roleLabel, t } from '@/src/i18n';
 import { getLocale } from '@/src/i18n/server';
 import { getServerActor, getTenantClock, type Actor } from '@/src/security/actor';
 import { navForCapabilities } from '@/src/ui/nav';
+import { getEnv } from '@/src/config/env';
+import { prototypeGuideEnabled } from '@/src/config/prototype-guide';
 
 /**
  * Authenticated operations area. proxy.ts only does an optimistic cookie check; the
@@ -33,7 +35,9 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
   const clock = await getTenantClock(actor);
   return (
     <AppShell
-      nav={navForCapabilities(actor.capabilities)}
+      nav={navForCapabilities(actor.capabilities, {
+        prototypeGuide: prototypeGuideEnabled({ appMode: getEnv().APP_MODE, tenantMode: actor.tenantMode, flag: process.env.PROTOTYPE_GUIDE_ENABLED }),
+      })}
       user={{
         displayName: actor.displayName,
         roleLabel: roleLabel(actor.roleLabel, locale),

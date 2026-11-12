@@ -22,7 +22,7 @@ export async function scenario(){
    const current=(await tx(c=>listCampaigns(c,order.id)))[0];const offer=current.offers[0];await command('respond',offer.id,{expected_revision:offer.revision,response:'ACCEPT',quantity:offer.quantity});
    const a=(await tx(c=>listCampaigns(c,order.id)))[0].allocations[0];const tr=await command('transport',a.id,{expected_revision:a.revision,method:'SELF_PICKUP',decision:'ACCEPT',arranger:'Confirmed by FLO',fee_idr:null,contact_id:a.contact_id});
    const approval=await command('approve-dispatch',a.id,{expected_revision:tr.revision,reason:'Confirmed scenario'});const dispatch=await command('dispatch',approval.delivery_id!,{expected_revision:1,custodian:'FLO scenario driver'});
-   const received=await command('receive',dispatch.id,{expected_revision:dispatch.revision,accepted_quantity:'10',rejected_quantity:'0'});
+   const received=await command('receive',dispatch.id,{expected_revision:dispatch.revision,accepted_quantity:'10',rejected_quantity:'0',inspection:{smell:'PASS',appearance:'PASS',texture:'PASS',packaging:'PASS',taste:'NOT_PERFORMED'}});
    return {order,item,offer,allocation:a,delivery:received};
  }
  return {slug,ids,ctx,tx,command,sql,refs,delivery};

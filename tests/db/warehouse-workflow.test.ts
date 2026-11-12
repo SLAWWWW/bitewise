@@ -5,6 +5,7 @@ import {ownerPool,closeOwnerPool,withOwner} from '../setup/db-helpers';
 import {inventoryCommand,planRelease} from '@/src/application/inventory/commands';
 import {runDue} from '@/src/jobs/run-due';
 let f:Awaited<ReturnType<typeof scenario>>;let product:string;let warehouse:string;let storage:string;
+const recipientInspection={smell:'PASS',appearance:'PASS',texture:'PASS',packaging:'PASS',taste:'NOT_PERFORMED'} as const;
 beforeAll(async()=>{
  f=await scenario();const refs=await f.tx(async c=>(await c.query<{product:string;warehouse:string;storage:string}>(`SELECT p.id product,w.id warehouse,s.id storage FROM lumbung.products p CROSS JOIN lumbung.source_locations w JOIN lumbung.storage_locations s ON s.warehouse_id=w.id AND s.storage_profile='AMBIENT' WHERE p.code='BISKUIT' AND w.code='WH-JKU' LIMIT 1`)).rows[0]);({product,warehouse,storage}=refs);
 });
@@ -47,7 +48,7 @@ it('SC05: reserves 30+10 by first expiry and preserves provenance through pickup
  const picks=await f.tx(async c=>(await c.query<{id:string;planned_qty:string}>('SELECT id,planned_qty::text FROM lumbung.pick_lines WHERE pick_list_id IN(SELECT id FROM lumbung.pick_lists WHERE delivery_id=$1)',[approval.delivery_id])).rows);
  const intent=idem();await f.sql('pick_delivery',[approval.delivery_id,JSON.stringify({expected_revision:1,lines:picks.map(p=>({pick_line_id:p.id,picked_quantity:p.planned_qty}))}),intent.key,intent.hash],'GUDANG1');
  const dispatched=await f.command('dispatch',approval.delivery_id!,{expected_revision:2,custodian:'Warehouse collection driver'});
- const receipt=await f.command('receive',dispatched.id,{expected_revision:dispatched.revision,accepted_quantity:'40',rejected_quantity:'0'});
+ const receipt=await f.command('receive',dispatched.id,{expected_revision:dispatched.revision,accepted_quantity:'40',rejected_quantity:'0',inspection:recipientInspection});
  const actual=await f.tx(async c=>(await c.query<{qty:string;n:number}>('SELECT sum(accepted_qty)::text qty,count(*)::int n FROM lumbung.receipt_lines WHERE receipt_id=$1',[receipt.receipt_id])).rows[0]);expect(Number(actual.qty)).toBe(40);expect(actual.n).toBe(2);
  const totals=await f.tx(async c=>(await c.query<{account:string;qty:string}>('SELECT account,sum(qty)::text qty FROM lumbung.batch_balances WHERE batch_id=ANY($1::uuid[]) GROUP BY account',[[first.batches[0].id,second.batches[0].id]])).rows);
  expect(Number(totals.find(x=>x.account==='AVAILABLE')?.qty)).toBe(40);expect(Number(totals.find(x=>x.account==='DELIVERED')?.qty)).toBe(40);expect(Number(totals.find(x=>x.account==='RESERVED')?.qty)).toBe(0);

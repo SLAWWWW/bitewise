@@ -111,7 +111,10 @@ npm run worker                 # durable expirations + simulated message process
 6. Confirm the actual collection arrangement and FLO agreement to any IDR courier
    fee. Enter a reason for **Setujui pengiriman**, open the delivery, and record pickup
    with its custodian. Pickup rechecks the agreement, food window, reservation and approval.
-7. Record actual accepted/rejected quantities. Discrepancies create staff tasks.
+7. Record the FLO's receiving checks for smell, appearance, texture, packaging and,
+   only when appropriate, taste, together with actual accepted/rejected quantities.
+   Any inspection concern must reject the affected receipt quantity and include an
+   observation; discrepancies create staff tasks.
    BAST and receipt-photo obligations stay visible independently of physical receipt.
 
 Urgent reservations last 15 simulated minutes. **Pengaturan → Majukan waktu** uses
@@ -240,6 +243,15 @@ are made.
 The public `/` page uses a monochrome identity with a dotted workflow hero, keyboard-accessible workflow tabs, a revolving network globe, current demo product screenshots, and responsive navigation. A marker travels between workflow nodes as each step becomes active. Both animations have pause/play controls, stop offscreen or when the tab is hidden, and start paused for reduced-motion preferences. Selecting or focusing a workflow step pauses automatic playback. The globe loads its 3D renderer on demand and keeps an illustration fallback when WebGL is unavailable. The existing pitch copy and section topics are retained. The primary actions open the current Lumbung routes, including `/donasi/baru` for a new donation. Landing styles are isolated in `components/landing/landing.module.css`; shared operations styles are unaffected. Visual comparison notes are in `design-qa.md`, and illustration provenance is in `public/landing/asset-notes.md`.
 
 ### In-app walkthrough and readable lists
+
+The temporary **Panduan visual / Visual guide** sidebar page (`/panduan`) explains
+the complete workflow and system architecture with clickable nodes and arrows.
+It includes allocation, warehouse, background-work and data diagrams, optional
+step-by-step playback, and a Markdown/Mermaid documentation download. Examples are
+illustrative and do not change records. Both Bahasa Indonesia and English are supported.
+Set `PROTOTYPE_GUIDE_ENABLED=false` and restart to hide the page and return 404 on
+direct access; it is always unavailable for a LIVE process or tenant. The isolated
+feature and deletion steps are documented in `components/prototype-guide/README.md`.
 
 After signing in, choose **Mulai panduan** (English: **Start walkthrough**) above the page heading. The guided tour scrolls to individual fields, records, and actions, dims the surrounding page, and points to each highlighted control with a short explanation. You can type into highlighted fields and open records normally. Opening a different screen pauses the tour; choose **Tampilkan sorotan** to return, or **Berikutnya** to continue. The tour follows your role’s navigation and remembers the current step for the browser tab. Press **Esc** or the close button to exit. Missing records and unavailable approval actions are explained without inventing a target. Finishing the tour marks the explanation as read; the tour never creates or approves operational records.
 

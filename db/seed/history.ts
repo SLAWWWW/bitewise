@@ -626,6 +626,11 @@ export function buildHistory(ds: Dataset, clock: Clock, ids: Ids, streams: Strea
           id: receiptId, tenant_id: tenantId, delivery_id: deliveryId, flo_id: f.id, received_at: iso(receivedAt),
           time_source: s.origin === 'IMPORT' ? 'IMPORT' : chance(rTime, 0.7) ? 'FLO_LINK' : 'STAFF_ENTRY',
           recorded_by_actor: null, bast_media_id: null, corrects_receipt_id: null, status: 'CURRENT', origin: s.origin,
+          inspection_observations: s.origin === 'IMPORT' ? null : {
+            smell: 'PASS', appearance: 'PASS', texture: 'PASS', packaging: rejectedQty > 0n ? 'CONCERN' : 'PASS',
+            taste: 'NOT_PERFORMED', notes: rejectedQty > 0n ? 'Kemasan bermasalah; jumlah tersebut ditolak (simulasi)' : 'Pemeriksaan penerimaan sintetis tidak menemukan masalah',
+          },
+          inspection_outcome: s.origin === 'IMPORT' ? null : rejectedQty > 0n ? 'PARTIAL' : 'ACCEPTED',
           created_at: iso(receivedAt), updated_at: iso(receivedAt),
         });
         ds.add('receipt_lines', {

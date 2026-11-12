@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Clock, Menu, UserRound } from 'lucide-react';
 import { useLocale, useT } from '@/src/i18n/client';
 import { LOCALE_COOKIE, type Locale } from '@/src/i18n/types';
 import { formatWib } from '@/src/lib/tz';
 import type { NavItem } from '@/src/ui/nav';
+import { isActive } from '@/src/ui/nav';
 import { Walkthrough } from '@/components/walkthrough/Walkthrough';
 import { CommandPalette } from './CommandPalette';
 import { Sidebar } from './Sidebar';
@@ -47,6 +48,8 @@ export function AppShell({
   children: ReactNode;
 }) {
   const t = useT('common');
+  const pathname = usePathname();
+  const prototypePage = nav.some(item => item.prototypeOnly && isActive(item, pathname));
   const [navOpen, setNavOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
@@ -147,7 +150,7 @@ export function AppShell({
         <StatusBar user={user} clock={clock} />
 
         <main id="main" className="app-main" tabIndex={-1}>
-          <Walkthrough nav={nav} />
+          {!prototypePage && <Walkthrough nav={nav} />}
           {children}
         </main>
       </div>
