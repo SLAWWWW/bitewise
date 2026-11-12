@@ -1,0 +1,266 @@
+[
+  {
+    "file": "assets/logo-mark-white.png",
+    "source": "public/brand/logo-mark-white.png",
+    "sha256": "cfcd87c046e07628a47afef34b5b38a815e5208f08c8b7d526bfa67f9ce6f7b4",
+    "kind": "existing product asset"
+  },
+  {
+    "file": "assets/logo-wordmark-black.png",
+    "source": "public/brand/logo-wordmark-black.png",
+    "sha256": "d98b8502b6ee1e8e901d92801f252de0460379009f0b1fb53db4673c44327d80",
+    "kind": "existing product asset"
+  },
+  {
+    "file": "assets/donation.webp",
+    "source": "public/landing/donation.webp",
+    "sha256": "9989a9b2b61030712528e7ce677e6bc6eebd81063ee1a3aa558ce4c7388fede9",
+    "kind": "existing product asset"
+  },
+  {
+    "file": "assets/recommendation.webp",
+    "source": "public/landing/recommendation.webp",
+    "sha256": "d04dca33e2f32a4ee5842460dd90c47ca090dc0ad6edff519344bae48d9590e4",
+    "kind": "existing product asset"
+  },
+  {
+    "file": "assets/operations.webp",
+    "source": "public/landing/operations.webp",
+    "sha256": "5acca9ba7214cc5214d8a67c8d09242cb095eeaeb032af6f1aa83f2a34780017",
+    "kind": "existing product asset"
+  },
+  {
+    "file": "assets/geist-latin.woff2",
+    "source": "node_modules/next/dist/next-devtools/server/font/geist-latin.woff2",
+    "sha256": "1b5ebfb3a01a97343ac96873e6d59a8cb285c66012b6a1ac509cb2765e995ba8",
+    "kind": "font"
+  },
+  {
+    "file": "assets/ArrowUpRight-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "e4daeb33aec70fc76b41c0cd6d9be46f9bcbd1d20d66fb70fb7908f2852ae231"
+  },
+  {
+    "file": "assets/ArrowUpRight-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "bfc47f525ef4d0c23fdd4198046c4d844296471fc8a56f233fb23d08cf5f5127"
+  },
+  {
+    "file": "assets/Check-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "7116b88d84e62adf8798da97ada0175d47a22563d0eb2bcc7c11882093c6c170"
+  },
+  {
+    "file": "assets/Check-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "897b4988a5af3f606747cb21d1229b2a4b698a48979e88368f609fcd35b00fa6"
+  },
+  {
+    "file": "assets/ClipboardCheck-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "fcd84ab58804e5c0b63a186d7d6b0ccc4d58ba1f3787afe69ef958a17299a232"
+  },
+  {
+    "file": "assets/ClipboardCheck-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "8d92a7bdf09b04761b478d61a29ab7734ffd8b0b4f1fc139e2a1a66b29f8c739"
+  },
+  {
+    "file": "assets/Clock3-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "7b089482d8d4da2014330a5549aece16cd3cd82f4987af72987b285235398cb1"
+  },
+  {
+    "file": "assets/Clock3-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "97ab6d9d1a169564eb6428882fce65c66621bdaff72a3b64f3c44a9d5798e41b"
+  },
+  {
+    "file": "assets/FONT-LICENSE.txt",
+    "source": "Included asset license notice",
+    "kind": "license",
+    "sha256": "b69558b24a3d2be98ddca037aa8451e587b83ab5255d97ea74b4cf1d2831ac22"
+  },
+  {
+    "file": "assets/FileCheck2-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "29bdaf6907a994f949a948408e5f3ab0df8fac286f697f54f50c9137ff155c75"
+  },
+  {
+    "file": "assets/FileCheck2-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "9407563b980241653dcfd9baf5fb665daaff56393cf15391a2272823f4b12181"
+  },
+  {
+    "file": "assets/Geist-Bold.ttf",
+    "source": "Geist font from Next.js; converted and instantiated by prepare_assets.py",
+    "kind": "font; license in assets",
+    "sha256": "ebd42016c9302192952c85497a9e76881c3cf6f9a55fea493637887d461ba6e9"
+  },
+  {
+    "file": "assets/Geist-Medium.ttf",
+    "source": "Geist font from Next.js; converted and instantiated by prepare_assets.py",
+    "kind": "font; license in assets",
+    "sha256": "deed26915d406b21659a4f7dc8569105392a5f27490539479cc6f1b0b419fa09"
+  },
+  {
+    "file": "assets/Geist-Regular.ttf",
+    "source": "Geist font from Next.js; converted and instantiated by prepare_assets.py",
+    "kind": "font; license in assets",
+    "sha256": "4a0b98d6061bbf7f3fa848db17524df831ec742b3c96effffb832488687a8dcf"
+  },
+  {
+    "file": "assets/Geist.ttf",
+    "source": "Geist font from Next.js; converted and instantiated by prepare_assets.py",
+    "kind": "font; license in assets",
+    "sha256": "206991c6cca5b1cdb36b2e12007f1d2dddc4836262697fad190947329ada10db"
+  },
+  {
+    "file": "assets/GitBranch-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "2580b22393f1c50ace018cb8efa1b257f321d5080b09f3045fefe305196552e8"
+  },
+  {
+    "file": "assets/GitBranch-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "fc03c938b3f8c22a627dd9505391f81ace7bcf379026752e8f3618fdf595b5e5"
+  },
+  {
+    "file": "assets/Hand-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "ab59b45453dd54fb880b57b4e5baa3b248568ac98dec2cb308cade98deab72f4"
+  },
+  {
+    "file": "assets/Hand-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "6c8b7f0fd2e9041397e687450b3f1c3cb1502a133cfb1eedfe2adfbe2afcb135"
+  },
+  {
+    "file": "assets/LUCIDE-LICENSE.txt",
+    "source": "Included asset license notice",
+    "kind": "license",
+    "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+  },
+  {
+    "file": "assets/Layers3-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "3026f52955d4aeca8b7e18aa05e626c83bbf731c1c546c06de2830f0035d716a"
+  },
+  {
+    "file": "assets/Layers3-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "e3ea184d036e8200fe59b8c089eed69e08806104a550bf86897bb9cdd7410eef"
+  },
+  {
+    "file": "assets/Package-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "a8087f798e90f454c1a91f0fa36ee80e48c7c620a1ee5d52111f8c5de6adc4bf"
+  },
+  {
+    "file": "assets/Package-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "85571b4467bf87e9f02cd3367ba775b6daefbbcd603641470222213a1bbe3855"
+  },
+  {
+    "file": "assets/ShieldCheck-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "0ac6e2029f690de71425a873a5a55c2b4711b609ac0b17a3985862efb8e113b9"
+  },
+  {
+    "file": "assets/ShieldCheck-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "cbd776c814f5c20595d1af37c25c70fe3a1c15c480f957f05f497a6baf9180f1"
+  },
+  {
+    "file": "assets/Truck-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "f7686426f6cb8f15432a5fdf98a9f14ca2d69c37865b8d782c956c858bb0c2ae"
+  },
+  {
+    "file": "assets/Truck-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "3a1c7a4f811abe5a2310f7b1e47ce9696818a903b3c4b88e7abdc7f6196872da"
+  },
+  {
+    "file": "assets/Warehouse-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "ae08837adcdcce7c0e8084d32552a6be6a257cd4a8d5c9268e18ab96f6d97509"
+  },
+  {
+    "file": "assets/Warehouse-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "f04f84b05ef112b5d5669f3500e666d725dc9beb13c09896e560263f032c4afe"
+  },
+  {
+    "file": "assets/X-black.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "087033dc793eb7585edda827c5982d3eda1937b6d0ec3ad43a18789946f4ef70"
+  },
+  {
+    "file": "assets/X-white.png",
+    "source": "Installed lucide-react icon library via prepare-icons.mjs",
+    "kind": "licensed icon",
+    "sha256": "55ff98c75d181a3f9ef3374fe2895265f6da90564414ee704f1becde322f2069"
+  },
+  {
+    "file": "assets/dashboard-screen.png",
+    "source": "Local Lumbung demo app via capture-app.mjs, 2026-11-04",
+    "kind": "actual demo screenshot",
+    "sha256": "bdb6c6294972ce71606ce38c30cdb0d2ce5efe831790a934cba994dafdcaf49d"
+  },
+  {
+    "file": "assets/evidence-screen.png",
+    "source": "Local Lumbung demo app via capture-app.mjs, 2026-11-04",
+    "kind": "actual demo screenshot",
+    "sha256": "6026768e51106229578f2b1ec1078e7dcdc9c883b74e78b1ab554a4c0605baac"
+  },
+  {
+    "file": "assets/intake-screen.png",
+    "source": "Local Lumbung demo app via capture-app.mjs, 2026-11-04",
+    "kind": "actual demo screenshot",
+    "sha256": "1188c743a60d013349feee9fe10ae7f989d150b56c95caace068549bd2ce0b16"
+  },
+  {
+    "file": "assets/network-screen.png",
+    "source": "Local Lumbung demo app via capture-app.mjs, 2026-11-04",
+    "kind": "actual demo screenshot",
+    "sha256": "6c8bb6ee65bc9a997543696f7cc0ad0b1424f981c5f6318bfb5d4aff08b4f92b"
+  },
+  {
+    "file": "music-original.wav",
+    "source": "Original instrumental composition in render.py, seed 261104; no samples or speech",
+    "kind": "original music",
+    "sha256": "22189086b5824004b784c8dbcb42b6f4e419ae1f225bfcaddf06ebb1b53cf9ef"
+  },
+  {
+    "file": "assets/Geist-OFL.txt",
+    "source": "https://raw.githubusercontent.com/vercel/geist-font/main/OFL.txt",
+    "kind": "official font license",
+    "sha256": "c683bfbcc7e087f5d37a54ef628f10387c451a83ddc459b151403a164ac46c90"
+  }
+]

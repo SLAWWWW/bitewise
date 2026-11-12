@@ -1,0 +1,18 @@
+{
+  "title": "Lumbung — Every hand-off, accounted for",
+  "format": "text-led product film; no narration",
+  "duration": 60,
+  "fps": 30,
+  "scenes": [
+    {"id":"hook","start":0,"end":5,"text":["10 portions.","3 recipients.","One decision."],"meaning":"One donation must reach a suitable recipient within its collection window."},
+    {"id":"brand","start":5,"end":9,"text":["Meet lumbung.","Food redistribution. Connected."],"meaning":"Introduce the coordination workspace."},
+    {"id":"intake","start":9,"end":15,"text":["Start with the essentials.","Food. Quantity. Collection window."],"meaning":"Show the real intake interface and the fields that establish a donation."},
+    {"id":"eligibility","start":15,"end":22,"text":["Nearby isn't enough.","Safety. Eligibility. Available capacity."],"meaning":"A nearby recipient with no capacity is excluded; an eligible recipient with capacity remains."},
+    {"id":"matching","start":22,"end":29,"text":["See the match.","Understand the why.","Need. Logistics. Distribution history."],"meaning":"Show an actual demo recommendation, its quantity, score, and factors."},
+    {"id":"approval","start":29,"end":37,"text":["People stay in control.","Approve outreach.","Confirm logistics.","Approve delivery."],"meaning":"The donation waits at two separate human approval gates."},
+    {"id":"delivery","start":37,"end":43,"text":["Direct or via warehouse.","One coordinated hand-off."],"meaning":"Show the two supported paths without duplicating a donation."},
+    {"id":"evidence","start":43,"end":50,"text":["Proof completes the delivery.","Record receipts. Collect evidence.","Follow up on missing reports."],"meaning":"Trace the receipt, distribution evidence, and reporting follow-up."},
+    {"id":"audit","start":50,"end":56,"text":["One donation.","A traceable journey."],"meaning":"Connect the same donation's decisions and evidence in its audit trail."},
+    {"id":"close","start":56,"end":60,"text":["lumbung.","Every hand-off, accounted for."],"meaning":"Resolve the donation motif into the product identity."}
+  ]
+}

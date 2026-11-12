@@ -1,0 +1,799 @@
+[
+  {
+    "time": 3.9,
+    "text": [
+      {
+        "text": "ONE DONATION. A REAL DECISION.",
+        "bounds": [
+          112,
+          95,
+          547,
+          119
+        ]
+      },
+      {
+        "text": "10 portions.",
+        "bounds": [
+          112,
+          245.0,
+          731,
+          348.0
+        ]
+      },
+      {
+        "text": "3 recipients.",
+        "bounds": [
+          112,
+          390.0,
+          767,
+          493.0
+        ]
+      },
+      {
+        "text": "One decision.",
+        "bounds": [
+          112,
+          535.0,
+          822,
+          623.0
+        ]
+      },
+      {
+        "text": "10",
+        "bounds": [
+          1364.5,
+          482.56,
+          1455.5,
+          545.56
+        ]
+      },
+      {
+        "text": "A",
+        "bounds": [
+          1222.5,
+          239,
+          1257.5,
+          275
+        ]
+      },
+      {
+        "text": "B",
+        "bounds": [
+          1663.0,
+          479,
+          1697.0,
+          515
+        ]
+      },
+      {
+        "text": "C",
+        "bounds": [
+          1262.0,
+          769,
+          1298.0,
+          807
+        ]
+      },
+      {
+        "text": "ILLUSTRATIVE DONATION",
+        "bounds": [
+          112,
+          950,
+          400,
+          973
+        ]
+      }
+    ]
+  },
+  {
+    "time": 7.1,
+    "text": [
+      {
+        "text": "Meet",
+        "bounds": [
+          899.5,
+          335.0,
+          1020.5,
+          376.0
+        ]
+      },
+      {
+        "text": "lumbung.",
+        "bounds": [
+          582.0,
+          435,
+          1338.0,
+          587
+        ]
+      },
+      {
+        "text": "Food redistribution. Connected.",
+        "bounds": [
+          647.5,
+          675,
+          1272.5,
+          713
+        ]
+      }
+    ]
+  },
+  {
+    "time": 13.5,
+    "text": [
+      {
+        "text": "01 / CAPTURE THE DONATION",
+        "bounds": [
+          112,
+          95,
+          490,
+          123
+        ]
+      },
+      {
+        "text": "Start with",
+        "bounds": [
+          112,
+          182,
+          577,
+          259
+        ]
+      },
+      {
+        "text": "the essentials.",
+        "bounds": [
+          112,
+          291,
+          784,
+          367
+        ]
+      },
+      {
+        "text": "One clear starting point.",
+        "bounds": [
+          116,
+          435,
+          543,
+          474
+        ]
+      },
+      {
+        "text": "lumbung / new donation",
+        "bounds": [
+          624.0,
+          552.0,
+          898.0,
+          580.0
+        ]
+      },
+      {
+        "text": "DEMO",
+        "bounds": [
+          1697.0,
+          552.0,
+          1766.0,
+          574.0
+        ]
+      },
+      {
+        "text": "Food",
+        "bounds": [
+          188,
+          548,
+          270,
+          577
+        ]
+      },
+      {
+        "text": "Quantity",
+        "bounds": [
+          188,
+          661,
+          325,
+          696
+        ]
+      },
+      {
+        "text": "Collection window",
+        "bounds": [
+          188,
+          774,
+          476,
+          805
+        ]
+      }
+    ]
+  },
+  {
+    "time": 20.7,
+    "text": [
+      {
+        "text": "02 / CHECK THE FIT",
+        "bounds": [
+          112,
+          95,
+          364,
+          123
+        ]
+      },
+      {
+        "text": "Nearby isn't enough.",
+        "bounds": [
+          471.5,
+          165,
+          1448.5,
+          259
+        ]
+      },
+      {
+        "text": "Safety. Eligibility. Available capacity.",
+        "bounds": [
+          649.0,
+          300,
+          1271.0,
+          339
+        ]
+      },
+      {
+        "text": "10",
+        "bounds": [
+          929.0,
+          441.04,
+          991.0,
+          486.04
+        ]
+      },
+      {
+        "text": "Recipient A",
+        "bounds": [
+          270.5,
+          690,
+          489.5,
+          729
+        ]
+      },
+      {
+        "text": "Nearby \u00b7 0 capacity",
+        "bounds": [
+          254.5,
+          754,
+          505.5,
+          784
+        ]
+      },
+      {
+        "text": "Excluded",
+        "bounds": [
+          331.5,
+          817,
+          456.5,
+          843
+        ]
+      },
+      {
+        "text": "Recipient B",
+        "bounds": [
+          851.0,
+          690,
+          1069.0,
+          729
+        ]
+      },
+      {
+        "text": "Eligible \u00b7 room for 10",
+        "bounds": [
+          827.5,
+          754,
+          1092.5,
+          784
+        ]
+      },
+      {
+        "text": "Suggested",
+        "bounds": [
+          902.5,
+          817,
+          1045.5,
+          847
+        ]
+      },
+      {
+        "text": "Recipient C",
+        "bounds": [
+          1430.0,
+          690,
+          1650.0,
+          730
+        ]
+      },
+      {
+        "text": "Agreement expired",
+        "bounds": [
+          1415.0,
+          754,
+          1665.0,
+          784
+        ]
+      },
+      {
+        "text": "Excluded",
+        "bounds": [
+          1491.5,
+          817,
+          1616.5,
+          843
+        ]
+      },
+      {
+        "text": "ILLUSTRATIVE DEMO \u00b7 ELIGIBILITY BEFORE ALLOCATION",
+        "bounds": [
+          650.0,
+          970,
+          1270.0,
+          993
+        ]
+      }
+    ]
+  },
+  {
+    "time": 26.2,
+    "text": [
+      {
+        "text": "03 / EXPLAIN THE RECOMMENDATION",
+        "bounds": [
+          112,
+          95,
+          596,
+          123
+        ]
+      },
+      {
+        "text": "See the match.",
+        "bounds": [
+          112,
+          185,
+          769,
+          258
+        ]
+      },
+      {
+        "text": "Understand the why.",
+        "bounds": [
+          112,
+          291,
+          1018,
+          374
+        ]
+      },
+      {
+        "text": "lumbung / selected recommendation",
+        "bounds": [
+          769.0,
+          472.0,
+          1179.0,
+          500.0
+        ]
+      },
+      {
+        "text": "DEMO",
+        "bounds": [
+          1712.0,
+          472.0,
+          1781.0,
+          494.0
+        ]
+      },
+      {
+        "text": "Need",
+        "bounds": [
+          170,
+          574,
+          251,
+          602
+        ]
+      },
+      {
+        "text": "Logistics",
+        "bounds": [
+          170,
+          669,
+          304,
+          702
+        ]
+      },
+      {
+        "text": "Distribution history",
+        "bounds": [
+          170,
+          764,
+          443,
+          797
+        ]
+      },
+      {
+        "text": "Real demo result.",
+        "bounds": [
+          112,
+          910,
+          335,
+          936
+        ]
+      },
+      {
+        "text": "Scores you can inspect.",
+        "bounds": [
+          112,
+          955,
+          417,
+          985
+        ]
+      }
+    ]
+  },
+  {
+    "time": 35.9,
+    "text": [
+      {
+        "text": "04 / KEEP PEOPLE IN CONTROL",
+        "bounds": [
+          112,
+          95,
+          511,
+          123
+        ]
+      },
+      {
+        "text": "People stay in control.",
+        "bounds": [
+          424.5,
+          180,
+          1495.5,
+          273
+        ]
+      },
+      {
+        "text": "Outreach approval",
+        "bounds": [
+          429.0,
+          810,
+          731.0,
+          847
+        ]
+      },
+      {
+        "text": "APPROVED",
+        "bounds": [
+          511.0,
+          872,
+          649.0,
+          895
+        ]
+      },
+      {
+        "text": "Delivery approval",
+        "bounds": [
+          1198.0,
+          810,
+          1482.0,
+          846
+        ]
+      },
+      {
+        "text": "APPROVED",
+        "bounds": [
+          1271.0,
+          872,
+          1409.0,
+          895
+        ]
+      },
+      {
+        "text": "10",
+        "bounds": [
+          1692.32224,
+          581.28,
+          1740.32224,
+          616.28
+        ]
+      },
+      {
+        "text": "Logistics",
+        "bounds": [
+          893.0,
+          395,
+          1027.0,
+          426
+        ]
+      },
+      {
+        "text": "confirmed",
+        "bounds": [
+          883.0,
+          438,
+          1037.0,
+          465
+        ]
+      },
+      {
+        "text": "The plan moves forward when your team approves.",
+        "bounds": [
+          606.0,
+          980,
+          1314.0,
+          1011
+        ]
+      }
+    ]
+  },
+  {
+    "time": 41.5,
+    "text": [
+      {
+        "text": "05 / COORDINATE THE HAND-OFF",
+        "bounds": [
+          112,
+          95,
+          540,
+          123
+        ]
+      },
+      {
+        "text": "Direct or via warehouse.",
+        "bounds": [
+          398.5,
+          185,
+          1521.5,
+          261
+        ]
+      },
+      {
+        "text": "One coordinated hand-off.",
+        "bounds": [
+          732.5,
+          318,
+          1187.5,
+          352
+        ]
+      },
+      {
+        "text": "Donor",
+        "bounds": [
+          220.5,
+          762,
+          319.5,
+          791
+        ]
+      },
+      {
+        "text": "Recipient",
+        "bounds": [
+          1562.5,
+          762,
+          1717.5,
+          796
+        ]
+      },
+      {
+        "text": "DIRECT",
+        "bounds": [
+          897,
+          422,
+          986,
+          445
+        ]
+      },
+      {
+        "text": "Warehouse",
+        "bounds": [
+          880.0,
+          975,
+          1040.0,
+          1002
+        ]
+      },
+      {
+        "text": "10",
+        "bounds": [
+          1587.5766470806568,
+          610.6320205095337,
+          1632.5766470806568,
+          643.6320205095337
+        ]
+      }
+    ]
+  },
+  {
+    "time": 48.8,
+    "text": [
+      {
+        "text": "06 / CLOSE THE REPORTING LOOP",
+        "bounds": [
+          112,
+          95,
+          549,
+          123
+        ]
+      },
+      {
+        "text": "Proof completes",
+        "bounds": [
+          112,
+          184,
+          859,
+          269
+        ]
+      },
+      {
+        "text": "the delivery.",
+        "bounds": [
+          112,
+          290,
+          668,
+          376
+        ]
+      },
+      {
+        "text": "lumbung / reporting obligations",
+        "bounds": [
+          136,
+          542,
+          490,
+          570
+        ]
+      },
+      {
+        "text": "DEMO",
+        "bounds": [
+          1059,
+          542,
+          1128,
+          564
+        ]
+      },
+      {
+        "text": "Receipt recorded",
+        "bounds": [
+          1290,
+          547.0,
+          1572,
+          583.0
+        ]
+      },
+      {
+        "text": "Evidence collected",
+        "bounds": [
+          1290,
+          692.0,
+          1600,
+          723.0
+        ]
+      },
+      {
+        "text": "Missing report?",
+        "bounds": [
+          1290,
+          837.0,
+          1550,
+          874.0
+        ]
+      },
+      {
+        "text": "Follow-up stays visible.",
+        "bounds": [
+          1290,
+          890.0,
+          1597,
+          920.0
+        ]
+      }
+    ]
+  },
+  {
+    "time": 54.5,
+    "text": [
+      {
+        "text": "07 / KEEP THE FULL PICTURE",
+        "bounds": [
+          112,
+          95,
+          483,
+          123
+        ]
+      },
+      {
+        "text": "One donation.",
+        "bounds": [
+          614.5,
+          185,
+          1305.5,
+          267
+        ]
+      },
+      {
+        "text": "A traceable journey.",
+        "bounds": [
+          459.0,
+          316,
+          1461.0,
+          411
+        ]
+      },
+      {
+        "text": "Recorded",
+        "bounds": [
+          195.5,
+          783,
+          344.5,
+          811
+        ]
+      },
+      {
+        "text": "Matched",
+        "bounds": [
+          541.5,
+          783,
+          678.5,
+          811
+        ]
+      },
+      {
+        "text": "Approved",
+        "bounds": [
+          874.5,
+          783,
+          1025.5,
+          816
+        ]
+      },
+      {
+        "text": "Delivered",
+        "bounds": [
+          1216.0,
+          783,
+          1364.0,
+          811
+        ]
+      },
+      {
+        "text": "Evidence",
+        "bounds": [
+          1559.0,
+          783,
+          1701.0,
+          811
+        ]
+      },
+      {
+        "text": "Decisions and evidence. Connected.",
+        "bounds": [
+          674.5,
+          925,
+          1245.5,
+          958
+        ]
+      }
+    ]
+  },
+  {
+    "time": 58.7,
+    "text": [
+      {
+        "text": "lumbung.",
+        "bounds": [
+          564.5,
+          400.0,
+          1355.5,
+          557.0
+        ]
+      },
+      {
+        "text": "Every hand-off, accounted for.",
+        "bounds": [
+          630.5,
+          650,
+          1289.5,
+          696
+        ]
+      }
+    ]
+  }
+]
