@@ -11,9 +11,9 @@ import {
 import { navForCapabilities, NAV_ITEMS, isActive } from '@/src/ui/nav';
 
 describe('capability vocabulary (G.3)', () => {
-  it('has exactly the 39 contract capabilities, unique', () => {
-    expect(CAPABILITIES).toHaveLength(39);
-    expect(new Set(CAPABILITIES).size).toBe(39);
+  it('has exactly the 45 contract capabilities, unique', () => {
+    expect(CAPABILITIES).toHaveLength(45);
+    expect(new Set(CAPABILITIES).size).toBe(45);
   });
 
   it('role bundles only use known capabilities', () => {
@@ -36,6 +36,12 @@ describe('capability vocabulary (G.3)', () => {
   it('auditors cannot approve anything', () => {
     expect(ROLE_CAPABILITIES.AUDITOR).toEqual(['flo.read', 'audit.read']);
     for (const c of HUMAN_ONLY_CAPABILITIES) expect(ROLE_CAPABILITIES.AUDITOR).not.toContain(c);
+  });
+
+  it('volunteers can claim and progress routes without staff powers', () => {
+    expect(ROLE_CAPABILITIES.VOLUNTEER).toEqual(['route.read', 'route.claim', 'route.progress']);
+    expect(ROLE_CAPABILITIES.VOLUNTEER).not.toContain('dispatch.approve');
+    expect(ROLE_CAPABILITIES.VOLUNTEER).not.toContain('delivery.receive');
   });
 });
 
@@ -84,6 +90,8 @@ describe('navigation config', () => {
       'nav.flo',
       'nav.persediaan',
       'nav.pengiriman',
+      'nav.rute',
+      'nav.relawan',
       'nav.pesan',
       'nav.pelaporan',
       'nav.pengaturan',

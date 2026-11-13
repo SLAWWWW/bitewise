@@ -13,7 +13,7 @@ import { maskAddress } from '@/src/security/crypto';
 // ---------------------------------------------------------------------------
 // Staff users (G.3)
 // ---------------------------------------------------------------------------
-export type UserKey = 'ADMIN' | 'KOORD1' | 'KOORD2' | 'GUDANG1' | 'GUDANG2' | 'REVIEW_AGR' | 'REVIEW_EVD' | 'AUDITOR';
+export type UserKey = 'ADMIN' | 'KOORD1' | 'KOORD2' | 'GUDANG1' | 'GUDANG2' | 'REVIEW_AGR' | 'REVIEW_EVD' | 'AUDITOR' | 'VOL1' | 'VOL2';
 
 export const STAFF: readonly { key: UserKey; name: string; local: string; roles: Role[] }[] = [
   { key: 'ADMIN', name: 'Admin Demo', local: 'admin', roles: ['ADMIN', 'COORDINATOR'] },
@@ -24,6 +24,8 @@ export const STAFF: readonly { key: UserKey; name: string; local: string; roles:
   { key: 'REVIEW_AGR', name: 'Peninjau Perjanjian Demo', local: 'peninjau.perjanjian', roles: ['AGREEMENT_REVIEWER'] },
   { key: 'REVIEW_EVD', name: 'Peninjau Bukti Demo', local: 'peninjau.bukti', roles: ['EVIDENCE_REVIEWER'] },
   { key: 'AUDITOR', name: 'Auditor Demo', local: 'auditor', roles: ['AUDITOR'] },
+  { key: 'VOL1', name: 'Relawan Motor Demo', local: 'relawan.motor', roles: ['VOLUNTEER'] },
+  { key: 'VOL2', name: 'Relawan Mobil Demo', local: 'relawan.mobil', roles: ['VOLUNTEER'] },
 ];
 
 // ---------------------------------------------------------------------------
@@ -248,6 +250,21 @@ export function buildReference(ds: Dataset, cfg: SeedConfig, clock: Clock, ids: 
       capabilities: capabilitiesForRoles(s.roles), status: 'ACTIVE', created_at: setup, updated_at: setup,
     });
   }
+
+  ds.add('volunteer_profiles', {
+    id: ids.id('volunteer_profile', 'VOL1'), tenant_id: tenantId, user_id: users.VOL1, status: 'ACTIVE',
+    vehicle_type: 'MOTORBIKE', max_load_kg: '25', refrigerated: false, home_area: 'Jakarta Timur',
+    available_dows: [1, 2, 3, 4, 5, 6], available_start: '07:00', available_end: '18:00',
+    availability_note: 'Siap untuk rute makanan kering dan porsi siap antar (simulasi).', revision: 1,
+    created_at: setup, created_by: users.ADMIN, updated_at: setup,
+  });
+  ds.add('volunteer_profiles', {
+    id: ids.id('volunteer_profile', 'VOL2'), tenant_id: tenantId, user_id: users.VOL2, status: 'ACTIVE',
+    vehicle_type: 'CAR', max_load_kg: '120', refrigerated: false, home_area: 'Jakarta Selatan',
+    available_dows: [3, 4, 5, 6, 7], available_start: '08:00', available_end: '20:00',
+    availability_note: 'Cocok untuk muatan besar; konfirmasi sehari sebelumnya (simulasi).', revision: 1,
+    created_at: setup, created_by: users.ADMIN, updated_at: setup,
+  });
 
   ds.add('tenant_clocks', { tenant_id: tenantId, mode: 'FROZEN', sim_anchor: iso(T), real_anchor: null, created_at: setup, updated_at: setup });
 

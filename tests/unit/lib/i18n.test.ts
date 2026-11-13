@@ -17,7 +17,7 @@ describe('i18n', () => {
   });
 
   it('registers all implemented namespaces', () => {
-    expect([...NAMESPACES]).toEqual(['common', 'flo', 'settings', 'dashboard', 'audit', 'direct', 'ops']);
+    expect([...NAMESPACES]).toEqual(['common', 'flo', 'settings', 'dashboard', 'audit', 'direct', 'ops', 'volunteer']);
     for (const ns of NAMESPACES) {
       expect(DICTIONARIES.id[ns]).toBeTypeOf('object');
       expect(DICTIONARIES.en[ns]).toBeTypeOf('object');

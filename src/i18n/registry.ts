@@ -21,11 +21,13 @@ import enDirect from './en/direct';
 
 import idOps from './id/ops';
 import enOps from './en/ops';
+import idVolunteer from './id/volunteer';
+import enVolunteer from './en/volunteer';
 
-export const NAMESPACES = ['common', 'flo', 'settings', 'dashboard', 'audit', 'direct', 'ops'] as const;
+export const NAMESPACES = ['common', 'flo', 'settings', 'dashboard', 'audit', 'direct', 'ops', 'volunteer'] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
 export const DICTIONARIES: Record<Locale, Record<Namespace, Dict>> = {
-  id: { common: idCommon, flo: idFlo, settings: idSettings, dashboard: idDashboard, audit: idAudit, direct: idDirect, ops: idOps },
-  en: { common: enCommon, flo: enFlo, settings: enSettings, dashboard: enDashboard, audit: enAudit, direct: enDirect, ops: enOps },
+  id: { common: idCommon, flo: idFlo, settings: idSettings, dashboard: idDashboard, audit: idAudit, direct: idDirect, ops: idOps, volunteer: idVolunteer },
+  en: { common: enCommon, flo: enFlo, settings: enSettings, dashboard: enDashboard, audit: enAudit, direct: enDirect, ops: enOps, volunteer: enVolunteer },
 };

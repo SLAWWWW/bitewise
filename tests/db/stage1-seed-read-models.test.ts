@@ -136,7 +136,7 @@ describe('seeded tenant through the app read models (lumbung_app, RLS)', () => {
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
-  it('the pre-login demo directory lists exactly the 8 seeded staff users per demo tenant', async () => {
+  it('the pre-login demo directory lists exactly the 10 seeded users per demo tenant', async () => {
     const rows = await withAppTx(
       { tenantId: null, userId: null, actorKind: 'SYSTEM', correlationId: 'dir' },
       (c) =>
@@ -156,6 +156,8 @@ describe('seeded tenant through the app read models (lumbung_app, RLS)', () => {
       'Koordinator Demo 2',
       'Peninjau Bukti Demo',
       'Peninjau Perjanjian Demo',
+      'Relawan Mobil Demo',
+      'Relawan Motor Demo',
     ]);
     expect(rows.rows.every((r) => r.tenant_mode === 'DEMO')).toBe(true);
   });

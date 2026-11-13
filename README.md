@@ -23,6 +23,8 @@ with English available. All times are shown in WIB (Asia/Jakarta).
   outbox recovery, audit, CSV preview/commit/export and external identity mapping.
 - Pilot policy versions, membership capabilities, operational metrics, category
   fairness diagnostics, paginated lists and one bundled font across the app.
+- Volunteer driver profiles, availability and vehicle capacity; coordinator route
+  publishing/assignment; and a mobile claim, pickup, drop-off and exception workflow.
 
 Live messaging, model and registry integrations remain disabled. FoodCycle's
 production decisions in PRD §27 are required before live activation; the demo
@@ -120,6 +122,23 @@ npm run worker                 # durable expirations + simulated message process
 Urgent reservations last 15 simulated minutes. **Pengaturan → Majukan waktu** uses
 the same handlers as the worker. Expired offers cannot be resurrected. Use
 `npm run db:reset` to restore the synthetic dataset; reset is intentionally an owner CLI operation; the web process does not reset the database. Never use the reset command against a live tenant.
+
+## Volunteer driver walkthrough
+
+1. Sign in as **Koordinator Demo 1**. Open **Relawan** to review vehicle capacity,
+   weekly availability and active routes for the two seeded volunteer drivers.
+2. Open **Rute relawan**. Publish a direct delivery only after staff approval has
+   put it in `READY_FOR_PICKUP`; optionally assign an active volunteer immediately.
+3. Sign in as **Relawan Motor Demo**. Claim an available route, then progress through
+   travel, pickup, drop-off and handover from the mobile route card.
+4. Pickup invokes the existing dispatch boundary again: agreement, approval,
+   reservation, safety eligibility and pickup-window checks still have to pass.
+5. Handover is not an FLO receipt. The recipient or authorised staff separately
+   records inspection observations and accepted/rejected quantities. Route failures
+   create a high-priority operations task and remain in the audit trail.
+
+Volunteer routes intentionally support approved `DIRECT` deliveries only. Warehouse
+receiving, picking and dispatch stay with warehouse roles.
 
 The database suite covers permissions, seed/reset determinism, direct and warehouse
 source races, capacity locks, partial acceptance, stale approvals, correction

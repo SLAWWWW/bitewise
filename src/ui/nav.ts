@@ -17,6 +17,8 @@ export type NavIcon =
   | 'Users'
   | 'Warehouse'
   | 'Truck'
+  | 'Route'
+  | 'UserRoundCheck'
   | 'MessageSquare'
   | 'ClipboardCheck'
   | 'Settings'
@@ -82,6 +84,22 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: 'Truck',
     anyOf: ['delivery.dispatch', 'delivery.receive', 'dispatch.approve', 'audit.read'],
     stage: 2,
+  },
+  {
+    href: '/rute',
+    labelKey: 'nav.rute',
+    hintKey: 'nav.hint.rute',
+    icon: 'Route',
+    anyOf: ['route.read', 'route.manage', 'route.claim', 'route.progress'],
+    stage: 5,
+  },
+  {
+    href: '/relawan',
+    labelKey: 'nav.relawan',
+    hintKey: 'nav.hint.relawan',
+    icon: 'UserRoundCheck',
+    anyOf: ['volunteer.read', 'volunteer.manage'],
+    stage: 5,
   },
   {
     href: '/pesan',

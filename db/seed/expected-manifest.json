@@ -1,7 +1,7 @@
 {
   "seed": 20261026,
   "clock": "2026-10-26T01:00:00.000Z",
-  "schema_version": 93,
+  "schema_version": 95,
   "counts": {
     "activation_decisions_not_decided": 10,
     "agreements_by_review_state": {
@@ -64,7 +64,8 @@
     "deliveries_by_state": {
       "IN_TRANSIT": 4,
       "PARTIALLY_RECEIVED": 40,
-      "PLANNED": 3,
+      "PLANNED": 1,
+      "READY_FOR_PICKUP": 2,
       "RECEIVED": 460
     },
     "dispositions": 6,
@@ -172,13 +173,14 @@
     },
     "media_duplicates": 2,
     "media_files": 1213,
-    "memberships": 8,
+    "memberships": 10,
     "memberships_by_role": {
       "ADMIN+COORDINATOR": 1,
       "AGREEMENT_REVIEWER": 1,
       "AUDITOR": 1,
       "COORDINATOR": 2,
       "EVIDENCE_REVIEWER": 1,
+      "VOLUNTEER": 2,
       "WAREHOUSE": 1,
       "WAREHOUSE_SUPERVISOR": 1
     },
@@ -245,6 +247,16 @@
       "REFUSED": 18
     },
     "unit_conversions": 7,
+    "volunteer_profiles": 2,
+    "volunteer_profiles_by_vehicle": {
+      "CAR": 1,
+      "MOTORBIKE": 1
+    },
+    "volunteer_routes": 2,
+    "volunteer_routes_by_state": {
+      "CLAIMED": 1,
+      "OPEN": 1
+    },
     "warehouses": 2
   }
 }

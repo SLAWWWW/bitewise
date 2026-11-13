@@ -70,8 +70,9 @@ describe('seed marginals (PRD §24)', () => {
 
 describe('seed volumes (PRD §24 / architecture B)', () => {
   it('reference data', () => {
-    expect(rows('users')).toHaveLength(8);
-    expect(rows('memberships')).toHaveLength(8);
+    expect(rows('users')).toHaveLength(10);
+    expect(rows('memberships')).toHaveLength(10);
+    expect(rows('volunteer_profiles')).toHaveLength(2);
     expect(rows('clusters')).toHaveLength(20);
     expect(by('clusters', 'area')).toEqual({ BEKASI: 4, BOGOR: 3, DEPOK: 3, JAKARTA: 6, TANGERANG: 4 });
     expect(rows('categories')).toHaveLength(6);

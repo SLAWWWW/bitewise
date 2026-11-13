@@ -596,7 +596,7 @@ export function buildHistory(ds: Dataset, clock: Clock, ids: Ids, streams: Strea
       const deliveryId = ids.id('delivery', s.key);
       const dlineId = ids.id('delivery_line', s.key);
       const custodian = transport?.method === 'SELF_PICKUP' ? 'FLO' : 'COURIER';
-      const dState = label === 'RECEIVED' ? 'RECEIVED' : label === 'PARTIAL' ? 'PARTIALLY_RECEIVED' : label === 'DISPATCHED' ? 'IN_TRANSIT' : 'PLANNED';
+      const dState = label === 'RECEIVED' ? 'RECEIVED' : label === 'PARTIAL' ? 'PARTIALLY_RECEIVED' : label === 'DISPATCHED' ? 'IN_TRANSIT' : label === 'APPROVED' && !isWh ? 'READY_FOR_PICKUP' : 'PLANNED';
       ds.add('deliveries', {
         id: deliveryId, tenant_id: tenantId, code: s.deliveryCode, route: isWh ? 'WAREHOUSE_OUTBOUND' : 'DIRECT',
         source_location_id: s.source.id, destination_flo_id: f.id, state: dState, custodian: dispatchedAt === null ? null : custodian,
@@ -612,6 +612,18 @@ export function buildHistory(ds: Dataset, clock: Clock, ids: Ids, streams: Strea
         dispatched_qty: dispatchedAt === null ? null : formatQty(allocQty), picked_qty: dispatchedAt === null ? null : formatQty(allocQty),
         created_at: iso(finalAt!), updated_at: iso(dispatchedAt ?? finalAt!),
       });
+      if (label === 'APPROVED' && !isWh) {
+        const claimed = s.rank % 2 === 0;
+        ds.add('volunteer_routes', {
+          id: ids.id('volunteer_route', s.key), tenant_id: tenantId, delivery_id: deliveryId,
+          volunteer_user_id: claimed ? users.VOL1 : null, state: claimed ? 'CLAIMED' : 'OPEN',
+          published_at: iso(finalAt! + MIN), published_by: users.KOORD1,
+          claimed_at: claimed ? iso(finalAt! + 2 * MIN) : null, assigned_by: null,
+          started_at: null, pickup_arrived_at: null, picked_up_at: null, dropoff_arrived_at: null,
+          handoff_at: null, handoff_note: null, failure_code: null, failure_note: null, revision: 1,
+          created_at: iso(finalAt! + MIN), created_by: users.KOORD1, updated_at: iso(finalAt! + (claimed ? 2 : 1) * MIN),
+        });
+      }
       if (dispatchedAt !== null) {
         addAudit(ds, ids, {
           key: `dispatch:${s.key}`, actorId: isWh ? users.GUDANG1 : users.KOORD1, action: 'DELIVERY_DISPATCHED', subjectType: 'DELIVERY',

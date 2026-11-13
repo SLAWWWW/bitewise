@@ -68,6 +68,7 @@ Bootstrap takes the role passwords from the userinfo of `DATABASE_OWNER_URL` and
 | 0013_agreement_commands | (W2-FLO) fixes `agreement_valid_at` for the app role (the 0005 body called the owner-only `_for` variant); FLO/need/agreement command functions; shared internal helpers `lb_raise`, `idem_begin`, `idem_complete`, `append_audit`, `emit_event`, `agreement_json`; S2 hook `on_agreement_revoked` |
 | 0014_stage1_integration | `demo_login_directory()` (pre-login demo directory); `GRANT SELECT (version, name) ON schema_migrations` to the app for `/api/health` |
 | 0015_agreement_history_ordering | Stage-1 review fixes. Agreements: supersession **caps** a version (`superseded_from`, `superseded_at`, `superseded_by_id`, generated `effective_until`) instead of erasing it — an earlier-starting version stays APPROVED until its successor starts, a fully covered one becomes SUPERSEDED; `LB:AGREEMENT_RESOLUTION_GAP` refuses a resolution that would leave the FLO uncovered now. `agreement_valid_at[_for]` use `effective_until`; new owner-only `agreement_was_valid_at_for` (historical, as recorded at the time: REVOKED before `revoked_at`, capped/SUPERSEDED on the legal interval before `superseded_at`) is used by `verify_tenant_invariants` for HANDOVER/DISPATCH checks. Document interpretation (`document_end_date`, `end_date_interpretation` THROUGH_INCLUSIVE/UNTIL_EXCLUSIVE, `interpretation_note`) — `upload_agreement` now has 9 parameters and requires it. `seq bigint` identity tie-breaker on `audit_events`, `domain_events`, `need_assessments` |
+| 0095_volunteer_dispatch | Volunteer profiles and availability, published direct-delivery routes, atomic claim/assignment/progress commands, audited exceptions, and volunteer route capabilities |
 
 ### Conventions
 
@@ -177,6 +178,7 @@ Every function has `REVOKE ALL ... FROM PUBLIC`. Default privileges also remove 
 | `on_agreement_revoked(uuid, uuid, text)` (0020) | invoker | **no** | Cancels undispatched direct commitments, releases holds, invalidates approvals, creates review tasks |
 | `demo_login_directory()` (0014) | **definer** | yes | pre-login, DEMO/TEST demo tenants only; **no `require_ctx` by design** (allow-listed in rls-catalog) |
 | `direct_command(action, subject, payload, key, hash)` (0021) | **definer** | yes | Fixed action/capability map; staff-only simulated direct commands; no arbitrary state PATCH |
+| `volunteer_command(action, subject, payload, key, hash)` (0095) | **definer** | yes | Profile management plus atomic publish/claim/assign/progress. Pickup delegates to the existing direct-dispatch checks; handover cannot create an FLO receipt. |
 | `direct_features(item, receipt, distribution)` (0022) | **definer** | yes | `allocation.run`; scoped deterministic inputs, including eligibility reasons |
 | `save_direct_run(...)` (0022) | **definer** | yes | `allocation.run`; revision/policy-bound snapshots from the server planner |
 | `run_direct_due()` (0023) | **definer** | yes | `reservation.release`; USER/WORKER; transactional expiry handlers, retries and terminal tasks |

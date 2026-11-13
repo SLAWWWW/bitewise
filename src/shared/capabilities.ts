@@ -20,6 +20,12 @@ export const CAPABILITIES = [
   'dispatch.approve',
   'delivery.dispatch',
   'delivery.receive',
+  'volunteer.read',
+  'volunteer.manage',
+  'route.read',
+  'route.manage',
+  'route.claim',
+  'route.progress',
   'reservation.release',
   'receipt.correct',
   'receipt.correct.approve',
@@ -59,6 +65,7 @@ export const ROLES = [
   'AGREEMENT_REVIEWER',
   'EVIDENCE_REVIEWER',
   'AUDITOR',
+  'VOLUNTEER',
 ] as const;
 export type Role = (typeof ROLES)[number];
 
@@ -84,6 +91,10 @@ export const ROLE_CAPABILITIES: Record<Role, readonly Capability[]> = {
     'demo.reset',
     'import.preview',
     'import.commit',
+    'volunteer.read',
+    'volunteer.manage',
+    'route.read',
+    'route.manage',
   ],
   COORDINATOR: [
     'flo.read',
@@ -100,6 +111,10 @@ export const ROLE_CAPABILITIES: Record<Role, readonly Capability[]> = {
     'dispatch.approve',
     'delivery.dispatch',
     'delivery.receive',
+    'volunteer.read',
+    'volunteer.manage',
+    'route.read',
+    'route.manage',
     'reservation.release',
     'receipt.correct',
     'evidence.submit',
@@ -113,6 +128,7 @@ export const ROLE_CAPABILITIES: Record<Role, readonly Capability[]> = {
   AGREEMENT_REVIEWER: ['flo.read', 'agreement.upload', 'agreement.review', 'audit.read'],
   EVIDENCE_REVIEWER: ['flo.read', 'evidence.review', 'evidence.excuse', 'media.sensitive.read', 'audit.read'],
   AUDITOR: ['flo.read', 'audit.read'],
+  VOLUNTEER: ['route.read', 'route.claim', 'route.progress'],
 };
 
 /** Union of the capabilities of several roles, deduplicated, in CAPABILITIES order. */
