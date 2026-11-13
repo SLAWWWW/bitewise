@@ -1,18 +1,20 @@
 'use client';
 import { cloneElement, isValidElement, useId, useState, type FormEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckCircle2, ClipboardCheck, Info, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useCommand } from '@/components/flo/useCommand';
 import { useT } from '@/src/i18n/client';
 import type { Allocation, Delivery, IntakeReferences, Offer } from '@/src/application/direct/queries';
 import {formatQty,parseDbQty} from '@/src/lib/qty';
 import type { Plan } from '@/src/domain/allocation/planner';
+import styles from './DeliveryExperience.module.css';
 
 export function localInput(instant: string, hours = 0) { return new Date(Date.parse(instant) + (7 + hours) * 3600000).toISOString().slice(0,16); }
 function instant(value: FormDataEntryValue | null) { return `${String(value)}:00+07:00`; }
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   const id=useId();
-  return <div className="direct-field"><label htmlFor={id}>{label}</label>{isValidElement<{id?:string}>(children)?cloneElement(children,{id}):children}</div>;
+  return <div className={`direct-field ${className??''}`.trim()}><label htmlFor={id}>{label}</label>{isValidElement<{id?:string}>(children)?cloneElement(children,{id}):children}</div>;
 }
 function Status({ error, result }: { error: { code: string; message: string } | null; result: unknown }) {
   const t = useT('direct');
@@ -120,18 +122,60 @@ export function TransportForm({ allocation:a, allowed }: { allocation:Allocation
 }
 export function DeliveryActions({ delivery:d, dispatchAllowed, receiveAllowed }: { delivery:Delivery; dispatchAllowed:boolean; receiveAllowed:boolean }) {
   const t=useT('direct');const cmd=useCommand();const receiving=d.state==='IN_TRANSIT';
-  return <form className="direct-form" onSubmit={async e=>{
+  const [checks,setChecks]=useState<Record<string,string>>({smell:'PASS',appearance:'PASS',texture:'PASS',packaging:'PASS',taste:'NOT_PERFORMED'});
+  const concern=Object.values(checks).includes('CONCERN');
+  const submit=async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();const f=new FormData(e.currentTarget);await cmd.run(`/api/deliveries/${d.id}/${receiving?'receive':'dispatch'}`,'POST',{
       expected_revision:d.revision,...(receiving?{accepted_quantity:String(f.get('accepted')),rejected_quantity:String(f.get('rejected')),reason:String(f.get('reason')),
         inspection:{smell:f.get('smell'),appearance:f.get('appearance'),texture:f.get('texture'),packaging:f.get('packaging'),taste:f.get('taste'),notes:String(f.get('inspection_notes'))}}:{custodian:String(f.get('custodian'))})});
-  }}>
-    {receiving?<><Field label={`${t('accepted')} (${d.lines[0]?.unit})`}><input name="accepted" inputMode="decimal" required defaultValue={formatQty(d.lines.reduce((total,line)=>total+parseDbQty(line.dispatched_qty??'0'),0n))}/></Field>
-    <Field label={t('rejected')}><input name="rejected" inputMode="decimal" required defaultValue="0"/></Field>
-    {(['smell','appearance','texture','packaging'] as const).map(name=><Field key={name} label={t(name)}><select name={name}><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></Field>)}
-    <Field label={t('taste')}><select name="taste"><option value="NOT_PERFORMED">{t('notPerformed')}</option><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></Field>
-    <p className="text-caption">{t('tasteCaveat')}</p><Field label={t('inspectionNotes')}><input name="inspection_notes" maxLength={1000}/></Field><Field label={t('reason')}><input name="reason" maxLength={1000}/></Field></>:
-    <Field label={t('custodian')}><input name="custodian" required minLength={3}/></Field>}
-    <div><Button type="submit" loading={cmd.pending} disabledReason={(receiving?receiveAllowed:dispatchAllowed)?null:t('permission')}>{t(receiving?'receive':'dispatch')}</Button><Status {...cmd}/></div>
+  };
+  if(!receiving)return <form className="direct-form" onSubmit={submit}><Field label={t('custodian')}><input name="custodian" required minLength={3}/></Field><div><Button type="submit" loading={cmd.pending} disabledReason={dispatchAllowed?null:t('permission')}>{t('dispatch')}</Button><Status {...cmd}/></div></form>;
+  const safetyChecks=['smell','appearance','texture','packaging'] as const;
+  return <form className={styles.inspectionCard} onSubmit={submit}>
+    <div className={styles.inspectionHeader}>
+      <div className={styles.inspectionHeading}>
+        <span className={styles.sectionIcon}><ShieldCheck size={20} aria-hidden="true"/></span>
+        <div><h2 className={styles.inspectionTitle}>{t('inspectionTitle')}</h2><p className={styles.inspectionSubtitle}>{t('inspectionSubtitle')}</p></div>
+      </div>
+      <span className={`${styles.readiness} ${concern?styles.readinessConcern:''}`}>
+        {concern?<TriangleAlert size={14} aria-hidden="true"/>:<CheckCircle2 size={14} aria-hidden="true"/>}
+        {t(concern?'concernDetected':'allChecksClear')}
+      </span>
+    </div>
+    <div className={styles.inspectionBody}>
+      <section className={styles.step} aria-labelledby="receipt-quantities">
+        <span className={styles.stepNumber}>01</span>
+        <div><h3 id="receipt-quantities" className={styles.stepTitle}>{t('stepQuantities')}</h3><p className={styles.stepCopy}>{t('stepQuantitiesHint')}</p>
+          <div className={styles.quantityGrid}>
+            <Field className={`${styles.field} ${styles.quantityField}`} label={`${t('accepted')} (${d.lines[0]?.unit})`}><input name="accepted" inputMode="decimal" required defaultValue={formatQty(d.lines.reduce((total,line)=>total+parseDbQty(line.dispatched_qty??'0'),0n))}/></Field>
+            <Field className={`${styles.field} ${styles.quantityField}`} label={t('rejected')}><input name="rejected" inputMode="decimal" required defaultValue="0"/></Field>
+          </div>
+        </div>
+      </section>
+      <section className={styles.step} aria-labelledby="receipt-safety">
+        <span className={styles.stepNumber}>02</span>
+        <div><h3 id="receipt-safety" className={styles.stepTitle}>{t('stepSafety')}</h3><p className={styles.stepCopy}>{t('stepSafetyHint')}</p>
+          <div className={styles.checkGrid}>{safetyChecks.map(name=><label className={styles.checkField} key={name}><span className={styles.checkLabel}><span className={`${styles.checkDot} ${checks[name]==='CONCERN'?styles.checkDotConcern:''}`}/>{t(name)}</span><select name={name} value={checks[name]} onChange={e=>setChecks(current=>({...current,[name]:e.target.value}))}><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></label>)}</div>
+          <div className={styles.tasteRow}>
+            <label className={styles.checkField}><span className={styles.checkLabel}><span className={`${styles.checkDot} ${checks.taste==='CONCERN'?styles.checkDotConcern:''}`}/>{t('taste')}</span><select name="taste" value={checks.taste} onChange={e=>setChecks(current=>({...current,taste:e.target.value}))}><option value="NOT_PERFORMED">{t('notPerformed')}</option><option value="PASS">{t('inspectionPass')}</option><option value="CONCERN">{t('inspectionConcern')}</option></select></label>
+            <p className={styles.tasteNote}><Info size={16} aria-hidden="true"/>{t('tasteCaveat')}</p>
+          </div>
+        </div>
+      </section>
+      <section className={styles.step} aria-labelledby="receipt-notes">
+        <span className={styles.stepNumber}>03</span>
+        <div><h3 id="receipt-notes" className={styles.stepTitle}>{t('stepNotes')}</h3><p className={styles.stepCopy}>{t('stepNotesHint')}</p>
+          <div className={styles.notesGrid}>
+            <Field className={styles.field} label={t('inspectionNotes')}><textarea name="inspection_notes" maxLength={1000} placeholder={t('inspectionNotesPlaceholder')}/></Field>
+            <Field className={styles.field} label={t('reason')}><textarea name="reason" maxLength={1000} placeholder={t('reasonPlaceholder')}/></Field>
+          </div>
+        </div>
+      </section>
+      <div className={styles.inspectionFooter}>
+        <p className={styles.footerHint}><ClipboardCheck size={17} aria-hidden="true"/>{t('receiptSubmitHint')}</p>
+        <div><Button type="submit" loading={cmd.pending} disabledReason={receiveAllowed?null:t('permission')}>{t('receive')}</Button><Status {...cmd}/></div>
+      </div>
+    </div>
   </form>;
 }
 export function SafetyCorrection({itemId,revision,now,allowed}:{itemId:string;revision:number;now:string;allowed:boolean}) {
