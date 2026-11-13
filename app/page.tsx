@@ -71,7 +71,7 @@ export default function LandingPage() {
           <div className={s.problemSplit}>
             <div className={s.currentTools}>
               <Eyebrow>What the sector coordinates with today</Eyebrow>
-              <h3>Same mission.<br />Separate inboxes.</h3>
+              <h3><span>Same mission.</span><span>Separate inboxes.</span></h3>
               <p>Every organisation below is real, operating, and doing serious work — on generic tooling never designed for spoilage-aware allocation.</p>
               <div className={s.toolList}>{['Zoho Creator forms', 'Microsoft Excel', 'Phone & WhatsApp', 'Basic app, low adoption', 'Paper logbooks'].map(tool => <span key={tool}>{tool}</span>)}</div>
             </div>

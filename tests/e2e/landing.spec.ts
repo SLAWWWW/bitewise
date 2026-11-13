@@ -138,6 +138,29 @@ test('globe visibly revolves and freezes when paused', async ({ page }, testInfo
   expect((await globe.screenshot({ path: testInfo.outputPath('globe-paused.png'), scale: 'css' })).equals(paused)).toBe(true);
 });
 
+test('globe can be explored by drag and keyboard', async ({ page }) => {
+  await page.goto('/');
+  const globe = page.getByTestId('revolving-globe');
+  await globe.scrollIntoViewIfNeeded();
+  await expect(globe).toHaveAttribute('data-ready', 'true');
+  await page.getByRole('button', { name: 'Pause globe rotation' }).click();
+  const canvas = globe.getByRole('img', { name: /Interactive globe/ });
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  const beforeDrag = await canvas.screenshot({ scale: 'css' });
+  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await page.mouse.down();
+  await expect(globe).toHaveAttribute('data-interaction', 'dragging');
+  await page.mouse.move(box!.x + box!.width / 2 + 80, box!.y + box!.height / 2 - 25, { steps: 4 });
+  await page.mouse.up();
+  await expect(globe).toHaveAttribute('data-interaction', 'idle');
+  expect((await canvas.screenshot({ scale: 'css' })).equals(beforeDrag)).toBe(false);
+  const beforeKeyboard = await canvas.screenshot({ scale: 'css' });
+  await canvas.focus();
+  await canvas.press('ArrowRight');
+  expect((await canvas.screenshot({ scale: 'css' })).equals(beforeKeyboard)).toBe(false);
+});
+
 test('globe keeps an illustration when WebGL is unavailable', async ({ page }) => {
   await page.addInitScript(() => {
     const getContext = HTMLCanvasElement.prototype.getContext;
